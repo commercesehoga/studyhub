@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>⚡ StudyHub — Thunderstudy</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f0f3fa;--sidebar:#ffffff;--card:#ffffff;--card2:#f7f8fd;--border:#e8ecf4;
+  --text:#1a1d2e;--text2:#5a5f7a;--text3:#9298b5;--acc:#4f6ef7;--acc2:#7c3aed;
+  --green:#10b981;--red:#f43f5e;--yellow:#f59e0b;--orange:#f97316;--pink:#ec4899;--teal:#06b6d4;
+  --gold:#f59e0b;--gold2:#d97706;
+  --fn:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r:16px;--r2:22px;--sidebar-w:240px;
+  --sh:0 2px 20px rgba(79,110,247,.08);--sh2:0 8px 40px rgba(79,110,247,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;position:relative;z-index:10;box-shadow:4px 0 24px rgba(79,110,247,.06);animation:sidebarIn .45s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes sidebarIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.sb-logo{padding:24px 20px 16px;display:flex;align-items:center;gap:10px;}
+.sb-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#4f6ef7,#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(79,110,247,.35);flex-shrink:0;}
+.sb-logo-text{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sb-logo-text span{color:var(--acc);}
+.sb-section-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);padding:0 20px;margin:6px 0 4px;}
+.sb-nav{flex:1;overflow-y:auto;padding:0 10px 10px;}
+.sb-nav::-webkit-scrollbar{width:0;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);margin-bottom:2px;color:var(--text2);font-size:13px;font-weight:600;position:relative;}
+.nav-item:hover{background:var(--bg);color:var(--text);transform:translateX(3px);}
+.nav-item.active{background:linear-gradient(135deg,rgba(79,110,247,.1),rgba(124,58,237,.08));color:var(--acc);transform:translateX(3px);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:linear-gradient(180deg,#4f6ef7,#7c3aed);border-radius:0 4px 4px 0;}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--acc);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:20px;}
+.nav-badge.green{background:var(--green);}
+.nav-badge.gold{background:var(--gold);}
+.sb-profile{padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .2s;}
+.sb-profile:hover{background:var(--bg);}
+.sb-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;color:#fff;font-weight:700;}
+.sb-pname{font-size:13px;font-weight:700;color:var(--text);}
+.sb-prole{font-size:10px;color:var(--text3);}
+
+/* MAIN */
+.main{flex:1;height:100vh;overflow-y:auto;overflow-x:hidden;}
+.main::-webkit-scrollbar{width:6px;}
+.main::-webkit-scrollbar-track{background:transparent;}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+.page{display:none;padding:32px;animation:fadeUp .3s ease both;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;gap:16px;flex-wrap:wrap;}
+.page-title{font-size:23px;font-weight:800;color:var(--text);letter-spacing:-.4px;}
+.page-sub{font-size:12px;color:var(--text3);margin-top:3px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+
+/* HP BADGE */
+.hp-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(79,110,247,.08));border:1.5px solid rgba(124,58,237,.3);border-radius:30px;padding:7px 14px;font-size:13px;font-weight:900;color:#7c3aed;cursor:pointer;transition:all .2s;}
+.hp-badge:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(124,58,237,.2);}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--r2);border:1px solid var(--border);box-shadow:var(--sh);}
+.card-p{padding:20px 22px;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--card);border-radius:var(--r2);border:1px solid var(--border);padding:18px;transition:transform .2s,box-shadow .2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.stat-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px;}
+.stat-val{font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+/* SEC HEADER */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-size:14px;font-weight:800;color:var(--text);}
+.sec-link{font-size:12px;color:var(--acc);font-weight:700;cursor:pointer;}
+
+/* TABS */
+.subj-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+.subj-tab{padding:7px 14px;border-radius:30px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text2);transition:all .2s;}
+.subj-tab.active{background:var(--acc);color:#fff;border-color:var(--acc);}
+.subj-tab:hover:not(.active){border-color:var(--acc);color:var(--acc);}
+
+/* PROG BARS */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.prog-lbl{width:120px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
+.prog-track{flex:1;height:7px;background:var(--card2);border-radius:10px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:10px;transition:width 1.2s cubic-bezier(.34,1.56,.64,1);}
+.prog-pct{width:42px;text-align:right;font-size:12px;font-weight:700;font-family:var(--mono);}
+
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:30px;font-size:12px;font-weight:700;border:none;cursor:pointer;text-decoration:none;font-family:var(--fn);transition:all .18s;}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.btn-prim{background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(79,110,247,.3);}
+.btn-ghost{background:var(--card);border:1.5px solid var(--border);color:var(--text2);}
+.btn-ghost:hover{color:var(--text);border-color:var(--acc);}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 4px 14px rgba(245,158,11,.3);}
+.btn-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;}
+.btn-red{background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-ov.open{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--r2);padding:26px;max-width:500px;width:90%;border:1px solid var(--border);animation:mIn .3s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
+@keyframes mIn{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:none}}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{cursor:pointer;color:var(--text3);font-size:22px;line-height:1;}
+
+/* FORM */
+.form-row{margin-bottom:13px;}
+.form-lbl{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.form-inp{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:11px;padding:9px 13px;font-size:13px;color:var(--text);font-family:var(--fn);outline:none;}
+.form-inp:focus{border-color:var(--acc);}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#10b981;color:#fff;padding:9px 20px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(0,0,0,.18);pointer-events:none;white-space:nowrap;font-family:var(--fn);}
+
+/* HP RING */
+.hp-ring-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;}
+.hp-ring-svg{transform:rotate(-90deg);}
+.hp-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.hp-ring-val{font-size:28px;font-weight:900;font-family:var(--mono);color:#7c3aed;}
+.hp-ring-lbl{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+
+/* ACTIVITY FEED */
+.activity-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);transition:background .15s;}
+.activity-item:hover{background:var(--card2);}
+.activity-item:last-child{border-bottom:none;}
+.act-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.act-desc{flex:1;font-size:12px;font-weight:600;color:var(--text);}
+.act-sub{font-size:10px;color:var(--text3);margin-top:1px;}
+.act-amt{font-size:13px;font-weight:900;font-family:var(--mono);}
+
+/* DAILY LOGIN */
+.daily-card{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(79,110,247,.05));border:2px solid rgba(124,58,237,.25);border-radius:var(--r2);padding:20px 22px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.daily-icon{font-size:40px;animation:bounce .8s ease infinite alternate;}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+
+/* BOOK CARD */
+.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;}
+.book-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all .22s;position:relative;cursor:pointer;}
+.book-card:hover{transform:translateY(-3px);box-shadow:var(--sh2);}
+.book-card.purchased{border-color:rgba(16,185,129,.3);}
+.book-cover{width:100%;height:185px;object-fit:cover;background:linear-gradient(135deg,#4f6ef7,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;}
+.book-cover-img{width:100%;height:185px;object-fit:cover;}
+.book-cover-placeholder{width:100%;height:185px;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.book-badge{position:absolute;top:8px;left:8px;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+.book-badge.hot{background:rgba(249,115,22,.9);color:#fff;}
+.book-badge.new{background:rgba(16,185,129,.9);color:#fff;}
+.book-badge.purchased{background:rgba(16,185,129,.9);color:#fff;}
+.book-wishlist{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .2s;border:none;}
+.book-wishlist:hover{transform:scale(1.15);}
+.book-wishlist.active{background:rgba(244,63,94,.1);}
+.book-info{padding:12px;}
+.book-title{font-size:13px;font-weight:800;margin-bottom:3px;line-height:1.3;}
+.book-meta{font-size:10px;color:var(--text3);margin-bottom:8px;}
+.book-price{display:flex;align-items:center;justify-content:space-between;}
+.book-hp{font-size:13px;font-weight:900;font-family:var(--mono);color:#7c3aed;}
+
+/* BUNDLE CARD */
+.bundle-card{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(249,115,22,.04));border:2px solid rgba(245,158,11,.35);border-radius:var(--r2);padding:18px 20px;margin-bottom:18px;position:relative;overflow:hidden;}
+.bundle-card::before{content:'🔥 BUNDLE DEAL';position:absolute;top:12px;right:14px;font-size:10px;font-weight:800;color:var(--orange);letter-spacing:.5px;}
+.bundle-thumbs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.bundle-thumb{width:36px;height:44px;border-radius:5px;background:linear-gradient(135deg,#4f6ef7,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:16px;border:1.5px solid var(--border);}
+
+/* NOTES CARD */
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.notes-card{background:var(--card);border-radius:var(--r);padding:16px;transition:all .22s;position:relative;overflow:hidden;cursor:pointer;}
+.notes-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.notes-card.topper{border:2px solid #f59e0b;background:linear-gradient(135deg,rgba(245,158,11,.04),rgba(217,119,6,.02));}
+.notes-card.topper::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#f59e0b,#f97316,#f59e0b);background-size:200% 100%;animation:shimmer 2s linear infinite;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.notes-card.backbencher{border:2px dashed #10b981;}
+.notes-card.studied::before{content:'✅ Studied';position:absolute;top:8px;right:8px;font-size:9px;font-weight:800;background:rgba(16,185,129,.12);color:var(--green);border-radius:20px;padding:2px 8px;}
+.notes-type-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
+.notes-type-badge.topper{background:rgba(245,158,11,.15);color:#d97706;}
+.notes-type-badge.backbencher{background:rgba(16,185,129,.12);color:var(--green);}
+.notes-type-badge.digital{background:rgba(79,110,247,.12);color:var(--acc);}
+.notes-type-badge.handwritten{background:rgba(236,72,153,.12);color:var(--pink);}
+.notes-type-badge.cuet{background:rgba(124,58,237,.12);color:var(--acc2);}
+.diff-tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:5px;}
+.diff-tag.beginner{background:rgba(16,185,129,.12);color:var(--green);}
+.diff-tag.intermediate{background:rgba(245,158,11,.12);color:var(--yellow);}
+.diff-tag.advanced{background:rgba(244,63,94,.12);color:var(--red);}
+.notes-title{font-size:13px;font-weight:800;margin-bottom:4px;line-height:1.4;}
+.notes-meta{font-size:10px;color:var(--text3);margin-bottom:10px;}
+.notes-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);}
+.notes-hp{font-size:13px;font-weight:900;font-family:var(--mono);color:#7c3aed;}
+
+/* PYQ CARD */
+.pyq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.pyq-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:15px;transition:all .2s;cursor:pointer;position:relative;}
+.pyq-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.pyq-card.purchased{border-color:rgba(16,185,129,.3);}
+.pyq-year{font-size:28px;font-weight:900;font-family:var(--mono);color:var(--acc);margin-bottom:3px;}
+.pyq-diff{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px;}
+.pyq-diff.hard{background:rgba(244,63,94,.1);color:var(--red);}
+.pyq-diff.moderate{background:rgba(245,158,11,.1);color:var(--yellow);}
+.pyq-diff.easy{background:rgba(16,185,129,.1);color:var(--green);}
+.sol-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(16,185,129,.1);color:var(--green);margin-left:5px;}
+
+/* MCQ CARD */
+.mcq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.mcq-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;transition:all .2s;cursor:pointer;}
+.mcq-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.mcq-card.purchased{border-color:rgba(16,185,129,.3);}
+.mcq-count{font-size:22px;font-weight:900;font-family:var(--mono);color:var(--acc);margin-bottom:3px;}
+
+/* STUDY TIMER */
+.timer-display{font-size:56px;font-weight:900;font-family:var(--mono);color:var(--text);letter-spacing:-2px;text-align:center;padding:28px 0 18px;}
+.timer-display.running{color:var(--acc);}
+.timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.timer-mode-toggle{display:flex;gap:6px;background:var(--card2);border-radius:30px;padding:4px;margin-bottom:18px;width:fit-content;margin-left:auto;margin-right:auto;}
+.timer-mode-btn{padding:7px 16px;border-radius:26px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--fn);transition:all .2s;background:transparent;color:var(--text2);}
+.timer-mode-btn.active{background:var(--acc);color:#fff;}
+
+/* STUDY CONTENT GRID */
+.study-content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
+.study-content-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;transition:all .2s;cursor:pointer;}
+.study-content-card:hover{box-shadow:var(--sh2);border-color:rgba(79,110,247,.2);}
+
+/* PDF READER */
+.pdf-reader{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;display:none;flex-direction:column;}
+.pdf-reader.open{display:flex;}
+.pdf-reader-bar{background:var(--card);padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.pdf-reader-iframe{flex:1;border:none;width:100%;}
+
+/* SETTINGS */
+.settings-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 22px;margin-bottom:14px;}
+.settings-title{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.log-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.log-row:last-child{border-bottom:none;}
+
+/* COMPARE MODAL */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* QUICK BUY */
+.quick-buy-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;display:flex;align-items:center;gap:12px;transition:all .2s;margin-bottom:10px;}
+.quick-buy-card:hover{border-color:rgba(79,110,247,.3);box-shadow:var(--sh2);}
+.quick-buy-card.recommended{border-color:rgba(79,110,247,.25);background:rgba(79,110,247,.02);}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.filter-inp{background:var(--card);border:1.5px solid var(--border);border-radius:30px;padding:8px 14px;font-size:12px;color:var(--text);font-family:var(--fn);outline:none;min-width:170px;}
+.filter-inp:focus{border-color:var(--acc);}
+.filter-sel{background:var(--card);border:1.5px solid var(--border);border-radius:30px;padding:8px 12px;font-size:12px;color:var(--text);font-family:var(--fn);outline:none;cursor:pointer;}
+
+/* EMPTY */
+.empty{text-align:center;padding:56px 20px;}
+.empty-icon{font-size:48px;margin-bottom:13px;}
+.empty-title{font-size:17px;font-weight:800;margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--text3);line-height:1.7;}
+
+/* TOOLTIP */
+.tooltip{position:fixed;background:var(--text);color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;pointer-events:none;z-index:9999;display:none;}
+
+/* COLORS */
+.c-acc{color:var(--acc);}.c-green{color:var(--green);}.c-red{color:var(--red);}
+.c-yellow{color:var(--yellow);}.c-text3{color:var(--text3);}.c-purple{color:#7c3aed;}
+.bg-acc{background:rgba(79,110,247,.1);}.bg-green{background:rgba(16,185,129,.1);}
+.bg-red{background:rgba(244,63,94,.1);}.bg-yellow{background:rgba(245,158,11,.1);}
+.bg-purple{background:rgba(124,58,237,.1);}
+
+/* SPIN */
+.spin{display:inline-block;width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SYNC DOT */
+.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--border);}
+.sync-dot.synced{background:var(--green);}
+.sync-dot.syncing{background:var(--yellow);animation:pulse 1s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* MOBILE DOCK */
+.mobile-dock{display:none;}
+@media(max-width:768px){
+  .sidebar{display:none;}
+  body{flex-direction:column;}
+  .main{height:100dvh;padding-bottom:90px;}
+  .page{padding:18px 14px;}
+  .mobile-dock{display:flex;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:440px;height:64px;background:#fff;border-radius:28px;border:1px solid var(--border);z-index:100;padding:0 4px;box-shadow:0 4px 24px rgba(0,0,0,.1);align-items:center;justify-content:space-around;animation:dockUp .4s cubic-bezier(.34,1.56,.64,1) both;}
+  @keyframes dockUp{from{transform:translateX(-50%) translateY(80px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+  .dock-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;cursor:pointer;position:relative;height:64px;-webkit-tap-highlight-color:transparent;}
+  .dock-item:active{opacity:.7;}
+  .dock-icon{font-size:18px;line-height:1;transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+  .dock-label{font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.2px;line-height:1;margin-bottom:10px;margin-top:3px;transition:color .2s;}
+  .dock-item.active .dock-label{color:#4f6ef7;font-weight:800;}
+  .dock-item.active .dock-icon{display:none;}
+  .dock-bubble{display:none;width:44px;height:44px;border-radius:50%;background:#4f6ef7;align-items:center;justify-content:center;font-size:20px;position:absolute;top:-14px;left:50%;transform:translateX(-50%);box-shadow:0 4px 14px rgba(79,110,247,.45);}
+  .dock-item.active .dock-bubble{display:flex;}
+  .dock-item.active .dock-label{margin-top:32px;margin-bottom:8px;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .compare-grid{grid-template-columns:1fr;}
+  .book-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+  .timer-display{font-size:42px;}
+}
+
+/* BACK TO TOP */
+.btt-btn{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;font-size:16px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,.35);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:90;}
+.btt-btn.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+@media(max-width:768px){.btt-btn{bottom:82px;}}
+
+/* WISHLIST HEART ANIMATION */
+@keyframes heartPop{0%{transform:scale(1)}40%{transform:scale(1.4)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+.book-wishlist.popping{animation:heartPop .35s ease;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">⚡</div>
+    <div><div class="sb-logo-text">Study<span>Hub</span></div><div style="font-size:9px;color:var(--text3);margin-top:1px;">by Thunderstudy</div></div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section-label">Navigate</div>
+    <div class="nav-item active" onclick="goPage('home')"><span class="nav-icon">🏠</span> Home</div>
+    <div class="nav-item" onclick="goPage('books')"><span class="nav-icon">📖</span> Books<span class="nav-badge gold">100 HP</span></div>
+    <div class="nav-item" onclick="goPage('notes')"><span class="nav-icon">📝</span> Notes<span class="nav-badge">50 HP</span></div>
+    <div class="nav-item" onclick="goPage('material')"><span class="nav-icon">📋</span> Study Material</div>
+    <div class="nav-item" onclick="goPage('pyqs')"><span class="nav-icon">📜</span> PYQs<span class="nav-badge green">50 HP</span></div>
+    <div class="nav-item" onclick="goPage('mcqs')"><span class="nav-icon">❓</span> MCQs<span class="nav-badge green">20 HP</span></div>
+    <div class="nav-item" onclick="goPage('study')"><span class="nav-icon">⏱️</span> Study Timer<span class="nav-badge" style="background:var(--orange)">+HP</span></div>
+    <div class="sb-section-label" style="margin-top:12px;">Account</div>
+    <div class="nav-item" onclick="goPage('settings')"><span class="nav-icon">⚙️</span> Settings</div>
+    <div class="nav-item" onclick="window.open('https://commercesehoga.github.io/','_blank')"><span class="nav-icon">🔗</span> CBT Dashboard</div>
+  </div>
+  <div class="sb-profile" onclick="goPage('settings')">
+    <div class="sb-av" id="sb-av">S</div>
+    <div>
+      <div class="sb-pname" id="sb-name">Student</div>
+      <div class="sb-prole" id="sb-hp-sidebar">💜 0 HP</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main" id="main-scroll">
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="topbar">
+      <div><div class="page-title" id="home-title">🏠 StudyHub</div><div class="page-sub">Your learning marketplace powered by HP</div></div>
+      <div class="topbar-right">
+        <div class="hp-badge" onclick="goPage('settings')">💜 <span id="topbar-hp">0</span> HP</div>
+        <div style="display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:30px;padding:6px 12px;">
+          <div class="sb-av" id="topbar-av" style="width:28px;height:28px;font-size:12px;">S</div>
+          <div style="font-size:12px;font-weight:700;" id="topbar-name">Student</div>
+        </div>
+      </div>
+    </div>
+    <div id="home-content"></div>
+  </div>
+
+  <!-- BOOKS -->
+  <div class="page" id="page-books">
+    <div class="topbar">
+      <div><div class="page-title">📖 Books</div><div class="page-sub">Sample papers, question banks & textbooks · 100 HP each</div></div>
+      <div class="topbar-right">
+        <div class="hp-badge">💜 <span class="hp-live">0</span> HP</div>
+        <button class="btn btn-ghost" onclick="goPage('books')">❤️ Wishlist (<span id="wishlist-count">0</span>)</button>
+      </div>
+    </div>
+    <div id="books-content"></div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="page" id="page-notes">
+    <div class="topbar">
+      <div><div class="page-title">📝 Notes</div><div class="page-sub">Handwritten & digital notes · 50 HP each</div></div>
+      <div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div>
+    </div>
+    <div id="notes-content"></div>
+  </div>
+
+  <!-- STUDY MATERIAL -->
+  <div class="page" id="page-material">
+    <div class="topbar">
+      <div><div class="page-title">📋 Study Material</div><div class="page-sub">Imp questions, mindmaps, formulas · 40 HP each</div></div>
+      <div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div>
+    </div>
+    <div id="material-content"></div>
+  </div>
+
+  <!-- PYQS -->
+  <div class="page" id="page-pyqs">
+    <div class="topbar">
+      <div><div class="page-title">📜 PYQs</div><div class="page-sub">Previous year question papers · 50 HP each</div></div>
+      <div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div>
+    </div>
+    <div id="pyqs-content"></div>
+  </div>
+
+  <!-- MCQS -->
+  <div class="page" id="page-mcqs">
+    <div class="topbar">
+      <div><div class="page-title">❓ MCQs</div><div class="page-sub">Chapter-wise & special MCQ sets · 20 HP each</div></div>
+      <div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div>
+    </div>
+    <div id="mcqs-content"></div>
+  </div>
+
+  <!-- STUDY TIMER -->
+  <div class="page" id="page-study">
+    <div class="topbar">
+      <div><div class="page-title">⏱️ Study Timer</div><div class="page-sub">Study & earn HP · 1 hour = 5 HP</div></div>
+      <div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div>
+    </div>
+    <div id="study-content"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="topbar">
+      <div><div class="page-title">⚙️ Settings</div><div class="page-sub">Account, logs & sync</div></div>
+    </div>
+    <div id="settings-content"></div>
+  </div>
+
+</div>
+
+<!-- PDF READER -->
+<div class="pdf-reader" id="pdf-reader">
+  <div class="pdf-reader-bar">
+    <button class="btn btn-ghost" onclick="closePDF()">← Back</button>
+    <div style="font-size:14px;font-weight:800;" id="pdf-reader-title">Document</div>
+    <div style="margin-left:auto;font-size:12px;color:var(--text3);" id="pdf-reader-timer">⏱️ 0:00 studied</div>
+  </div>
+  <iframe class="pdf-reader-iframe" id="pdf-iframe" src="" title="PDF Reader"></iframe>
+</div>
+
+<!-- PURCHASE MODAL -->
+<div class="modal-ov" id="purchase-modal">
+  <div class="modal-box">
+    <div class="modal-title"><span id="pm-title">Confirm Purchase</span><span class="modal-close" onclick="closeModal('purchase-modal')">×</span></div>
+    <div id="pm-body"></div>
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-ov" id="compare-modal">
+  <div class="modal-box" style="max-width:680px;">
+    <div class="modal-title"><span>🔍 Compare Notes</span><span class="modal-close" onclick="closeModal('compare-modal')">×</span></div>
+    <div id="compare-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MOBILE DOCK -->
+<nav class="mobile-dock">
+  <div class="dock-item active" id="dock-home" onclick="goPage('home')">
+    <div class="dock-bubble">🏠</div><span class="dock-icon">🏠</span><span class="dock-label">Home</span>
+  </div>
+  <div class="dock-item" id="dock-books" onclick="goPage('books')">
+    <div class="dock-bubble">📖</div><span class="dock-icon">📖</span><span class="dock-label">Books</span>
+  </div>
+  <div class="dock-item" id="dock-notes" onclick="goPage('notes')">
+    <div class="dock-bubble">📝</div><span class="dock-icon">📝</span><span class="dock-label">Notes</span>
+  </div>
+  <div class="dock-item" id="dock-study" onclick="goPage('study')">
+    <div class="dock-bubble">⏱️</div><span class="dock-icon">⏱️</span><span class="dock-label">Timer</span>
+  </div>
+  <div class="dock-item" id="dock-settings" onclick="goPage('settings')">
+    <div class="dock-bubble">⚙️</div><span class="dock-icon">⚙️</span><span class="dock-label">Settings</span>
+  </div>
+</nav>
+
+<button class="btt-btn" id="btt-btn" onclick="document.getElementById('main-scroll').scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA & CONFIG
+═══════════════════════════════════════ */
+// Books catalog — add cover image URLs here
+const BOOKS_DATA=[
+  // Class 12 Sample Papers
+  {id:'b_bst_sp',title:'BST Sample Papers 2025',subject:'BST',group:'class12',type:'sample',icon:'📊',color:'#4f6ef7',hot:true,price:100,pdfUrl:''},
+  {id:'b_eco_sp',title:'Economics Sample Papers 2025',subject:'ECO',group:'class12',type:'sample',icon:'📈',color:'#10b981',hot:false,price:100,pdfUrl:''},
+  {id:'b_acc_sp',title:'Accountancy Sample Papers 2025',subject:'ACC',group:'class12',type:'sample',icon:'📒',color:'#06b6d4',hot:true,price:100,pdfUrl:''},
+  {id:'b_eng_sp',title:'English Sample Papers 2025',subject:'ENG',group:'class12',type:'sample',icon:'📝',color:'#ec4899',hot:false,price:100,pdfUrl:''},
+  {id:'b_phy_sp',title:'Physics Sample Papers 2025',subject:'PHY',group:'class12',type:'sample',icon:'⚛️',color:'#6366f1',hot:false,price:100,pdfUrl:''},
+  {id:'b_che_sp',title:'Chemistry Sample Papers 2025',subject:'CHE',group:'class12',type:'sample',icon:'🧪',color:'#14b8a6',hot:false,price:100,pdfUrl:''},
+  // Class 12 Question Banks
+  {id:'b_bst_qb',title:'BST Question Bank Complete',subject:'BST',group:'class12',type:'qbank',icon:'📊',color:'#4f6ef7',hot:true,price:100,pdfUrl:''},
+  {id:'b_eco_qb',title:'Economics Question Bank',subject:'ECO',group:'class12',type:'qbank',icon:'📈',color:'#10b981',hot:false,price:100,pdfUrl:''},
+  {id:'b_acc_qb',title:'Accountancy Question Bank',subject:'ACC',group:'class12',type:'qbank',icon:'📒',color:'#06b6d4',hot:false,price:100,pdfUrl:''},
+  // CUET Sample Papers
+  {id:'b_cuet_bst',title:'CUET BST Complete Guide',subject:'BST',group:'cuet',type:'sample',icon:'📊',color:'#4f6ef7',hot:true,price:100,pdfUrl:''},
+  {id:'b_cuet_eco',title:'CUET Economics Complete Guide',subject:'ECO',group:'cuet',type:'sample',icon:'📈',color:'#10b981',hot:false,price:100,pdfUrl:''},
+  {id:'b_cuet_gat',title:'CUET General Aptitude Guide',subject:'GAT',group:'cuet',type:'sample',icon:'🧠',color:'#f59e0b',hot:true,price:100,pdfUrl:''},
+  // CUET Question Banks
+  {id:'b_cuet_qb_bst',title:'CUET BST Question Bank',subject:'BST',group:'cuet',type:'qbank',icon:'📊',color:'#4f6ef7',hot:false,price:100,pdfUrl:''},
+  {id:'b_cuet_qb_eco',title:'CUET ECO Question Bank',subject:'ECO',group:'cuet',type:'qbank',icon:'📈',color:'#10b981',hot:false,price:100,pdfUrl:''},
+];
+
+const BUNDLES=[
+  {id:'bundle_commerce12',title:'Commerce Class 12 Bundle',desc:'ACC + BST + ECO Sample Papers',books:['b_bst_sp','b_eco_sp','b_acc_sp'],normalPrice:300,bundlePrice:250,icon:'📦'},
+  {id:'bundle_cuet_main',title:'CUET Commerce Bundle',desc:'BST + ECO + GAT CUET Guides',books:['b_cuet_bst','b_cuet_eco','b_cuet_gat'],normalPrice:300,bundlePrice:250,icon:'🎯'},
+  {id:'bundle_science12',title:'Science Class 12 Bundle',desc:'PHY + CHE Sample Papers',books:['b_phy_sp','b_che_sp'],normalPrice:200,bundlePrice:170,icon:'🔬'},
+];
+
+const NOTES_DATA=[
+  // CUET Commerce
+  {id:'n_cuet_bst_topper',title:'BST CUET Topper Notes',subject:'BST',group:'cuet',subgroup:'commerce',type:'topper',difficulty:'advanced',pages:45,price:50,pdfUrl:''},
+  {id:'n_cuet_bst_back',title:'BST CUET Backbencher Notes',subject:'BST',group:'cuet',subgroup:'commerce',type:'backbencher',difficulty:'beginner',pages:28,price:50,pdfUrl:''},
+  {id:'n_cuet_bst_special',title:'BST CUET Special by Thunder',subject:'BST',group:'cuet',subgroup:'commerce',type:'cuet',difficulty:'intermediate',pages:38,price:50,pdfUrl:''},
+  {id:'n_cuet_eco_topper',title:'ECO CUET Topper Notes',subject:'ECO',group:'cuet',subgroup:'commerce',type:'topper',difficulty:'advanced',pages:52,price:50,pdfUrl:''},
+  {id:'n_cuet_eco_back',title:'ECO CUET Backbencher Notes',subject:'ECO',group:'cuet',subgroup:'commerce',type:'backbencher',difficulty:'beginner',pages:30,price:50,pdfUrl:''},
+  {id:'n_cuet_acc_topper',title:'ACC CUET Topper Notes',subject:'ACC',group:'cuet',subgroup:'commerce',type:'topper',difficulty:'advanced',pages:40,price:50,pdfUrl:''},
+  // CUET Science
+  {id:'n_cuet_phy_topper',title:'Physics CUET Topper Notes',subject:'PHY',group:'cuet',subgroup:'science',type:'topper',difficulty:'advanced',pages:60,price:50,pdfUrl:''},
+  {id:'n_cuet_che_topper',title:'Chemistry CUET Topper Notes',subject:'CHE',group:'cuet',subgroup:'science',type:'topper',difficulty:'advanced',pages:55,price:50,pdfUrl:''},
+  // CUET Arts
+  {id:'n_cuet_pol_topper',title:'Political Science CUET Topper',subject:'POL',group:'cuet',subgroup:'arts',type:'topper',difficulty:'advanced',pages:48,price:50,pdfUrl:''},
+  {id:'n_cuet_his_topper',title:'History CUET Topper Notes',subject:'HIS',group:'cuet',subgroup:'arts',type:'topper',difficulty:'intermediate',pages:56,price:50,pdfUrl:''},
+  {id:'n_cuet_geo_topper',title:'Geography CUET Topper Notes',subject:'GEO',group:'cuet',subgroup:'arts',type:'topper',difficulty:'intermediate',pages:42,price:50,pdfUrl:''},
+  // CUET Other
+  {id:'n_cuet_eng_topper',title:'English CUET Topper Notes',subject:'ENG',group:'cuet',subgroup:'other',type:'topper',difficulty:'intermediate',pages:35,price:50,pdfUrl:''},
+  {id:'n_cuet_gat_special',title:'GAT CUET Special by Thunder',subject:'GAT',group:'cuet',subgroup:'other',type:'cuet',difficulty:'intermediate',pages:40,price:50,pdfUrl:''},
+  // Class 12 Commerce
+  {id:'n_12_bst_topper',title:'BST Class 12 Topper Notes',subject:'BST',group:'class12',subgroup:'commerce',type:'topper',difficulty:'advanced',pages:50,price:50,pdfUrl:''},
+  {id:'n_12_bst_back',title:'BST Class 12 Backbencher Notes',subject:'BST',group:'class12',subgroup:'commerce',type:'backbencher',difficulty:'beginner',pages:32,price:50,pdfUrl:''},
+  {id:'n_12_bst_digital',title:'BST Digital Notes',subject:'BST',group:'class12',subgroup:'commerce',type:'digital',difficulty:'intermediate',pages:38,price:50,pdfUrl:''},
+  {id:'n_12_bst_hw',title:'BST Handwritten Notes',subject:'BST',group:'class12',subgroup:'commerce',type:'handwritten',difficulty:'beginner',pages:28,price:50,pdfUrl:''},
+  {id:'n_12_eco_topper',title:'ECO Class 12 Topper Notes',subject:'ECO',group:'class12',subgroup:'commerce',type:'topper',difficulty:'advanced',pages:58,price:50,pdfUrl:''},
+  {id:'n_12_acc_topper',title:'ACC Class 12 Topper Notes',subject:'ACC',group:'class12',subgroup:'commerce',type:'topper',difficulty:'advanced',pages:44,price:50,pdfUrl:''},
+  // Class 12 Science
+  {id:'n_12_phy_topper',title:'Physics Class 12 Topper Notes',subject:'PHY',group:'class12',subgroup:'science',type:'topper',difficulty:'advanced',pages:65,price:50,pdfUrl:''},
+  {id:'n_12_phy_back',title:'Physics Class 12 Backbencher',subject:'PHY',group:'class12',subgroup:'science',type:'backbencher',difficulty:'beginner',pages:35,price:50,pdfUrl:''},
+  {id:'n_12_che_topper',title:'Chemistry Class 12 Topper',subject:'CHE',group:'class12',subgroup:'science',type:'topper',difficulty:'advanced',pages:60,price:50,pdfUrl:''},
+  {id:'n_12_bio_topper',title:'Biology Class 12 Topper Notes',subject:'BIO',group:'class12',subgroup:'science',type:'topper',difficulty:'advanced',pages:62,price:50,pdfUrl:''},
+  // Class 12 Arts
+  {id:'n_12_pol_topper',title:'Political Science Class 12 Topper',subject:'POL',group:'class12',subgroup:'arts',type:'topper',difficulty:'intermediate',pages:50,price:50,pdfUrl:''},
+  {id:'n_12_his_topper',title:'History Class 12 Topper Notes',subject:'HIS',group:'class12',subgroup:'arts',type:'topper',difficulty:'intermediate',pages:60,price:50,pdfUrl:''},
+  {id:'n_12_geo_topper',title:'Geography Class 12 Topper',subject:'GEO',group:'class12',subgroup:'arts',type:'topper',difficulty:'intermediate',pages:45,price:50,pdfUrl:''},
+  // Class 12 Other
+  {id:'n_12_eng_digital',title:'English Class 12 Digital Notes',subject:'ENG',group:'class12',subgroup:'other',type:'digital',difficulty:'beginner',pages:30,price:50,pdfUrl:''},
+  {id:'n_12_pe_topper',title:'Physical Education Topper Notes',subject:'PE',group:'class12',subgroup:'other',type:'topper',difficulty:'beginner',pages:25,price:50,pdfUrl:''},
+];
+
+const MATERIAL_DATA=[
+  {id:'m_12_bst_iq',title:'BST Important Questions',subject:'BST',group:'class12',matType:'impq',price:40,pdfUrl:''},
+  {id:'m_12_bst_it',title:'BST Important Topics',subject:'BST',group:'class12',matType:'imptopic',price:40,pdfUrl:''},
+  {id:'m_12_bst_mm',title:'BST Mind Map',subject:'BST',group:'class12',matType:'mindmap',price:40,pdfUrl:''},
+  {id:'m_12_bst_sm',title:'BST Study Material',subject:'BST',group:'class12',matType:'studymat',price:40,pdfUrl:''},
+  {id:'m_12_bst_fd',title:'BST Formula & Dates Sheet',subject:'BST',group:'class12',matType:'formula',price:40,pdfUrl:''},
+  {id:'m_12_eco_iq',title:'ECO Important Questions',subject:'ECO',group:'class12',matType:'impq',price:40,pdfUrl:''},
+  {id:'m_12_eco_mm',title:'ECO Mind Map',subject:'ECO',group:'class12',matType:'mindmap',price:40,pdfUrl:''},
+  {id:'m_12_eco_fd',title:'ECO Formula Sheet',subject:'ECO',group:'class12',matType:'formula',price:40,pdfUrl:''},
+  {id:'m_12_acc_iq',title:'ACC Important Questions',subject:'ACC',group:'class12',matType:'impq',price:40,pdfUrl:''},
+  {id:'m_12_acc_mm',title:'ACC Mind Map',subject:'ACC',group:'class12',matType:'mindmap',price:40,pdfUrl:''},
+  {id:'m_12_phy_fd',title:'Physics Formula Sheet',subject:'PHY',group:'class12',matType:'formula',price:40,pdfUrl:''},
+  {id:'m_12_phy_mm',title:'Physics Mind Map',subject:'PHY',group:'class12',matType:'mindmap',price:40,pdfUrl:''},
+  {id:'m_12_che_fd',title:'Chemistry Formula Sheet',subject:'CHE',group:'class12',matType:'formula',price:40,pdfUrl:''},
+  {id:'m_cuet_bst_iq',title:'CUET BST Important Questions',subject:'BST',group:'cuet',matType:'impq',price:40,pdfUrl:''},
+  {id:'m_cuet_eco_iq',title:'CUET ECO Important Questions',subject:'ECO',group:'cuet',matType:'impq',price:40,pdfUrl:''},
+  {id:'m_cuet_gat_mm',title:'CUET GAT Mind Map',subject:'GAT',group:'cuet',matType:'mindmap',price:40,pdfUrl:''},
+];
+
+const PYQS_DATA=[
+  // Class 12
+  {id:'p_12_bst_25',title:'BST Class 12 PYQ 2025',subject:'BST',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Ch 1–12',price:50,pdfUrl:''},
+  {id:'p_12_bst_24',title:'BST Class 12 PYQ 2024',subject:'BST',group:'class12',year:2024,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Ch 1–12',price:50,pdfUrl:''},
+  {id:'p_12_bst_23',title:'BST Class 12 PYQ 2023',subject:'BST',group:'class12',year:2023,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Ch 1–12',price:50,pdfUrl:''},
+  {id:'p_12_bst_22',title:'BST Class 12 PYQ 2022',subject:'BST',group:'class12',year:2022,pyqType:'full',difficulty:'easy',hasSolutions:false,chapters:'Ch 1–12',price:50,pdfUrl:''},
+  {id:'p_12_eco_25',title:'ECO Class 12 PYQ 2025',subject:'ECO',group:'class12',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'All Chapters',price:50,pdfUrl:''},
+  {id:'p_12_eco_24',title:'ECO Class 12 PYQ 2024',subject:'ECO',group:'class12',year:2024,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'All Chapters',price:50,pdfUrl:''},
+  {id:'p_12_acc_25',title:'ACC Class 12 PYQ 2025',subject:'ACC',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'All Chapters',price:50,pdfUrl:''},
+  // Chapterwise
+  {id:'p_12_bst_ch1',title:'BST Ch1 Chapterwise PYQ',subject:'BST',group:'class12',year:2024,pyqType:'chapter',difficulty:'easy',hasSolutions:false,chapters:'Ch 1',price:50,pdfUrl:''},
+  {id:'p_12_bst_ch2',title:'BST Ch2 Chapterwise PYQ',subject:'BST',group:'class12',year:2024,pyqType:'chapter',difficulty:'moderate',hasSolutions:false,chapters:'Ch 2',price:50,pdfUrl:''},
+  // CUET
+  {id:'p_cuet_bst_25',title:'CUET BST PYQ 2025',subject:'BST',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:50,pdfUrl:''},
+  {id:'p_cuet_bst_24',title:'CUET BST PYQ 2024',subject:'BST',group:'cuet',year:2024,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:50,pdfUrl:''},
+  {id:'p_cuet_eco_25',title:'CUET ECO PYQ 2025',subject:'ECO',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:50,pdfUrl:''},
+  {id:'p_cuet_gat_25',title:'CUET GAT PYQ 2025',subject:'GAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'Full Paper',price:50,pdfUrl:''},
+];
+
+const MCQS_DATA=[
+  {id:'mcq_bst_ch1',title:'BST Ch1 MCQs',subject:'BST',chapter:'Ch 1 – Nature & Significance',mcqType:'chapter',difficulty:'easy',count:50,tags:['Memory Based'],price:20,pdfUrl:''},
+  {id:'mcq_bst_ch2',title:'BST Ch2 MCQs',subject:'BST',chapter:'Ch 2 – Principles',mcqType:'chapter',difficulty:'moderate',count:50,tags:['Conceptual'],price:20,pdfUrl:''},
+  {id:'mcq_bst_ch3',title:'BST Ch3 MCQs',subject:'BST',chapter:'Ch 3 – Business Environment',mcqType:'chapter',difficulty:'moderate',count:45,tags:['Memory Based','Conceptual'],price:20,pdfUrl:''},
+  {id:'mcq_bst_ch9',title:'BST Ch9 MCQs',subject:'BST',chapter:'Ch 9 – Financial Management',mcqType:'chapter',difficulty:'hard',count:55,tags:['Numerical','Conceptual'],price:20,pdfUrl:''},
+  {id:'mcq_eco_macro',title:'Macro Economics MCQs',subject:'ECO',chapter:'Macroeconomics Full',mcqType:'chapter',difficulty:'moderate',count:80,tags:['Conceptual','CUET Freq'],price:20,pdfUrl:''},
+  {id:'mcq_eco_micro',title:'Micro Economics MCQs',subject:'ECO',chapter:'Microeconomics Full',mcqType:'chapter',difficulty:'hard',count:75,tags:['Conceptual','Numerical'],price:20,pdfUrl:''},
+  {id:'mcq_acc_all',title:'Accountancy All Chapters MCQs',subject:'ACC',chapter:'Complete Accountancy',mcqType:'chapter',difficulty:'hard',count:100,tags:['Numerical'],price:20,pdfUrl:''},
+  {id:'mcq_bst_special',title:'BST CUET Special 500 MCQs',subject:'BST',chapter:'Special Pack',mcqType:'special',difficulty:'hard',count:500,tags:['CUET Freq','Memory Based','Conceptual'],price:20,pdfUrl:''},
+  {id:'mcq_eco_special',title:'ECO CUET Special 400 MCQs',subject:'ECO',chapter:'Special Pack',mcqType:'special',difficulty:'hard',count:400,tags:['CUET Freq','Conceptual'],price:20,pdfUrl:''},
+  {id:'mcq_gat_special',title:'GAT CUET Special MCQ Pack',subject:'GAT',chapter:'General Aptitude',mcqType:'special',difficulty:'moderate',count:300,tags:['CUET Freq','Logical'],price:20,pdfUrl:''},
+];
+
+const MAT_TYPE_ICONS={impq:'📌',imptopic:'📍',mindmap:'🗺️',studymat:'📚',formula:'🔢'};
+const MAT_TYPE_LABELS={impq:'Imp Questions',imptopic:'Imp Topics',mindmap:'Mind Map',studymat:'Study Material',formula:'Formula / Dates'};
+const SUBJ_ICONS={BST:'📊',ECO:'📈',ACC:'📒',ENG:'📝',GAT:'🧠',PHY:'⚛️',CHE:'🧪',BIO:'🔬',MAT:'📐',POL:'🏛️',HIS:'📜',GEO:'🌏',PSY:'🧠',PE:'🏃'};
+const SUBJ_COLORS={BST:'#4f6ef7',ECO:'#10b981',ACC:'#06b6d4',ENG:'#ec4899',GAT:'#f59e0b',PHY:'#6366f1',CHE:'#14b8a6',BIO:'#22c55e',MAT:'#f97316',POL:'#8b5cf6',HIS:'#d97706',GEO:'#0ea5e9',PSY:'#a855f7',PE:'#ef4444'};
+const DASHBOARD_URL='https://commercesehoga.github.io/';
+const CBT_PROMO_URL='https://commercesehoga.github.io/';
+
+/* ═══════════════════════════════════════
+   STORAGE HELPERS
+═══════════════════════════════════════ */
+function getHP(){try{return JSON.parse(localStorage.getItem('ts_hp')||'{"total":0,"log":[]}');}catch(e){return{total:0,log:[]};}}
+function saveHP(hp){localStorage.setItem('ts_hp',JSON.stringify(hp));}
+function addHP(amount,reason){
+  const hp=getHP();hp.total=Math.max(0,hp.total+amount);
+  hp.log=hp.log||[];hp.log.unshift({amount,reason,date:new Date().toISOString()});
+  if(hp.log.length>100)hp.log=hp.log.slice(0,100);
+  saveHP(hp);updateHPDisplays();return hp.total;
+}
+function spendHP(amount,reason){
+  const hp=getHP();
+  if(hp.total<amount)return false;
+  hp.total-=amount;
+  hp.log=hp.log||[];hp.log.unshift({amount:-amount,reason,date:new Date().toISOString()});
+  if(hp.log.length>100)hp.log=hp.log.slice(0,100);
+  saveHP(hp);updateHPDisplays();return true;
+}
+function getProfile(){try{return JSON.parse(localStorage.getItem('ts_profile')||'{}');}catch(e){return{};}}
+function getPurchases(){try{return JSON.parse(localStorage.getItem('sh_purchases')||'[]');}catch(e){return[];}}
+function savePurchases(p){localStorage.setItem('sh_purchases',JSON.stringify(p));}
+function isPurchased(id){return getPurchases().some(p=>p.id===id||p.id===id);}
+function addPurchase(id,title,price,category){
+  const p=getPurchases();
+  if(!p.find(x=>x.id===id))p.unshift({id,title,price,category,date:new Date().toISOString()});
+  savePurchases(p);
+}
+function getWishlist(){try{return JSON.parse(localStorage.getItem('sh_wishlist')||'[]');}catch(e){return[];}}
+function saveWishlist(w){localStorage.setItem('sh_wishlist',JSON.stringify(w));updateWishlistCount();}
+function isWishlisted(id){return getWishlist().includes(id);}
+function toggleWishlist(id){
+  let w=getWishlist();
+  if(w.includes(id))w=w.filter(x=>x!==id);else w.push(id);
+  saveWishlist(w);return w.includes(id);
+}
+function getStudyHours(){try{return JSON.parse(localStorage.getItem('sh_study_hours')||'{"total":0,"subjects":{},"sessions":[]}');}catch(e){return{total:0,subjects:{},sessions:[]};}}
+function saveStudyHours(h){localStorage.setItem('sh_study_hours',JSON.stringify(h));}
+function getStudiedBadges(){try{return JSON.parse(localStorage.getItem('sh_studied_badges')||'[]');}catch(e){return[];}}
+function addStudiedBadge(id){const b=getStudiedBadges();if(!b.includes(id)){b.push(id);localStorage.setItem('sh_studied_badges',JSON.stringify(b));}}
+function isStudied(id){return getStudiedBadges().includes(id);}
+function getTestResults(){
+  // Read from main dashboard localStorage
+  const results={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('thunderstudy_result_')){
+      try{const v=JSON.parse(localStorage.getItem(k));if(v)results[k]=v;}catch(e){}
+    }
+  }
+  return results;
+}
+function getWeakSubjects(){
+  // Find subjects below 60% from CBT results
+  const results=getTestResults();
+  const bySubj={};
+  Object.entries(results).forEach(([k,v])=>{
+    const parts=k.replace('thunderstudy_result_','').split('_');
+    const sId=parts[0];
+    if(!bySubj[sId]){bySubj[sId]={total:0,count:0};}
+    bySubj[sId].total+=(v.percentage||0);bySubj[sId].count++;
+  });
+  return Object.entries(bySubj)
+    .map(([id,d])=>({id,avg:d.total/d.count}))
+    .filter(s=>s.avg<60)
+    .sort((a,b)=>a.avg-b.avg)
+    .slice(0,3);
+}
+function getDailyLogin(){try{return JSON.parse(localStorage.getItem('sh_daily_login')||'{"lastDate":"","streak":0}');}catch(e){return{lastDate:'',streak:0};}}
+function saveDailyLogin(d){localStorage.setItem('sh_daily_login',JSON.stringify(d));}
+function checkDailyLogin(){
+  const dl=getDailyLogin();
+  const today=new Date().toISOString().split('T')[0];
+  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  if(dl.lastDate===today)return{claimed:true,streak:dl.streak,hp:25};
+  const newStreak=dl.lastDate===yesterday?dl.streak+1:1;
+  return{claimed:false,streak:newStreak,hp:25+Math.floor(newStreak/5)*5};
+}
+function claimDailyLogin(){
+  const info=checkDailyLogin();
+  if(info.claimed)return info;
+  const today=new Date().toISOString().split('T')[0];
+  const dl={lastDate:today,streak:info.streak};
+  saveDailyLogin(dl);
+  addHP(info.hp,`Daily Login Reward (Day ${info.streak} streak)`);
+  return{...info,claimed:true};
+}
+
+/* ═══════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════ */
+let toastTimer;
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=type==='success'?'#10b981':type==='error'?'#f43f5e':type==='warning'?'#f59e0b':'#4f6ef7';
+  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},2800);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-ov').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+function updateHPDisplays(){
+  const hp=getHP().total;
+  document.querySelectorAll('.hp-live').forEach(el=>el.textContent=hp);
+  const t=document.getElementById('topbar-hp');if(t)t.textContent=hp;
+  const s=document.getElementById('sb-hp-sidebar');if(s)s.textContent='💜 '+hp+' HP';
+}
+function updateWishlistCount(){
+  const el=document.getElementById('wishlist-count');
+  if(el)el.textContent=getWishlist().length;
+}
+function updateProfile(){
+  const p=getProfile();
+  const name=p.name||localStorage.getItem('cbtUserName')||'Student';
+  const initial=(name[0]||'S').toUpperCase();
+  ['sb-av','topbar-av'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=initial;});
+  ['sb-name','topbar-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=name;});
+  const ht=document.getElementById('home-title');
+  if(ht)ht.textContent=`👋 Hey, ${name}!`;
+}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fd(iso){try{const d=new Date(iso);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return'—';}}
+function timeAgo(iso){
+  const diff=Date.now()-new Date(iso).getTime();
+  if(diff<60000)return 'just now';
+  if(diff<3600000)return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';
+  return Math.floor(diff/86400000)+'d ago';
+}
+
+/* ═══════════════════════════════════════
+   PAGE NAVIGATION
+═══════════════════════════════════════ */
+const PAGE_RENDERERS={home:renderHome,books:renderBooks,notes:renderNotes,material:renderMaterial,pyqs:renderPYQs,mcqs:renderMCQs,study:renderStudy,settings:renderSettings};
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.dock-item').forEach(d=>d.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')===`goPage('${id}')`)n.classList.add('active');});
+  const dk=document.getElementById('dock-'+id);if(dk)dk.classList.add('active');
+  if(PAGE_RENDERERS[id])PAGE_RENDERERS[id]();
+  document.getElementById('main-scroll').scrollTo({top:0});
+}
+
+/* ═══════════════════════════════════════
+   HOME PAGE
+═══════════════════════════════════════ */
+function renderHome(){
+  updateProfile();updateHPDisplays();updateWishlistCount();
+  const hp=getHP();
+  const loginInfo=checkDailyLogin();
+  const weakSubjs=getWeakSubjects();
+  const maxHP=2000;
+  const hpPct=Math.min(100,(hp.total/maxHP)*100);
+  const r=80,circ=2*Math.PI*r,dash=circ-(hpPct/100)*circ;
+  const ringColor=hp.total>=1500?'#f97316':hp.total>=1000?'#f59e0b':hp.total>=500?'#4f6ef7':'#7c3aed';
+
+  let H=`
+  <div class="grid-2" style="margin-bottom:18px;">
+    <!-- HP RING CARD -->
+    <div class="card card-p" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-bottom:14px;">💜 Your HP Balance</div>
+      <div class="hp-ring-wrap">
+        <svg class="hp-ring-svg" width="190" height="190" viewBox="0 0 190 190">
+          <circle cx="95" cy="95" r="${r}" fill="none" stroke="var(--border)" stroke-width="12"/>
+          <circle cx="95" cy="95" r="${r}" fill="none" stroke="${ringColor}" stroke-width="12"
+            stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dash.toFixed(1)}"
+            style="transition:stroke-dashoffset 1.4s cubic-bezier(.34,1.56,.64,1);"/>
+        </svg>
+        <div class="hp-ring-center">
+          <div class="hp-ring-val" style="color:${ringColor}">${hp.total}</div>
+          <div class="hp-ring-lbl">Honor Points</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px;">${hpPct.toFixed(0)}% to ${maxHP}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;justify-content:center;">
+        <div style="text-align:center;"><div style="font-size:15px;font-weight:900;font-family:var(--mono);color:var(--green);">+${hp.log.filter(l=>l.amount>0).reduce((s,l)=>s+l.amount,0)}</div><div style="font-size:9px;color:var(--text3);">Total Earned</div></div>
+        <div style="text-align:center;"><div style="font-size:15px;font-weight:900;font-family:var(--mono);color:var(--red);">${Math.abs(hp.log.filter(l=>l.amount<0).reduce((s,l)=>s+l.amount,0))}</div><div style="font-size:9px;color:var(--text3);">Total Spent</div></div>
+        <div style="text-align:center;"><div style="font-size:15px;font-weight:900;font-family:var(--mono);color:var(--acc);">${getPurchases().length}</div><div style="font-size:9px;color:var(--text3);">Purchased</div></div>
+      </div>
+    </div>
+
+    <!-- DAILY LOGIN + STATS -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="daily-card">
+        <div class="daily-icon">${loginInfo.claimed?'✅':'🎁'}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:900;margin-bottom:3px;">${loginInfo.claimed?'Daily Reward Claimed!':'🎁 Daily Login Reward'}</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:loginInfo.claimed?0:'10px';">${loginInfo.claimed?`Come back tomorrow · Streak: ${loginInfo.streak} days 🔥`:`+${loginInfo.hp} HP today · ${loginInfo.streak} day streak 🔥`}</div>
+          ${!loginInfo.claimed?`<button class="btn btn-prim" onclick="doClaim()" style="margin-top:8px;">🎁 Claim +${loginInfo.hp} HP</button>`:`<div style="font-size:11px;color:var(--green);font-weight:700;margin-top:6px;">✅ Claimed +${loginInfo.hp} HP</div>`}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="card card-p" style="padding:14px;text-align:center;cursor:pointer;" onclick="goPage('books')">
+          <div style="font-size:24px;margin-bottom:5px;">📖</div>
+          <div style="font-size:18px;font-weight:900;font-family:var(--mono);color:var(--acc);">${BOOKS_DATA.filter(b=>isPurchased(b.id)).length}</div>
+          <div style="font-size:10px;color:var(--text3);">Books Owned</div>
+        </div>
+        <div class="card card-p" style="padding:14px;text-align:center;cursor:pointer;" onclick="goPage('notes')">
+          <div style="font-size:24px;margin-bottom:5px;">📝</div>
+          <div style="font-size:18px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${NOTES_DATA.filter(n=>isPurchased(n.id)).length}</div>
+          <div style="font-size:10px;color:var(--text3);">Notes Owned</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // RECENT ACTIVITY
+  H+=`<div class="card" style="margin-bottom:18px;overflow:hidden;">
+    <div style="padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;">
+      <div class="sec-title">📋 Recent HP Activity</div>
+      <div style="font-size:11px;color:var(--acc);font-weight:700;cursor:pointer;" onclick="goPage('settings')">View All →</div>
+    </div>
+    ${hp.log.length===0?`<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No activity yet. Claim your daily reward to start!</div>`:''}
+    ${hp.log.slice(0,8).map(l=>{
+      const isEarn=l.amount>0,isExchange=l.reason&&(l.reason.includes('Convert')||l.reason.includes('Sync'));
+      const iconBg=isExchange?'rgba(79,110,247,.12)':isEarn?'rgba(16,185,129,.12)':'rgba(244,63,94,.12)';
+      const icon=isExchange?'🔄':isEarn?'💜':'💸';
+      const amtClr=isEarn?'var(--green)':isExchange?'var(--acc)':'var(--red)';
+      return`<div class="activity-item">
+        <div class="act-icon" style="background:${iconBg}">${icon}</div>
+        <div style="flex:1;"><div class="act-desc">${escH(l.reason||'HP Transaction')}</div><div class="act-sub">${timeAgo(l.date)}</div></div>
+        <div class="act-amt" style="color:${amtClr}">${l.amount>0?'+':''}${l.amount} HP</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // QUICK BUY (weak subjects)
+  if(weakSubjs.length>0){
+    H+=`<div class="sec-hdr"><div class="sec-title">🎯 Recommended for You</div><div class="sec-link" onclick="goPage('notes')">View All →</div></div>
+    <div style="margin-bottom:18px;">`;
+    weakSubjs.forEach(ws=>{
+      const sId=ws.id.toUpperCase();
+      const relNotes=NOTES_DATA.filter(n=>n.subject===sId||n.subject===ws.id).slice(0,1);
+      if(!relNotes.length){
+        H+=`<div class="quick-buy-card recommended">
+          <div style="font-size:28px;flex-shrink:0;">${SUBJ_ICONS[sId]||'📚'}</div>
+          <div style="flex:1;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--acc);margin-bottom:2px;">🎯 Weak Area — ${ws.avg.toFixed(0)}% avg</div>
+            <div style="font-size:13px;font-weight:800;">${sId} — Study Material Needed</div>
+            <div style="font-size:11px;color:var(--text3);">Browse notes and materials for this subject</div>
+          </div>
+          <button class="btn btn-prim" onclick="goPage('notes')" style="font-size:11px;">Browse →</button>
+        </div>`;
+        return;
+      }
+      relNotes.forEach(n=>{
+        const purchased=isPurchased(n.id);
+        H+=`<div class="quick-buy-card recommended">
+          <div style="font-size:28px;flex-shrink:0;">${SUBJ_ICONS[n.subject]||'📚'}</div>
+          <div style="flex:1;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--red);margin-bottom:2px;">⚠️ Your ${n.subject} is ${ws.avg.toFixed(0)}% avg</div>
+            <div style="font-size:13px;font-weight:800;">${escH(n.title)}</div>
+            <div style="font-size:11px;color:var(--text3);">📄 ${n.pages} pages · ${n.difficulty}</div>
+          </div>
+          ${purchased?`<button class="btn btn-green" onclick="openPDF('${n.pdfUrl}','${escH(n.title)}','${n.id}')" style="font-size:11px;">📖 Open</button>`:
+          `<button class="btn btn-prim" onclick="showPurchaseModal('${n.id}','note')" style="font-size:11px;">🔒 ${n.price} HP</button>`}
+        </div>`;
+      });
+    });
+    H+=`</div>`;
+  }
+
+  // CBT PROMO BANNER
+  H+=`<div style="margin-bottom:8px;">
+    <a href="${CBT_PROMO_URL}" target="_blank" style="display:block;text-decoration:none;border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(79,110,247,.25);transition:transform .2s,box-shadow .2s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'">
+      <svg width="100%" viewBox="0 0 1100 280" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+        <defs>
+          <linearGradient id="cbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4f6ef7"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+          <filter id="cglow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="1100" height="280" rx="24" fill="url(#cbg)"/>
+        <circle cx="950" cy="60" r="120" fill="white" opacity="0.05"/>
+        <circle cx="150" cy="230" r="100" fill="white" opacity="0.04"/>
+        <text x="55" y="75" font-size="14" fill="rgba(255,255,255,.7)" letter-spacing="2" font-family="sans-serif">LIVE CBT TESTS</text>
+        <text x="55" y="130" font-size="34" fill="white" font-weight="800" font-family="sans-serif" filter="url(#cglow)">Practice Mock Tests → Earn HP</text>
+        <text x="55" y="172" font-size="20" fill="#c4b5fd" font-family="sans-serif">Score well · Earn XP · Climb ranks</text>
+        <rect x="55" y="198" width="200" height="44" rx="22" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+        <text x="155" y="226" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="sans-serif">Go to Dashboard →</text>
+        <text x="1060" y="260" text-anchor="end" font-size="12" fill="rgba(255,255,255,.5)" font-family="sans-serif">Thunderstudy CBT</text>
+      </svg>
+    </a>
+  </div>`;
+
+  document.getElementById('home-content').innerHTML=H;
+}
+
+function doClaim(){
+  const result=claimDailyLogin();
+  showToast(`🎁 +${result.hp} HP claimed! Day ${result.streak} streak 🔥`,'success');
+  renderHome();
+}
+
+/* ═══════════════════════════════════════
+   BOOKS PAGE
+═══════════════════════════════════════ */
+let booksTab='all',booksType='all';
+function renderBooks(){
+  updateHPDisplays();updateWishlistCount();
+  let H=`
+  <div class="subj-tabs" style="margin-bottom:12px;">
+    <div class="subj-tab ${booksTab==='all'?'active':''}" onclick="setBooksTab('all')">All</div>
+    <div class="subj-tab ${booksTab==='class12'?'active':''}" onclick="setBooksTab('class12')">📚 Class 12</div>
+    <div class="subj-tab ${booksTab==='cuet'?'active':''}" onclick="setBooksTab('cuet')">🎯 CUET</div>
+    <div class="subj-tab ${booksTab==='wishlist'?'active':''}" onclick="setBooksTab('wishlist')">❤️ Wishlist (${getWishlist().length})</div>
+  </div>`;
+
+  if(booksTab!=='wishlist'){
+    H+=`<div class="subj-tabs" style="margin-bottom:18px;">
+      <div class="subj-tab ${booksType==='all'?'active':''}" onclick="setBooksType('all')">All Types</div>
+      <div class="subj-tab ${booksType==='sample'?'active':''}" onclick="setBooksType('sample')">Sample Papers</div>
+      <div class="subj-tab ${booksType==='qbank'?'active':''}" onclick="setBooksType('qbank')">Question Banks</div>
+    </div>`;
+  }
+
+  // BUNDLE DEALS
+  if(booksTab!=='wishlist'){
+    H+=`<div class="sec-hdr"><div class="sec-title">🔥 Bundle Deals</div></div>`;
+    const relevantBundles=booksTab==='all'?BUNDLES:BUNDLES.filter(b=>{
+      const books=b.books.map(id=>BOOKS_DATA.find(x=>x.id===id)).filter(Boolean);
+      return books.some(bk=>bk.group===booksTab);
+    });
+    H+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-bottom:22px;">`;
+    relevantBundles.forEach(bundle=>{
+      const allPurchased=bundle.books.every(id=>isPurchased(id));
+      const books=bundle.books.map(id=>BOOKS_DATA.find(x=>x.id===id)).filter(Boolean);
+      H+=`<div class="bundle-card">
+        <div class="bundle-thumbs">${books.map(b=>`<div class="bundle-thumb" style="background:linear-gradient(135deg,${b.color},${b.color}99);">${b.icon}</div>`).join('')}</div>
+        <div style="font-size:14px;font-weight:800;margin-bottom:3px;">${escH(bundle.title)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px;">${escH(bundle.desc)}</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div><span style="font-size:18px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${bundle.bundlePrice} HP</span><span style="font-size:11px;color:var(--text3);text-decoration:line-through;margin-left:6px;">${bundle.normalPrice} HP</span></div>
+          <span style="font-size:10px;font-weight:800;background:rgba(16,185,129,.12);color:var(--green);padding:2px 8px;border-radius:20px;">Save ${bundle.normalPrice-bundle.bundlePrice} HP</span>
+          ${allPurchased?`<span style="font-size:11px;color:var(--green);font-weight:700;">✅ Owned</span>`:`<button class="btn btn-gold" onclick="showBundleModal('${bundle.id}')" style="font-size:11px;padding:7px 14px;margin-left:auto;">🛒 Buy Bundle</button>`}
+        </div>
+      </div>`;
+    });
+    H+=`</div>`;
+  }
+
+  // BOOKS GRID
+  let filtered=BOOKS_DATA;
+  if(booksTab==='wishlist'){filtered=BOOKS_DATA.filter(b=>isWishlisted(b.id));}
+  else{
+    if(booksTab!=='all')filtered=filtered.filter(b=>b.group===booksTab);
+    if(booksType!=='all')filtered=filtered.filter(b=>b.type===booksType);
+  }
+
+  H+=`<div class="sec-hdr"><div class="sec-title">${booksTab==='wishlist'?'❤️ My Wishlist':'📚 All Books'} (${filtered.length})</div></div>`;
+  if(!filtered.length){H+=`<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">${booksTab==='wishlist'?'Wishlist Empty':'No Books Found'}</div><div class="empty-sub">${booksTab==='wishlist'?'Heart books to save them here.':'Try a different filter.'}</div></div>`;document.getElementById('books-content').innerHTML=H;return;}
+
+  H+=`<div class="book-grid">`;
+  filtered.forEach(book=>{
+    const purchased=isPurchased(book.id),wishlisted=isWishlisted(book.id);
+    H+=`<div class="book-card ${purchased?'purchased':''}">
+      <div class="book-cover-placeholder" style="background:linear-gradient(135deg,${book.color},${book.color}88);">${book.icon}</div>
+      ${book.hot?`<div class="book-badge hot">🔥 HOT</div>`:''}
+      ${purchased?`<div class="book-badge purchased" style="top:${book.hot?'36px':'8px'};">✅ Owned</div>`:''}
+      <button class="book-wishlist ${wishlisted?'active':''}" id="wl-${book.id}" onclick="toggleWL(event,'${book.id}')">${wishlisted?'❤️':'🤍'}</button>
+      <div class="book-info">
+        <div class="book-title">${escH(book.title)}</div>
+        <div class="book-meta">${book.subject} · ${book.type==='sample'?'Sample Paper':'Question Bank'}</div>
+        <div class="book-price">
+          <span class="book-hp">${purchased?'<span style="color:var(--green)">✅ Owned</span>':'💜 '+book.price+' HP'}</span>
+          ${purchased?`<button class="btn btn-green" onclick="openPDF('${book.pdfUrl}','${escH(book.title)}','${book.id}')" style="font-size:11px;padding:6px 12px;">📖 Open</button>`:
+          `<button class="btn btn-prim" onclick="showPurchaseModal('${book.id}','book')" style="font-size:11px;padding:6px 12px;">🔒 Buy</button>`}
+        </div>
+      </div>
+    </div>`;
+  });
+  H+=`</div>`;
+  document.getElementById('books-content').innerHTML=H;
+}
+
+function setBooksTab(t){booksTab=t;renderBooks();}
+function setBooksType(t){booksType=t;renderBooks();}
+function toggleWL(e,id){
+  e.stopPropagation();
+  const btn=document.getElementById('wl-'+id);
+  const isNowWL=toggleWishlist(id);
+  if(btn){btn.textContent=isNowWL?'❤️':'🤍';btn.classList.toggle('active',isNowWL);btn.classList.add('popping');setTimeout(()=>btn.classList.remove('popping'),350);}
+  showToast(isNowWL?'❤️ Added to wishlist':'Removed from wishlist',isNowWL?'success':'warning');
+  updateWishlistCount();
+}
+
+/* ═══════════════════════════════════════
+   NOTES PAGE
+═══════════════════════════════════════ */
+let notesGroup='cuet',notesSubgroup='commerce',notesSubject='BST',notesType='all';
+function renderNotes(){
+  updateHPDisplays();
+  let H=`
+  <div class="subj-tabs" style="margin-bottom:10px;">
+    <div class="subj-tab ${notesGroup==='cuet'?'active':''}" onclick="setNotesGroup('cuet')">🎯 CUET</div>
+    <div class="subj-tab ${notesGroup==='class12'?'active':''}" onclick="setNotesGroup('class12')">📚 Class 12</div>
+  </div>
+  <div class="subj-tabs" style="margin-bottom:10px;">
+    <div class="subj-tab ${notesSubgroup==='commerce'?'active':''}" onclick="setNotesSubgroup('commerce')">📊 Commerce</div>
+    <div class="subj-tab ${notesSubgroup==='science'?'active':''}" onclick="setNotesSubgroup('science')">🔬 Science</div>
+    <div class="subj-tab ${notesSubgroup==='arts'?'active':''}" onclick="setNotesSubgroup('arts')">🏛️ Arts</div>
+    <div class="subj-tab ${notesSubgroup==='other'?'active':''}" onclick="setNotesSubgroup('other')">📝 Other</div>
+  </div>`;
+
+  const subjectMap={
+    commerce:['BST','ECO','ACC'],
+    science:['PHY','CHE','BIO','MAT'],
+    arts:['POL','HIS','GEO'],
+    other:['ENG','PE',...(notesGroup==='cuet'?['GAT']:[])]
+  };
+  const subjects=subjectMap[notesSubgroup]||['BST'];
+  if(!subjects.includes(notesSubject))notesSubject=subjects[0];
+
+  H+=`<div class="subj-tabs" style="margin-bottom:12px;">`;
+  subjects.forEach(s=>{H+=`<div class="subj-tab ${notesSubject===s?'active':''}" onclick="setNotesSubject('${s}')">${SUBJ_ICONS[s]||'📚'} ${s}</div>`;});
+  H+=`</div>`;
+
+  // Type filter
+  const typeOpts=notesGroup==='class12'
+    ?[{v:'all',l:'All'},{v:'topper',l:'👑 Topper'},{v:'backbencher',l:'😎 Backbencher'},{v:'digital',l:'💻 Digital'},{v:'handwritten',l:'✍️ Handwritten'}]
+    :[{v:'all',l:'All'},{v:'topper',l:'👑 Topper'},{v:'backbencher',l:'😎 Backbencher'},{v:'cuet',l:'⚡ CUET Special'}];
+  H+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+    ${typeOpts.map(t=>`<div class="subj-tab ${notesType===t.v?'active':''}" onclick="setNotesType('${t.v}')" style="font-size:11px;">${t.l}</div>`).join('')}
+    <button class="btn btn-ghost" onclick="showCompareModal('${notesSubject}','${notesGroup}')" style="margin-left:auto;font-size:11px;">🔍 Compare Notes</button>
+  </div>`;
+
+  let filtered=NOTES_DATA.filter(n=>n.group===notesGroup&&n.subgroup===notesSubgroup&&n.subject===notesSubject);
+  if(notesType!=='all')filtered=filtered.filter(n=>n.type===notesType);
+
+  if(!filtered.length){H+=`<div class="empty"><div class="empty-icon">📝</div><div class="empty-title">No Notes Found</div><div class="empty-sub">Notes for this combination coming soon!</div></div>`;document.getElementById('notes-content').innerHTML=H;return;}
+
+  H+=`<div class="notes-grid">`;
+  filtered.forEach(note=>{
+    const purchased=isPurchased(note.id),studied=isStudied(note.id);
+    const typeBadgeClass=note.type==='topper'?'topper':note.type==='backbencher'?'backbencher':note.type==='digital'?'digital':note.type==='handwritten'?'handwritten':'cuet';
+    const typeLabel=note.type==='topper'?'👑 Topper':note.type==='backbencher'?'😎 Backbencher':note.type==='digital'?'💻 Digital':note.type==='handwritten'?'✍️ Handwritten':'⚡ CUET Special';
+    const cardClass=note.type==='topper'?'topper':note.type==='backbencher'?'backbencher':'';
+    const diffClass=note.difficulty==='beginner'?'beginner':note.difficulty==='intermediate'?'intermediate':'advanced';
+    const diffLabel=note.difficulty==='beginner'?'🟢 Beginner':note.difficulty==='intermediate'?'🟡 Intermediate':'🔴 Advanced';
+    H+=`<div class="notes-card ${cardClass} ${studied?'studied':''}">
+      <div style="margin-bottom:8px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+        <span class="notes-type-badge ${typeBadgeClass}">${typeLabel}</span>
+        <span class="diff-tag ${diffClass}">${diffLabel}</span>
+      </div>
+      <div style="font-size:20px;margin-bottom:6px;">${SUBJ_ICONS[note.subject]||'📚'}</div>
+      <div class="notes-title">${escH(note.title)}</div>
+      <div class="notes-meta">📄 ${note.pages} pages · ~${Math.ceil(note.pages*1.5)} min read</div>
+      <div class="notes-footer">
+        <span class="notes-hp">${purchased?'<span style="color:var(--green);font-size:12px;">✅ Owned</span>':'💜 '+note.price+' HP'}</span>
+        ${purchased?`<button class="btn btn-green" onclick="openPDF('${note.pdfUrl}','${escH(note.title)}','${note.id}')" style="font-size:10px;padding:5px 11px;">📖 Study</button>`:
+        `<button class="btn btn-prim" onclick="showPurchaseModal('${note.id}','note')" style="font-size:10px;padding:5px 11px;">🔒 Buy</button>`}
+      </div>
+    </div>`;
+  });
+  H+=`</div>`;
+  document.getElementById('notes-content').innerHTML=H;
+}
+
+function setNotesGroup(g){notesGroup=g;renderNotes();}
+function setNotesSubgroup(g){notesSubgroup=g;renderNotes();}
+function setNotesSubject(s){notesSubject=s;renderNotes();}
+function setNotesType(t){notesType=t;renderNotes();}
+
+function showCompareModal(subject,group){
+  const topper=NOTES_DATA.find(n=>n.subject===subject&&n.group===group&&n.type==='topper');
+  const back=NOTES_DATA.find(n=>n.subject===subject&&n.group===group&&n.type==='backbencher');
+  if(!topper&&!back){showToast('No comparison available for this subject','warning');return;}
+  function noteCol(note,label,cardClass){
+    if(!note)return`<div style="padding:20px;text-align:center;color:var(--text3);">Not available</div>`;
+    const purchased=isPurchased(note.id);
+    return`<div class="notes-card ${cardClass}" style="height:100%;">
+      <span class="notes-type-badge ${cardClass}">${label}</span>
+      <div style="font-size:22px;margin:10px 0 6px;">${SUBJ_ICONS[note.subject]||'📚'}</div>
+      <div class="notes-title">${escH(note.title)}</div>
+      <div style="margin:10px 0;display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:11px;color:var(--text3);">📄 ${note.pages} pages</div>
+        <div style="font-size:11px;color:var(--text3);">⏱️ ~${Math.ceil(note.pages*1.5)} min read</div>
+        <div style="font-size:11px;color:var(--text3);">📊 ${note.difficulty}</div>
+      </div>
+      <div class="notes-footer">
+        <span class="notes-hp">${purchased?'<span style="color:var(--green);">✅ Owned</span>':'💜 '+note.price+' HP'}</span>
+        ${purchased?`<button class="btn btn-green" onclick="openPDF('${note.pdfUrl||''}','${escH(note.title)}','${note.id}');closeModal('compare-modal');" style="font-size:10px;padding:5px 10px;">📖 Open</button>`:
+        `<button class="btn btn-prim" onclick="showPurchaseModal('${note.id}','note');closeModal('compare-modal');" style="font-size:10px;padding:5px 10px;">🔒 Buy</button>`}
+      </div>
+    </div>`;
+  }
+  document.getElementById('compare-body').innerHTML=`
+    <div style="font-size:13px;color:var(--text3);margin-bottom:14px;">Comparing ${subject} notes — choose what suits your style!</div>
+    <div class="compare-grid">
+      ${noteCol(topper,'👑 Topper Notes','topper')}
+      ${noteCol(back,'😎 Backbencher Notes','backbencher')}
+    </div>`;
+  openModal('compare-modal');
+}
+
+/* ═══════════════════════════════════════
+   STUDY MATERIAL PAGE
+═══════════════════════════════════════ */
+let matGroup='class12',matSubject='BST';
+function renderMaterial(){
+  updateHPDisplays();
+  const SUBJECTS_CLASS12=['BST','ECO','ACC','PHY','CHE','BIO','MAT','POL','HIS','GEO','ENG','PE'];
+  const SUBJECTS_CUET=['BST','ECO','ACC','GAT','PHY','CHE','POL','HIS','GEO','ENG'];
+  const subjects=matGroup==='class12'?SUBJECTS_CLASS12:SUBJECTS_CUET;
+  if(!subjects.includes(matSubject))matSubject=subjects[0];
+
+  let H=`
+  <div class="subj-tabs" style="margin-bottom:14px;">
+    <div class="subj-tab ${matGroup==='class12'?'active':''}" onclick="setMatGroup('class12')">📚 Class 12</div>
+    <div class="subj-tab ${matGroup==='cuet'?'active':''}" onclick="setMatGroup('cuet')">🎯 CUET</div>
+  </div>
+  <div class="subj-tabs" style="margin-bottom:18px;flex-wrap:wrap;">
+    ${subjects.map(s=>`<div class="subj-tab ${matSubject===s?'active':''}" onclick="setMatSubject('${s}')">${SUBJ_ICONS[s]||'📚'} ${s}</div>`).join('')}
+  </div>`;
+
+  const items=MATERIAL_DATA.filter(m=>m.subject===matSubject&&m.group===matGroup);
+  const allPrice=items.length*40;const bundlePrice=Math.round(allPrice*0.75/10)*10;
+  const allOwned=items.length>0&&items.every(m=>isPurchased(m.id));
+
+  if(items.length>0){
+    H+=`<div style="background:linear-gradient(135deg,rgba(79,110,247,.07),rgba(124,58,237,.04));border:1.5px solid rgba(79,110,247,.2);border-radius:var(--r2);padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="font-size:28px;">📦</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:800;">Buy All ${matSubject} Material</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">${items.length} items · Save ${allPrice-bundlePrice} HP</div>
+      </div>
+      ${allOwned?`<span style="color:var(--green);font-weight:800;">✅ All Owned</span>`:`<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${bundlePrice} HP</span><span style="font-size:11px;color:var(--text3);text-decoration:line-through;">${allPrice} HP</span><button class="btn btn-prim" onclick="buyAllMaterial('${matSubject}','${matGroup}')" style="font-size:11px;">Buy All</button></div>`}
+    </div>`;
+  }
+
+  if(!items.length){H+=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Coming Soon!</div><div class="empty-sub">Study material for ${matSubject} is being prepared.</div></div>`;document.getElementById('material-content').innerHTML=H;return;}
+
+  H+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;">`;
+  items.forEach(mat=>{
+    const purchased=isPurchased(mat.id);
+    const clr=SUBJ_COLORS[mat.subject]||'#4f6ef7';
+    H+=`<div class="card card-p" style="transition:all .2s;cursor:pointer;border:1.5px solid ${purchased?'rgba(16,185,129,.3)':'var(--border)'};" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='none';this.style.boxShadow=''">
+      <div style="width:44px;height:44px;border-radius:12px;background:${clr}18;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:10px;">${MAT_TYPE_ICONS[mat.matType]||'📋'}</div>
+      <div style="font-size:13px;font-weight:800;margin-bottom:4px;">${escH(mat.title)}</div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:12px;">${MAT_TYPE_LABELS[mat.matType]||mat.matType}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:900;font-family:var(--mono);color:${purchased?'var(--green)':'#7c3aed'}">${purchased?'✅ Owned':'💜 '+mat.price+' HP'}</span>
+        ${purchased?`<button class="btn btn-green" onclick="openPDF('${mat.pdfUrl}','${escH(mat.title)}','${mat.id}')" style="font-size:10px;padding:5px 10px;">📖 Open</button>`:
+        `<button class="btn btn-prim" onclick="showPurchaseModal('${mat.id}','material')" style="font-size:10px;padding:5px 10px;">🔒 Buy</button>`}
+      </div>
+    </div>`;
+  });
+  H+=`</div>`;
+  document.getElementById('material-content').innerHTML=H;
+}
+
+function setMatGroup(g){matGroup=g;renderMaterial();}
+function setMatSubject(s){matSubject=s;renderMaterial();}
+function buyAllMaterial(subj,group){
+  const items=MATERIAL_DATA.filter(m=>m.subject===subj&&m.group===group&&!isPurchased(m.id));
+  const allPrice=MATERIAL_DATA.filter(m=>m.subject===subj&&m.group===group).length*40;
+  const bundlePrice=Math.round(allPrice*0.75/10)*10;
+  if(!items.length){showToast('All items already owned!','warning');return;}
+  const hp=getHP().total;
+  if(hp<bundlePrice){showToast(`Need ${bundlePrice} HP. You have ${hp} HP.`,'error');return;}
+  if(!confirm(`Buy all ${subj} material for ${bundlePrice} HP?`))return;
+  items.forEach(m=>{spendHP(m.price,`Purchased: ${m.title}`);addPurchase(m.id,m.title,m.price,'material');});
+  showToast(`✅ All ${subj} material unlocked!`,'success');renderMaterial();
+}
+
+/* ═══════════════════════════════════════
+   PYQs PAGE
+═══════════════════════════════════════ */
+let pyqGroup='class12',pyqYear='all',pyqType='all';
+function renderPYQs(){
+  updateHPDisplays();
+  let H=`
+  <div class="subj-tabs" style="margin-bottom:10px;">
+    <div class="subj-tab ${pyqGroup==='class12'?'active':''}" onclick="setPyqGroup('class12')">📚 Class 12</div>
+    <div class="subj-tab ${pyqGroup==='cuet'?'active':''}" onclick="setPyqGroup('cuet')">🎯 CUET</div>
+  </div>
+  <div class="subj-tabs" style="margin-bottom:10px;">
+    <div class="subj-tab ${pyqYear==='all'?'active':''}" onclick="setPyqYear('all')">All Years</div>
+    ${['2025','2024','2023','2022'].map(y=>`<div class="subj-tab ${pyqYear===y?'active':''}" onclick="setPyqYear('${y}')">${y}</div>`).join('')}
+  </div>
+  <div class="subj-tabs" style="margin-bottom:18px;">
+    <div class="subj-tab ${pyqType==='all'?'active':''}" onclick="setPyqType('all')">All Types</div>
+    <div class="subj-tab ${pyqType==='full'?'active':''}" onclick="setPyqType('full')">📄 Full Papers</div>
+    <div class="subj-tab ${pyqType==='chapter'?'active':''}" onclick="setPyqType('chapter')">📖 Chapterwise</div>
+  </div>`;
+
+  let filtered=PYQS_DATA.filter(p=>p.group===pyqGroup);
+  if(pyqYear!=='all')filtered=filtered.filter(p=>p.year===parseInt(pyqYear));
+  if(pyqType!=='all')filtered=filtered.filter(p=>p.pyqType===pyqType);
+
+  if(!filtered.length){H+=`<div class="empty"><div class="empty-icon">📜</div><div class="empty-title">No PYQs Found</div><div class="empty-sub">Try a different filter combination.</div></div>`;document.getElementById('pyqs-content').innerHTML=H;return;}
+
+  H+=`<div class="pyq-grid">`;
+  filtered.forEach(pyq=>{
+    const purchased=isPurchased(pyq.id);
+    const diffClass=pyq.difficulty==='hard'?'hard':pyq.difficulty==='moderate'?'moderate':'easy';
+    const diffLabel=pyq.difficulty==='hard'?'🔴 Hard':pyq.difficulty==='moderate'?'🟡 Moderate':'🟢 Easy';
+    const subjectColor=SUBJ_COLORS[pyq.subject]||'#4f6ef7';
+    H+=`<div class="pyq-card ${purchased?'purchased':''}">
+      <div style="height:4px;background:${subjectColor};border-radius:4px 4px 0 0;margin:-15px -15px 12px;"></div>
+      <div class="pyq-year">${pyq.year}</div>
+      <div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+        <span class="pyq-diff ${diffClass}">${diffLabel}</span>
+        ${pyq.hasSolutions?`<span class="sol-badge">✅ Solutions</span>`:''}
+        ${pyq.pyqType==='chapter'?`<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(79,110,247,.1);color:var(--acc);">📖 Chapterwise</span>`:''}
+      </div>
+      <div style="font-size:13px;font-weight:800;margin-bottom:3px;">${escH(pyq.title)}</div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:10px;">📚 ${pyq.chapters}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:900;font-family:var(--mono);color:${purchased?'var(--green)':'#7c3aed'}">${purchased?'✅ Owned':'💜 '+pyq.price+' HP'}</span>
+        ${purchased?`<button class="btn btn-green" onclick="openPDF('${pyq.pdfUrl}','${escH(pyq.title)}','${pyq.id}')" style="font-size:10px;padding:5px 10px;">📄 Open</button>`:
+        `<button class="btn btn-prim" onclick="showPurchaseModal('${pyq.id}','pyq')" style="font-size:10px;padding:5px 10px;">🔒 Buy</button>`}
+      </div>
+    </div>`;
+  });
+  H+=`</div>`;
+  document.getElementById('pyqs-content').innerHTML=H;
+}
+
+function setPyqGroup(g){pyqGroup=g;renderPYQs();}
+function setPyqYear(y){pyqYear=y;renderPYQs();}
+function setPyqType(t){pyqType=t;renderPYQs();}
+
+/* ═══════════════════════════════════════
+   MCQs PAGE
+═══════════════════════════════════════ */
+let mcqType='all',mcqSubject='all',mcqDiff='all';
+function renderMCQs(){
+  updateHPDisplays();
+  const MCQSUBJETS=['all','BST','ECO','ACC','PHY','CHE','GAT'];
+  let H=`
+  <div class="filter-bar">
+    <select class="filter-sel" onchange="mcqType=this.value;renderMCQs()">
+      <option value="all">All Types</option>
+      <option value="chapter">📖 Chapterwise</option>
+      <option value="special">⭐ Special Packs</option>
+    </select>
+    <select class="filter-sel" onchange="mcqSubject=this.value;renderMCQs()">
+      <option value="all">All Subjects</option>
+      ${MCQSUBJETS.filter(s=>s!=='all').map(s=>`<option value="${s}">${SUBJ_ICONS[s]||''} ${s}</option>`).join('')}
+    </select>
+    <select class="filter-sel" onchange="mcqDiff=this.value;renderMCQs()">
+      <option value="all">All Difficulty</option>
+      <option value="easy">🟢 Easy</option>
+      <option value="moderate">🟡 Moderate</option>
+      <option value="hard">🔴 Hard</option>
+    </select>
+  </div>`;
+
+  let filtered=MCQS_DATA;
+  if(mcqType!=='all')filtered=filtered.filter(m=>m.mcqType===mcqType);
+  if(mcqSubject!=='all')filtered=filtered.filter(m=>m.subject===mcqSubject);
+  if(mcqDiff!=='all')filtered=filtered.filter(m=>m.difficulty===mcqDiff);
+
+  if(!filtered.length){H+=`<div class="empty"><div class="empty-icon">❓</div><div class="empty-title">No MCQs Found</div><div class="empty-sub">Try different filters.</div></div>`;document.getElementById('mcqs-content').innerHTML=H;return;}
+
+  // Special packs section
+  const specials=filtered.filter(m=>m.mcqType==='special');
+  const chapters=filtered.filter(m=>m.mcqType==='chapter');
+
+  if(specials.length){
+    H+=`<div class="sec-hdr"><div class="sec-title">⭐ Special MCQ Packs</div></div><div class="mcq-grid" style="margin-bottom:22px;">`;
+    specials.forEach(mcq=>H+=buildMcqCard(mcq));
+    H+=`</div>`;
+  }
+  if(chapters.length){
+    H+=`<div class="sec-hdr"><div class="sec-title">📖 Chapterwise MCQs</div></div><div class="mcq-grid">`;
+    chapters.forEach(mcq=>H+=buildMcqCard(mcq));
+    H+=`</div>`;
+  }
+  document.getElementById('mcqs-content').innerHTML=H;
+}
+
+function buildMcqCard(mcq){
+  const purchased=isPurchased(mcq.id);
+  const diffClass=mcq.difficulty==='hard'?'hard':mcq.difficulty==='moderate'?'moderate':'easy';
+  const diffClr=mcq.difficulty==='hard'?'var(--red)':mcq.difficulty==='moderate'?'var(--yellow)':'var(--green)';
+  const isCuetFreq=mcq.tags&&mcq.tags.includes('CUET Freq');
+  return`<div class="mcq-card ${purchased?'purchased':''}">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+      <div style="font-size:20px;">${SUBJ_ICONS[mcq.subject]||'❓'}</div>
+      ${isCuetFreq?`<span style="font-size:8px;font-weight:800;background:rgba(124,58,237,.12);color:#7c3aed;padding:2px 7px;border-radius:20px;">⭐ CUET</span>`:''}
+    </div>
+    <div class="mcq-count">${mcq.count}</div>
+    <div style="font-size:9px;color:var(--text3);margin-bottom:5px;">Questions</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:3px;">${escH(mcq.title)}</div>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:7px;">${escH(mcq.chapter)}</div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">${(mcq.tags||[]).map(t=>`<span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--card2);color:var(--text3);">${t}</span>`).join('')}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:12px;font-weight:900;font-family:var(--mono);color:${purchased?'var(--green)':'#7c3aed'}">${purchased?'✅ Owned':'💜 '+mcq.price+' HP'}</span>
+      ${purchased?`<button class="btn btn-green" onclick="openPDF('${mcq.pdfUrl}','${escH(mcq.title)}','${mcq.id}')" style="font-size:10px;padding:5px 10px;">📄 Open</button>`:
+      `<button class="btn btn-prim" onclick="showPurchaseModal('${mcq.id}','mcq')" style="font-size:10px;padding:5px 10px;">🔒 Buy</button>`}
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════
+   STUDY TIMER PAGE
+═══════════════════════════════════════ */
+let timerInterval=null,timerSeconds=0,timerRunning=false,timerSubject='BST',timerMode='normal';
+let timerHPEarned=0,pomodoroPhase='study',pomodoroCount=0;
+let pdfTimerInterval=null,pdfTimerSeconds=0,pdfItemId=null;
+let lastVisibilityTime=Date.now();
+
+function renderStudy(){
+  updateHPDisplays();
+  const purchases=getPurchases().filter(p=>p.pdfUrl||true);
+  const hours=getStudyHours();
+  const SUBJECTS=['BST','ECO','ACC','PHY','CHE','BIO','MAT','POL','HIS','GEO','ENG','PE','GAT'];
+
+  let weeklyData=buildWeeklyStudyData();
+
+  let H=`
+  <div class="grid-2" style="margin-bottom:18px;">
+    <div class="card card-p">
+      <!-- TIMER MODE -->
+      <div class="timer-mode-toggle">
+        <button class="timer-mode-btn ${timerMode==='normal'?'active':''}" onclick="setTimerMode('normal')">⏱️ Normal</button>
+        <button class="timer-mode-btn ${timerMode==='pomodoro'?'active':''}" onclick="setTimerMode('pomodoro')">🍅 Pomodoro</button>
+      </div>
+      <!-- TIMER DISPLAY -->
+      <div class="timer-display ${timerRunning?'running':''}" id="timer-display">00:00:00</div>
+      <!-- HP EARN INDICATOR -->
+      <div style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:14px;">
+        <span id="timer-hp-info">1 hour = 5 HP · <strong style="color:#7c3aed;" id="session-hp-earned">${timerHPEarned} HP</strong> earned this session</span>
+      </div>
+      ${timerMode==='pomodoro'?`<div style="text-align:center;font-size:12px;font-weight:700;margin-bottom:12px;"><span id="pomo-phase-label" style="color:${pomodoroPhase==='study'?'var(--acc)':'var(--green)'};">${pomodoroPhase==='study'?'📚 Study Phase':'☕ Break Time'}</span> · 🍅 ${pomodoroCount} completed</div>`:''}
+      <!-- SUBJECT SELECTOR -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Studying:</div>
+        <select class="form-inp" onchange="timerSubject=this.value" style="padding:9px 12px;">
+          ${SUBJECTS.map(s=>`<option value="${s}" ${timerSubject===s?'selected':''}>${SUBJ_ICONS[s]||'📚'} ${s}</option>`).join('')}
+        </select>
+      </div>
+      <!-- CONTROLS -->
+      <div class="timer-controls">
+        <button class="btn btn-prim" id="timer-start-btn" onclick="startTimer()" style="${timerRunning?'display:none':''};padding:10px 24px;font-size:13px;">▶️ Start</button>
+        <button class="btn btn-ghost" id="timer-pause-btn" onclick="pauseTimer()" style="${timerRunning?'':'display:none'};padding:10px 24px;font-size:13px;">⏸️ Pause</button>
+        <button class="btn btn-red" onclick="stopTimer()" style="font-size:13px;padding:10px 20px;">⏹️ Stop & Save</button>
+      </div>
+      <!-- ANTI-CHEAT NOTICE -->
+      <div style="background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.25);border-radius:11px;padding:10px 13px;font-size:11px;color:var(--text2);margin-top:12px;">
+        ⚠️ <strong>Anti-cheat:</strong> Timer auto-pauses when you switch tabs. Study honestly!
+      </div>
+      <div id="tab-warning" style="display:none;background:rgba(244,63,94,.1);border:1.5px solid rgba(244,63,94,.3);border-radius:11px;padding:10px 13px;font-size:11px;color:var(--red);margin-top:8px;font-weight:700;">
+        ❌ Tab switched — timer paused! Return here to continue.
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <!-- TODAY SUMMARY -->
+      <div class="card card-p">
+        <div class="sec-title" style="margin-bottom:12px;">📊 Today's Session</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <div style="text-align:center;background:var(--card2);border-radius:11px;padding:10px;">
+            <div style="font-size:20px;font-weight:900;font-family:var(--mono);color:var(--acc);" id="today-time">${formatStudyTime(getTodayStudySeconds())}</div>
+            <div style="font-size:9px;color:var(--text3);">Today</div>
+          </div>
+          <div style="text-align:center;background:var(--card2);border-radius:11px;padding:10px;">
+            <div style="font-size:20px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${Math.floor(hours.total/3600)}h</div>
+            <div style="font-size:9px;color:var(--text3);">Total</div>
+          </div>
+          <div style="text-align:center;background:var(--card2);border-radius:11px;padding:10px;">
+            <div style="font-size:20px;font-weight:900;font-family:var(--mono);color:var(--green);">${Math.floor(hours.total/3600)*5}</div>
+            <div style="font-size:9px;color:var(--text3);">HP Earned</div>
+          </div>
+        </div>
+      </div>
+      <!-- SUBJECT BREAKDOWN -->
+      <div class="card card-p">
+        <div class="sec-title" style="margin-bottom:10px;">📚 Per Subject Hours</div>
+        ${Object.keys(hours.subjects||{}).length===0?`<div style="font-size:12px;color:var(--text3);">Start studying to see breakdown.</div>`:''}
+        ${Object.entries(hours.subjects||{}).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([subj,secs])=>{
+          const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);
+          const pct=hours.total>0?(secs/hours.total*100):0;
+          const clr=SUBJ_COLORS[subj]||'#4f6ef7';
+          return`<div class="prog-row"><div class="prog-lbl">${SUBJ_ICONS[subj]||'📚'} ${subj}</div><div class="prog-track"><div class="prog-fill" style="width:${pct.toFixed(0)}%;background:${clr}"></div></div><div class="prog-pct" style="color:${clr}">${h}h${m}m</div></div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEKLY CHART -->
+  <div class="card card-p" style="margin-bottom:18px;">
+    <div class="sec-hdr"><div class="sec-title">📈 Weekly Study Hours</div><div style="font-size:11px;color:var(--text3);">This week · ${(weeklyData.total/3600).toFixed(1)}h total</div></div>
+    <div style="height:170px;"><canvas id="study-week-chart"></canvas></div>
+  </div>
+
+  <!-- PURCHASED CONTENT -->
+  <div class="sec-hdr"><div class="sec-title">📖 My Library — Study from Here</div><div class="sec-link" onclick="goPage('books')">Browse More →</div></div>`;
+
+  const allPurchased=getPurchases();
+  if(!allPurchased.length){
+    H+=`<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">Library Empty</div><div class="empty-sub">Purchase books, notes or study materials to study from here.</div><button class="btn btn-prim" onclick="goPage('books')" style="margin-top:12px;">📖 Browse Books</button></div>`;
+  } else {
+    H+=`<div class="study-content-grid">`;
+    allPurchased.slice(0,12).forEach(p=>{
+      H+=`<div class="study-content-card" onclick="openPDF('','${escH(p.title)}','${p.id}')">
+        <div style="font-size:28px;margin-bottom:8px;">📄</div>
+        <div style="font-size:12px;font-weight:800;margin-bottom:4px;line-height:1.4;">${escH(p.title)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:10px;">${p.category||'Content'} · ${fd(p.date)}</div>
+        <button class="btn btn-green" style="width:100%;justify-content:center;font-size:11px;">📖 Open & Study</button>
+      </div>`;
+    });
+    H+=`</div>`;
+  }
+
+  document.getElementById('study-content').innerHTML=H;
+
+  // Render chart
+  setTimeout(()=>{
+    const cv=document.getElementById('study-week-chart');
+    if(!cv)return;
+    const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    new Chart(cv.getContext('2d'),{type:'bar',data:{labels,datasets:[{data:weeklyData.days.map(d=>+(d/3600).toFixed(2)),backgroundColor:weeklyData.days.map(d=>d>0?'rgba(79,110,247,.7)':'rgba(232,236,244,.5)'),borderRadius:6,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#9298b5',font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#9298b5',font:{size:10},callback:v=>v+'h'}}}}});
+    updateTimerDisplay();
+  },100);
+}
+
+function setTimerMode(m){timerMode=m;if(timerRunning){pauseTimer();}timerSeconds=timerMode==='pomodoro'?25*60:0;pomodoroPhase='study';pomodoroCount=0;updateTimerDisplay();renderStudy();}
+function startTimer(){
+  if(timerRunning)return;
+  timerRunning=true;
+  document.getElementById('timer-start-btn').style.display='none';
+  document.getElementById('timer-pause-btn').style.display='';
+  document.getElementById('timer-display').classList.add('running');
+  timerInterval=setInterval(()=>{
+    if(timerMode==='normal'){
+      timerSeconds++;
+      const hp=Math.floor(timerSeconds/3600)*5;
+      if(hp>timerHPEarned){const diff=hp-timerHPEarned;timerHPEarned=hp;addHP(diff,`Study Timer — ${timerSubject} (1 hour)`);const el=document.getElementById('session-hp-earned');if(el)el.textContent=timerHPEarned+' HP';}
+    } else {
+      timerSeconds--;
+      if(timerSeconds<=0){
+        if(pomodoroPhase==='study'){pomodoroPhase='break';timerSeconds=5*60;pomodoroCount++;addHP(5,`Pomodoro completed — ${timerSubject} 🍅`);showToast(`🍅 Pomodoro ${pomodoroCount} done! +5 HP · Take a 5 min break!`,'success');}
+        else{pomodoroPhase='study';timerSeconds=25*60;showToast('☕ Break over! Back to studying!','warning');}
+        const pl=document.getElementById('pomo-phase-label');
+        if(pl){pl.textContent=pomodoroPhase==='study'?'📚 Study Phase':'☕ Break Time';pl.style.color=pomodoroPhase==='study'?'var(--acc)':'var(--green)';}
+      }
+    }
+    updateTimerDisplay();
+    const tt=document.getElementById('today-time');if(tt)tt.textContent=formatStudyTime(getTodayStudySeconds()+timerSeconds);
+  },1000);
+}
+function pauseTimer(){
+  if(!timerRunning)return;
+  timerRunning=false;clearInterval(timerInterval);
+  document.getElementById('timer-start-btn').style.display='';
+  document.getElementById('timer-pause-btn').style.display='none';
+  document.getElementById('timer-display').classList.remove('running');
+}
+function stopTimer(){
+  if(timerRunning)pauseTimer();
+  const totalSecs=timerMode==='normal'?timerSeconds:0;
+  if(totalSecs>60){saveStudySession(timerSubject,totalSecs);}
+  timerSeconds=timerMode==='pomodoro'?25*60:0;timerHPEarned=0;pomodoroPhase='study';
+  updateTimerDisplay();renderStudy();
+  showToast(`✅ Session saved! ${formatStudyTime(totalSecs)} studied`,'success');
+}
+function updateTimerDisplay(){
+  const el=document.getElementById('timer-display');if(!el)return;
+  const s=timerMode==='normal'?timerSeconds:timerSeconds;
+  const abs=Math.abs(s);const h=Math.floor(abs/3600);const m=Math.floor((abs%3600)/60);const sc=abs%60;
+  el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`;
+}
+function saveStudySession(subj,secs){
+  const h=getStudyHours();
+  h.total=(h.total||0)+secs;
+  h.subjects=h.subjects||{};h.subjects[subj]=(h.subjects[subj]||0)+secs;
+  h.sessions=h.sessions||[];
+  h.sessions.unshift({subj,secs,date:new Date().toISOString()});
+  if(h.sessions.length>50)h.sessions=h.sessions.slice(0,50);
+  saveStudyHours(h);
+}
+function getTodayStudySeconds(){
+  const h=getStudyHours();const today=new Date().toISOString().split('T')[0];
+  return(h.sessions||[]).filter(s=>s.date&&s.date.startsWith(today)).reduce((sum,s)=>sum+s.secs,0);
+}
+function formatStudyTime(secs){const h=Math.floor(secs/3600);const m=Math.floor((secs%3600)/60);return h>0?`${h}h ${m}m`:`${m}m`;}
+function buildWeeklyStudyData(){
+  const h=getStudyHours();const now=new Date();const days=[0,0,0,0,0,0,0];let total=0;
+  const dayOfWeek=now.getDay();const monday=(dayOfWeek+6)%7;
+  (h.sessions||[]).forEach(s=>{
+    const d=new Date(s.date);const diff=Math.floor((now-d)/86400000);if(diff<0||diff>6)return;
+    const dayIdx=(d.getDay()+6)%7;days[dayIdx]+=s.secs;total+=s.secs;
+  });
+  return{days,total};
+}
+
+// Tab visibility anti-cheat
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&timerRunning){
+    pauseTimer();
+    const el=document.getElementById('tab-warning');if(el)el.style.display='block';
+    showToast('⚠️ Timer paused — tab switched!','warning');
+  }
+});
+
+/* ═══════════════════════════════════════
+   PDF READER
+═══════════════════════════════════════ */
+function openPDF(url,title,itemId){
+  document.getElementById('pdf-reader-title').textContent=title||'Document';
+  const iframe=document.getElementById('pdf-iframe');
+  if(url){iframe.src=url;}
+  else{iframe.srcdoc=`<div style="height:100%;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#666;flex-direction:column;gap:12px;background:#f5f5f5;"><div style="font-size:48px">📄</div><div style="font-size:16px;font-weight:700;">${title}</div><div style="font-size:13px;color:#999;">PDF will appear here once URL is configured.</div></div>`;}
+  document.getElementById('pdf-reader').classList.add('open');
+  pdfItemId=itemId;pdfTimerSeconds=0;
+  document.getElementById('pdf-reader-timer').textContent='⏱️ 0:00 studied';
+  pdfTimerInterval=setInterval(()=>{
+    if(!document.hidden){pdfTimerSeconds++;const m=Math.floor(pdfTimerSeconds/60);const s=pdfTimerSeconds%60;const el=document.getElementById('pdf-reader-timer');if(el)el.textContent=`⏱️ ${m}:${String(s).padStart(2,'0')} studied`;
+    if(pdfTimerSeconds>=3600&&pdfItemId&&!isStudied(pdfItemId)){addStudiedBadge(pdfItemId);showToast('✅ Studied badge earned! 1 hour of study logged.','success');}}
+  },1000);
+}
+function closePDF(){
+  document.getElementById('pdf-reader').classList.remove('open');
+  clearInterval(pdfTimerInterval);
+  if(pdfTimerSeconds>60&&pdfItemId){saveStudySession(timerSubject,pdfTimerSeconds);const hp=Math.floor(pdfTimerSeconds/3600)*5;if(hp>0)addHP(hp,`PDF Study — ${document.getElementById('pdf-reader-title').textContent}`);}
+  pdfTimerSeconds=0;pdfItemId=null;
+  document.getElementById('pdf-iframe').src='';
+}
+
+/* ═══════════════════════════════════════
+   PURCHASE MODAL
+═══════════════════════════════════════ */
+let pendingPurchase=null;
+function showPurchaseModal(id,category){
+  let item=null;
+  if(category==='book')item=BOOKS_DATA.find(x=>x.id===id);
+  else if(category==='note')item=NOTES_DATA.find(x=>x.id===id);
+  else if(category==='material')item=MATERIAL_DATA.find(x=>x.id===id);
+  else if(category==='pyq')item=PYQS_DATA.find(x=>x.id===id);
+  else if(category==='mcq')item=MCQS_DATA.find(x=>x.id===id);
+  if(!item)return;
+  pendingPurchase={id,category,item};
+  const hp=getHP().total;
+  const canAfford=hp>=item.price;
+  document.getElementById('pm-title').textContent='🛒 Confirm Purchase';
+  document.getElementById('pm-body').innerHTML=`
+    <div style="background:var(--card2);border-radius:14px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:36px;">${SUBJ_ICONS[item.subject||'']||'📄'}</div>
+      <div>
+        <div style="font-size:15px;font-weight:800;">${escH(item.title)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">${category.toUpperCase()}</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;">
+      <span style="color:var(--text2);">Price</span><span style="font-weight:900;font-family:var(--mono);color:#7c3aed;">${item.price} HP</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;">
+      <span style="color:var(--text2);">Your HP</span><span style="font-weight:900;font-family:var(--mono);color:${canAfford?'var(--green)':'var(--red)'};">${hp} HP</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:20px;font-size:13px;padding-top:10px;border-top:1px solid var(--border);">
+      <span style="color:var(--text2);">After Purchase</span><span style="font-weight:900;font-family:var(--mono);">${hp-item.price} HP</span>
+    </div>
+    ${!canAfford?`<div style="background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.25);border-radius:11px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--red);font-weight:600;">❌ Not enough HP! You need ${item.price-hp} more HP. Earn HP by studying or completing sections with 80%+.</div>`:''}
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeModal('purchase-modal')" style="flex:1;justify-content:center;">Cancel</button>
+      <button class="btn btn-prim" onclick="confirmPurchase()" style="flex:1;justify-content:center;" ${!canAfford?'disabled style="opacity:.5;cursor:not-allowed;"':''}>💜 Buy Now</button>
+    </div>`;
+  openModal('purchase-modal');
+}
+
+function confirmPurchase(){
+  if(!pendingPurchase)return;
+  const{id,category,item}=pendingPurchase;
+  const ok=spendHP(item.price,`Purchased: ${item.title}`);
+  if(!ok){showToast('Not enough HP!','error');return;}
+  addPurchase(id,item.title,item.price,category);
+  closeModal('purchase-modal');
+  showToast(`✅ ${item.title} unlocked!`,'success');
+  // Re-render current page
+  const activePage=document.querySelector('.page.active')?.id?.replace('page-','');
+  if(activePage&&PAGE_RENDERERS[activePage])PAGE_RENDERERS[activePage]();
+  pendingPurchase=null;
+}
+
+function showBundleModal(bundleId){
+  const bundle=BUNDLES.find(b=>b.id===bundleId);if(!bundle)return;
+  const hp=getHP().total;const canAfford=hp>=bundle.bundlePrice;
+  const books=bundle.books.map(id=>BOOKS_DATA.find(x=>x.id===id)).filter(Boolean);
+  document.getElementById('pm-title').textContent='📦 Bundle Purchase';
+  document.getElementById('pm-body').innerHTML=`
+    <div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:800;margin-bottom:5px;">${escH(bundle.title)}</div><div style="font-size:12px;color:var(--text3);">${escH(bundle.desc)}</div></div>
+    <div style="background:var(--card2);border-radius:11px;padding:12px;margin-bottom:14px;">${books.map(b=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;">${b.icon} ${escH(b.title)}</div>`).join('')}</div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;"><span>Bundle Price</span><span style="font-weight:900;color:#7c3aed;">${bundle.bundlePrice} HP</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;"><span>Normal Price</span><span style="text-decoration:line-through;color:var(--text3);">${bundle.normalPrice} HP</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:13px;"><span style="color:var(--green);font-weight:800;">You Save</span><span style="color:var(--green);font-weight:800;">${bundle.normalPrice-bundle.bundlePrice} HP</span></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeModal('purchase-modal')" style="flex:1;justify-content:center;">Cancel</button>
+      <button class="btn btn-gold" onclick="confirmBundlePurchase('${bundleId}')" style="flex:1;justify-content:center;" ${!canAfford?'disabled':''}>${canAfford?`🛒 Buy Bundle — ${bundle.bundlePrice} HP`:`❌ Need ${bundle.bundlePrice-hp} more HP`}</button>
+    </div>`;
+  openModal('purchase-modal');
+}
+
+function confirmBundlePurchase(bundleId){
+  const bundle=BUNDLES.find(b=>b.id===bundleId);if(!bundle)return;
+  const ok=spendHP(bundle.bundlePrice,`Bundle: ${bundle.title}`);
+  if(!ok){showToast('Not enough HP!','error');return;}
+  bundle.books.forEach(id=>{
+    const book=BOOKS_DATA.find(b=>b.id===id);
+    if(book&&!isPurchased(id))addPurchase(id,book.title,book.price,'book');
+  });
+  closeModal('purchase-modal');showToast(`✅ Bundle unlocked! ${bundle.books.length} books added.`,'success');renderBooks();
+}
+
+/* ═══════════════════════════════════════
+   SETTINGS PAGE
+═══════════════════════════════════════ */
+let settingsLogTab='hp',settingsHistTab='all';
+function renderSettings(){
+  updateHPDisplays();
+  const hp=getHP();
+  const purchases=getPurchases();
+  const studyH=getStudyHours();
+  const prof=getProfile();
+
+  let H=`
+  <!-- PROFILE -->
+  <div class="settings-section">
+    <div class="settings-title">👤 Profile</div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div class="sb-av" style="width:52px;height:52px;font-size:22px;">${(prof.name||'S')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-size:17px;font-weight:800;">${escH(prof.name||'Student')}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;">${escH(prof.college||'CUET Aspirant')}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">Synced from Dashboard</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:26px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${hp.total} HP</div>
+        <div style="font-size:10px;color:var(--text3);">Current Balance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYNC -->
+  <div class="settings-section">
+    <div class="settings-title">🔗 Sync with Dashboard <span class="sync-dot synced" style="margin-left:8px;"></span></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">HP balance is automatically synced with the Thunderstudy dashboard via shared localStorage. Both pages use the same data.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-prim" onclick="manualSync()">🔄 Force Sync Now</button>
+      <a href="${DASHBOARD_URL}" target="_blank" class="btn btn-ghost">🔗 Open Dashboard</a>
+    </div>
+    <div id="sync-status" style="font-size:12px;margin-top:8px;min-height:16px;"></div>
+  </div>
+
+  <!-- HP LOG -->
+  <div class="settings-section">
+    <div class="settings-title">📋 Activity Logs</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+      ${[['hp','💜 HP Log'],['purchases','🛒 Purchases'],['study','⏱️ Study Log']].map(([id,label])=>`<button onclick="setSettingsTab('${id}')" class="btn ${settingsLogTab===id?'btn-prim':'btn-ghost'}" style="font-size:11px;padding:7px 14px;">${label}</button>`).join('')}
+    </div>
+    <div id="settings-log-panel" style="max-height:320px;overflow-y:auto;border-radius:12px;background:var(--card2);border:1px solid var(--border);"></div>
+  </div>
+
+  <!-- PROMO CODE -->
+  <div class="settings-section">
+    <div class="settings-title">🎟️ Promo Code</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Hidden inside Thunderstudy books and study materials.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input class="filter-inp" id="promo-inp" placeholder="Enter promo code…" style="flex:1;min-width:160px;" onkeydown="if(event.key==='Enter')redeemPromo()">
+      <button class="btn btn-prim" onclick="redeemPromo()">🎟️ Redeem</button>
+    </div>
+    <div id="promo-status" style="font-size:12px;font-weight:600;margin-top:8px;min-height:16px;"></div>
+  </div>
+
+  <!-- STUDY HOURS BREAKDOWN -->
+  <div class="settings-section">
+    <div class="settings-title">⏱️ Study Hours Log</div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
+      <div style="text-align:center;"><div style="font-size:22px;font-weight:900;font-family:var(--mono);color:var(--acc);">${Math.floor(studyH.total/3600)}h ${Math.floor((studyH.total%3600)/60)}m</div><div style="font-size:10px;color:var(--text3);">Total Studied</div></div>
+      <div style="text-align:center;"><div style="font-size:22px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${Math.floor(studyH.total/3600)*5} HP</div><div style="font-size:10px;color:var(--text3);">HP from Study</div></div>
+    </div>
+    ${Object.entries(studyH.subjects||{}).sort((a,b)=>b[1]-a[1]).map(([subj,secs])=>{
+      const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);
+      const pct=studyH.total>0?(secs/studyH.total*100):0;
+      return`<div class="prog-row"><div class="prog-lbl">${SUBJ_ICONS[subj]||'📚'} ${subj}</div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${SUBJ_COLORS[subj]||'var(--acc)'}"></div></div><div class="prog-pct">${h}h${m}m</div></div>`;
+    }).join('')}
+    ${Object.keys(studyH.subjects||{}).length===0?'<div style="font-size:12px;color:var(--text3);">No study sessions recorded yet.</div>':''}
+  </div>`;
+
+  document.getElementById('settings-content').innerHTML=H;
+  renderSettingsLog();
+}
+
+function setSettingsTab(tab){settingsLogTab=tab;renderSettingsLog();}
+function renderSettingsLog(){
+  const panel=document.getElementById('settings-log-panel');if(!panel)return;
+  if(settingsLogTab==='hp'){
+    const log=getHP().log;
+    if(!log.length){panel.innerHTML=`<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No HP activity yet.</div>`;return;}
+    panel.innerHTML=log.map(l=>`<div class="log-row">
+      <div style="font-size:18px;flex-shrink:0;">${l.amount>0?'💜':'💸'}</div>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:700;">${escH(l.reason||'HP Transaction')}</div><div style="font-size:10px;color:var(--text3);">${fd(l.date)}</div></div>
+      <div style="font-size:13px;font-weight:900;font-family:var(--mono);color:${l.amount>0?'var(--green)':'var(--red)'};">${l.amount>0?'+':''}${l.amount} HP</div>
+    </div>`).join('');
+  } else if(settingsLogTab==='purchases'){
+    const p=getPurchases();
+    if(!p.length){panel.innerHTML=`<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No purchases yet. Browse the store!</div>`;return;}
+    const totalSpent=p.reduce((s,x)=>s+x.price,0);
+    panel.innerHTML=`<div style="padding:10px 14px;background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(79,110,247,.05));border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="font-size:12px;font-weight:800;">${p.length} items purchased</span><span style="font-size:12px;font-weight:800;color:#7c3aed;">${totalSpent} HP total spent</span></div>`+p.map(x=>`<div class="log-row">
+      <div style="font-size:16px;">📄</div>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:700;">${escH(x.title)}</div><div style="font-size:10px;color:var(--text3);">${escH(x.category||'')} · ${fd(x.date)}</div></div>
+      <div style="font-size:12px;font-weight:800;color:var(--red);">−${x.price} HP</div>
+    </div>`).join('');
+  } else if(settingsLogTab==='study'){
+    const h=getStudyHours();
+    const sessions=h.sessions||[];
+    if(!sessions.length){panel.innerHTML=`<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No study sessions yet. Start the timer!</div>`;return;}
+    panel.innerHTML=sessions.map(s=>`<div class="log-row">
+      <div style="font-size:16px;">${SUBJ_ICONS[s.subj]||'📚'}</div>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:700;">${s.subj} — ${formatStudyTime(s.secs)}</div><div style="font-size:10px;color:var(--text3);">${fd(s.date)}</div></div>
+      <div style="font-size:12px;font-weight:700;color:var(--green);">+${Math.floor(s.secs/3600)*5} HP</div>
+    </div>`).join('');
+  }
+}
+
+function manualSync(){
+  const st=document.getElementById('sync-status');
+  if(st)st.innerHTML=`<span style="color:var(--yellow);">⏳ Syncing…</span>`;
+  setTimeout(()=>{
+    updateHPDisplays();updateProfile();
+    if(st)st.innerHTML=`<span style="color:var(--green);">✅ Synced with Dashboard! HP updated.</span>`;
+  },600);
+}
+
+function redeemPromo(){
+  const inp=document.getElementById('promo-inp');
+  const st=document.getElementById('promo-status');
+  const code=(inp?.value||'').trim().toLowerCase();
+  const PROMOS={accluffy:50,bstluffy2:50,ecoluffy3:50,gatpika:50,engpika:50,polisara:50,hissara1:50,geosara2:50,chepragya:50,phypragya2:50,biopragya3:50,mathsaashi:50};
+  const used=JSON.parse(localStorage.getItem('ts_promos_used')||'[]');
+  if(!PROMOS[code]){if(st)st.innerHTML=`<span style="color:var(--red);">❌ Invalid code.</span>`;return;}
+  if(used.includes(code)){if(st)st.innerHTML=`<span style="color:var(--red);">⚠️ Already used!</span>`;return;}
+  if(used.length>=5){if(st)st.innerHTML=`<span style="color:var(--red);">🚫 Max 5 codes per student.</span>`;return;}
+  used.push(code);localStorage.setItem('ts_promos_used',JSON.stringify(used));
+  addHP(PROMOS[code],`Promo code: ${code}`);
+  if(inp)inp.value='';
+  if(st)st.innerHTML=`<span style="color:var(--green);">✅ +${PROMOS[code]} HP added!</span>`;
+  showToast(`🎟️ +${PROMOS[code]} HP from promo code!`,'success');
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+window.addEventListener('load',()=>{
+  updateProfile();updateHPDisplays();updateWishlistCount();
+  renderHome();
+  // Auto-claim daily if first load of day
+  // (user still clicks button — just pre-check)
+  document.getElementById('main-scroll').addEventListener('scroll',function(){
+    const btn=document.getElementById('btt-btn');
+    if(btn)btn.classList.toggle('visible',this.scrollTop>300);
+  },{passive:true});
+});
+</script>
+</body>
+</html>
