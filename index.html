@@ -1962,7 +1962,7 @@ function handleReplaceUpload(evt,itemId,title){
   reader.readAsDataURL(file);evt.target.value='';
 }
 
-function setTimerMode(m){timerMode=m;if(timerRunning)pauseTimer();timerSeconds=m==='pomodoro'?25*60:0;pomodoroPhase='study';pomodoroCount=0;updateTimerDisplay();renderStudy();}
+function setTimerMode(m){timerMode=m;if(timerRunning)pauseTimer();timerSeconds=m==='pomodoro'?60*60:0;pomodoroPhase='study';pomodoroCount=0;updateTimerDisplay();renderStudy();}
 
 function startTimer(){
   if(timerRunning)return;
