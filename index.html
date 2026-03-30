@@ -346,6 +346,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .pdf-reader-bar{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:8px 10px;}
 .pdf-reader-bar .btn{flex-shrink:0;font-size:10px;padding:5px 10px;}
 #pdf-iframe{width:100%;height:100%;border:none;display:block;}
+/* SEARCH */
+.search-wrap{padding:6px 10px 10px;position:relative;}
+.search-inp-sb{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:30px;padding:8px 14px 8px 32px;font-size:12px;color:var(--text);font-family:var(--fn);outline:none;}
+.search-inp-sb:focus{border-color:var(--acc);}
+.search-icon-sb{position:absolute;left:20px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;}
+.search-results-overlay{position:fixed;top:0;left:var(--sidebar-w);right:0;bottom:0;background:var(--bg);z-index:40;overflow-y:auto;padding:28px;display:none;}
+.search-results-overlay.open{display:block;}
+.sr-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.sr-item:hover{border-color:var(--acc);box-shadow:var(--sh2);}
+@media(max-width:768px){.search-results-overlay{left:0;padding:14px;padding-bottom:90px;}}
+/* WEEKLY CLAIM */
+.weekly-claim-box{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(79,110,247,.05));border:2px solid rgba(124,58,237,.25);border-radius:var(--r2);padding:16px 18px;}
 </style>
 </head>
 <body>
@@ -355,6 +367,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
   <div class="sb-logo">
     <div class="sb-logo-icon">⚡</div>
     <div><div class="sb-logo-text">Study<span>Hub</span></div><div style="font-size:9px;color:var(--text3);margin-top:1px;">by Thunderstudy</div></div>
+  </div>
+<div class="search-wrap">
+    <span class="search-icon-sb">🔍</span>
+    <input class="search-inp-sb" id="sb-search" placeholder="Search everything…" oninput="handleSearch(this.value)" autocomplete="off"/>
   </div>
   <div class="sb-nav">
     <div class="sb-section-label">Navigate</div>
@@ -432,6 +448,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
   </div>
 </div>
 
+<!-- SEARCH OVERLAY -->
+<div class="search-results-overlay" id="search-overlay">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+    <button class="btn btn-ghost" onclick="closeSearchOverlay()" style="font-size:12px;">← Back</button>
+    <input class="form-inp" id="search-main-inp" placeholder="Search books, notes, PYQs, MCQs, material…" oninput="handleSearch(this.value)" style="flex:1;border-radius:30px;padding:10px 16px;"/>
+  </div>
+  <div id="search-results-body"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- MOBILE DOCK -->
@@ -471,10 +496,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
     <span class="dock-icon">⏱️</span>
     <span class="dock-label">Timer</span>
   </div>
-  <div class="dock-item" id="dock-settings" onclick="goPage('settings')">
+<div class="dock-item" id="dock-settings" onclick="goPage('settings')">
     <div class="dock-bubble">⚙️</div>
     <span class="dock-icon">⚙️</span>
     <span class="dock-label">Settings</span>
+  </div>
+  <div class="dock-item" id="dock-search-mob" onclick="showSearchOverlay();setTimeout(()=>document.getElementById('search-main-inp')?.focus(),100)">
+    <div class="dock-bubble">🔍</div>
+    <span class="dock-icon">🔍</span>
+    <span class="dock-label">Search</span>
   </div>
 </nav>
 
@@ -811,26 +841,42 @@ function getWeekKey(date=new Date()){
   d.setDate(d.getDate()-d.getDay()); // back to Sunday
   return d.toISOString().split('T')[0];
 }
-function getWeeklyStudy(){try{return JSON.parse(localStorage.getItem('sh_weekly_study')||'{}');}catch(e){return{};}}
-function saveWeeklyStudy(d){localStorage.setItem('sh_weekly_study',JSON.stringify(d));}
+/* ═══ WEEKLY HP ACCUMULATION (1h = 5HP, claim Sunday or manually) ═══ */
+function getWeeklyHPStore(){try{return JSON.parse(localStorage.getItem('sh_weekly_hp')||'{"weekKey":"","seconds":0,"claimedSeconds":0,"lastAutoSunday":""}');}catch(e){return{weekKey:"",seconds:0,claimedSeconds:0,lastAutoSunday:""};}}
+function saveWeeklyHPStore(d){localStorage.setItem('sh_weekly_hp',JSON.stringify(d));}
+function getWeekKey(date=new Date()){const d=new Date(date);d.setHours(0,0,0,0);d.setDate(d.getDate()-d.getDay());return d.toISOString().split('T')[0];}
 function addWeeklyStudyTime(secs){
-  const key=getWeekKey();
-  let wd=getWeeklyStudy();
-  if(wd.weekKey&&wd.weekKey!==key){wd={};} // new week — reset
-  wd.weekKey=key;
-  wd.seconds=(wd.seconds||0)+secs;
-  wd.awardGiven=wd.awardGiven||false;
-  saveWeeklyStudy(wd);
-  if(wd.seconds>=3600&&!wd.awardGiven){
-    wd.awardGiven=true;saveWeeklyStudy(wd);
-    addHP(5,'Weekly Study Goal: 1 Hour Completed! 🏆');
-    showToast('🏆 Weekly 1-hour goal reached! +5 HP!','success');
-  }
+  const key=getWeekKey();let d=getWeeklyHPStore();
+  if(d.weekKey!==key){d={weekKey:key,seconds:0,claimedSeconds:0,lastAutoSunday:d.lastAutoSunday||''};}
+  d.seconds+=secs;saveWeeklyHPStore(d);
+}
+function getWeeklyHPStatus(){
+  const key=getWeekKey();const d=getWeeklyHPStore();
+  if(d.weekKey!==key)return{totalSecs:0,claimedSecs:0,totalHP:0,claimedHP:0,unclaimedHP:0,partialMins:0,hours:0};
+  const hours=Math.floor(d.seconds/3600);
+  const totalHP=hours*5;const claimedHP=Math.floor(d.claimedSeconds/3600)*5;
+  return{totalSecs:d.seconds,claimedSecs:d.claimedSeconds,totalHP,claimedHP,unclaimedHP:totalHP-claimedHP,partialMins:Math.floor((d.seconds%3600)/60),hours};
+}
+function claimWeeklyHP(auto=false){
+  const key=getWeekKey();let d=getWeeklyHPStore();
+  if(d.weekKey!==key)return 0;
+  const st=getWeeklyHPStatus();if(st.unclaimedHP<=0)return 0;
+  d.claimedSeconds=Math.floor(d.seconds/3600)*3600;
+  if(auto)d.lastAutoSunday=new Date().toISOString().split('T')[0];
+  saveWeeklyHPStore(d);
+  addHP(st.unclaimedHP,`Weekly Study HP — ${st.hours} hr(s) × 5 HP${auto?' (Auto Sunday 🌅)':''}`);
+  return st.unclaimedHP;
+}
+function checkSundayAutoClaim(){
+  const now=new Date();if(now.getDay()!==0)return;
+  const today=now.toISOString().split('T')[0];
+  const d=getWeeklyHPStore();if(d.lastAutoSunday===today)return;
+  const earned=claimWeeklyHP(true);
+  if(earned>0)setTimeout(()=>showToast(`🌅 Sunday auto-claim! +${earned} HP for this week's study!`,'success'),800);
 }
 function getWeeklyProgress(){
-  const wd=getWeeklyStudy();const key=getWeekKey();
-  if(!wd.weekKey||wd.weekKey!==key)return{secs:0,done:false};
-  return{secs:wd.seconds||0,done:wd.awardGiven||false};
+  const st=getWeeklyHPStatus();
+  return{secs:st.totalSecs,done:st.unclaimedHP===0&&st.totalHP>0,totalHP:st.totalHP,unclaimedHP:st.unclaimedHP};
 }
 function getWeekLabel(){
   const d=new Date();d.setDate(d.getDate()-d.getDay());
@@ -899,6 +945,20 @@ function updateProfile(){
   if(ht)ht.textContent=`👋 Hey, ${name}!`;
 }
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function origPrice(p){return p*2;}
+function priceBadge(p,isCS=false){
+  const op=origPrice(p),off=isCS?'55%':'50%',actual=isCS?p-5:p;
+  return`<span style="font-size:9px;text-decoration:line-through;color:var(--text3);">${op} HP</span> <span style="font-size:8px;font-weight:800;background:rgba(16,185,129,.15);color:var(--green);padding:1px 6px;border-radius:20px;">${off} OFF</span><br><span style="font-size:13px;font-weight:900;font-family:var(--mono);color:#7c3aed;">💜 ${actual} HP</span>`;
+}
+function priceRows(p,isCS=false,hp=0){
+  const actual=isCS?p-5:p;const after=hp-actual;
+  return`<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:6px;"><span style="color:var(--text3);">Original Price</span><span style="font-family:var(--mono);text-decoration:line-through;color:var(--text3);">${origPrice(p)} HP</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:6px;"><span style="color:var(--green);font-weight:800;">50% Discount</span><span style="font-family:var(--mono);font-weight:800;color:var(--green);">−${p} HP</span></div>
+${isCS?`<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:6px;"><span style="color:var(--teal);font-weight:800;">Early Bird</span><span style="font-family:var(--mono);font-weight:800;color:var(--teal);">−5 HP</span></div>`:''}
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;border-top:1px solid var(--border);padding-top:8px;margin-top:4px;"><span>You Pay</span><span style="font-family:var(--mono);color:#7c3aed;font-size:18px;">${actual} HP</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-top:6px;"><span style="color:var(--text3);">Your HP</span><span style="font-family:var(--mono);font-weight:800;color:${hp>=actual?'var(--green)':'var(--red)'};">${hp} HP ${hp>=actual?'✅':'❌'}</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-top:4px;"><span style="color:var(--text3);">After Purchase</span><span style="font-family:var(--mono);font-weight:700;">${after} HP</span></div>`;
+}
 function fd(iso){try{return new Date(iso).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return'—';}}
 function timeAgo(iso){
   const diff=Date.now()-new Date(iso).getTime();
@@ -941,7 +1001,7 @@ function renderHome(){
   const hp=getHP();const loginInfo=checkDailyLogin();
   const maxHP=2000,hpPct=Math.min(100,(hp.total/maxHP)*100),r=80,circ=2*Math.PI*r,dash=circ-(hpPct/100)*circ;
   const ringColor=hp.total>=1500?'#f97316':hp.total>=1000?'#f59e0b':hp.total>=500?'#4f6ef7':'#7c3aed';
-  const weekly=getWeeklyProgress();const weekPct=Math.min(100,(weekly.secs/3600)*100);
+  const wst=getWeeklyHPStatus();const weekly=getWeeklyProgress();const weekPct=wst.partialMins>0?(wst.partialMins/60)*100:0;
 
   let H=`
   <div class="grid-2" style="margin-bottom:18px;">
@@ -979,20 +1039,22 @@ function renderHome(){
         </div>
       </div>
 
-      <!-- WEEKLY PROGRESS -->
-      <div class="card card-p" style="padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <div style="font-size:12px;font-weight:800;">📅 Weekly Study Goal</div>
+<!-- WEEKLY HP CLAIM CARD -->
+      <div class="weekly-claim-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:13px;font-weight:900;">📅 Weekly Study HP</div>
           <div style="font-size:10px;color:var(--text3);">${getWeekLabel()}</div>
         </div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Study 1 hour this week → earn 5 HP bonus</div>
-        <div style="background:var(--card2);border-radius:30px;height:10px;overflow:hidden;margin-bottom:6px;">
-          <div style="height:100%;border-radius:30px;width:${weekPct}%;background:${weekly.done?'var(--green)':'linear-gradient(90deg,#4f6ef7,#7c3aed)'};transition:width 1.2s ease;"></div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px;">Study as much as you want · Every full hour = 5 HP · Auto-claim Sunday 12 AM</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;text-align:center;">
+          <div style="background:var(--card);border-radius:10px;padding:8px 4px;"><div style="font-size:18px;font-weight:900;font-family:var(--mono);color:var(--acc);">${wst.hours}h</div><div style="font-size:9px;color:var(--text3);">Studied</div></div>
+          <div style="background:var(--card);border-radius:10px;padding:8px 4px;"><div style="font-size:18px;font-weight:900;font-family:var(--mono);color:var(--green);">${wst.totalHP}</div><div style="font-size:9px;color:var(--text3);">Earned</div></div>
+          <div style="background:var(--card);border-radius:10px;padding:8px 4px;"><div style="font-size:18px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${wst.unclaimedHP}</div><div style="font-size:9px;color:var(--text3);">To Claim</div></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;">
-          <span style="color:${weekly.done?'var(--green)':'var(--text3)'};">${weekly.done?'✅ Goal reached! +5 HP claimed':formatStudyTime(weekly.secs)+' / 1h'}</span>
-          <span style="color:var(--text3);">${weekPct.toFixed(0)}%</span>
-        </div>
+        ${wst.partialMins>0?`<div style="font-size:10px;color:var(--orange);font-weight:700;margin-bottom:8px;background:rgba(249,115,22,.08);border-radius:8px;padding:6px 10px;">⚠️ ${wst.partialMins} min extra — study ${60-wst.partialMins} more min to earn another 5 HP!</div>`:''}
+        ${wst.unclaimedHP>0
+          ?`<button class="btn btn-prim" onclick="doClaimWeeklyHP()" style="width:100%;justify-content:center;">💜 Claim ${wst.unclaimedHP} HP Now</button><div style="font-size:10px;color:var(--text3);text-align:center;margin-top:6px;">Auto-claims Sunday 12 AM 🌅</div>`
+          :`<div style="font-size:11px;color:var(--text3);text-align:center;padding:4px 0;">${wst.hours===0?'Start studying to earn HP! ⏱️':'✅ All HP claimed! Keep studying this week.'}</div>`}
       </div>
 
       <!-- MINI STATS -->
@@ -1076,9 +1138,47 @@ function doClaim(){
   renderHome();
 }
 
+function doClaimWeeklyHP(){
+  const earned=claimWeeklyHP(false);
+  if(earned>0){showToast(`💜 +${earned} HP claimed for weekly study!`,'success');renderHome();}
+  else showToast('No unclaimed HP yet. Keep studying!','warning');
+}
+
 /* ═══════════════════════════════════════
    BOOKS PAGE
 ═══════════════════════════════════════ */
+function buildBookCard(book){
+  const purchased=isPurchased(book.id),wishlisted=isWishlisted(book.id),inCart=isInCart(book.id);
+  const isCS=book.comingSoon&&!purchased,csPurchased=isCSPurchased(book.id),countdown=getCSCountdown(book.id);
+  const priceDisplay=purchased?'<span style="color:var(--green);font-size:12px;">✅ Owned</span>':priceBadge(book.price,isCS&&!csPurchased);
+  return`<div class="book-card ${purchased?'purchased':''} ${isCS?'cs':''}" onclick="showPurchaseModal('${book.id}','book')">
+    <div class="book-cover-placeholder" style="background:linear-gradient(135deg,${book.color||'#4f6ef7'},${book.color2||'#7c3aed'});position:relative;">
+      <div style="font-size:42px;z-index:1;">${book.icon}</div>
+      <div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:8px;font-weight:800;color:rgba(255,255,255,.8);">${book.seriesName||''}</div>
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);pointer-events:none;"></div>
+    </div>
+    ${book.hot&&!isCS?`<div class="book-badge hot">🔥 HOT</div>`:''}
+    ${purchased?`<div class="book-badge purchased" style="top:${book.hot?'34px':'8px'};">✅ Owned</div>`:''}
+    ${isCS&&!csPurchased?`<div class="book-badge cs">⏳ Soon</div>`:''}
+    ${isCS&&csPurchased?`<div class="book-badge" style="background:rgba(249,115,22,.9);color:#fff;top:8px;">${countdown?'⏰ '+countdown:'📬 Available Soon'}</div>`:''}
+    ${!isCS&&!purchased?`<div class="cs-tag avail" style="position:absolute;top:8px;right:8px;font-size:8px;padding:2px 7px;">✅ Available</div>`:''}
+    <button class="book-wishlist ${wishlisted?'active':''}" id="wl-${book.id}" onclick="toggleWL(event,'${book.id}')" style="top:${(book.hot||isCS)?'34px':'8px'};">${wishlisted?'❤️':'🤍'}</button>
+    <div class="book-info">
+      <div class="book-title">${escH(book.title)}</div>
+      <div class="book-meta">${book.subject} · ${book.type==='sample'?'Sample Paper':'Question Bank'} · ${book.group==='class12'?'Class 12':'CUET'}</div>
+      <div class="book-price">
+        <div style="line-height:1.4;">${priceDisplay}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          ${purchased?`<button class="btn btn-green" onclick="event.stopPropagation();openPDFForItem('${book.id}','book')" style="font-size:10px;padding:5px 10px;">📖 Open</button>`:
+          isCS&&!csPurchased?`<button class="btn btn-orange" onclick="event.stopPropagation();showPurchaseModal('${book.id}','book')" style="font-size:10px;padding:5px 10px;">⏳ Pre-buy</button>`:
+          !inCart?`<button class="btn btn-ghost" onclick="event.stopPropagation();addToCart('${book.id}');renderBooks();" style="font-size:10px;padding:5px 10px;">🛒</button><button class="btn btn-prim" onclick="event.stopPropagation();showPurchaseModal('${book.id}','book')" style="font-size:10px;padding:5px 10px;">Buy</button>`:
+          `<button class="btn btn-ghost" onclick="event.stopPropagation();removeFromCart('${book.id}');renderBooks();" style="font-size:10px;padding:5px 10px;border-color:var(--acc);color:var(--acc);">✓ Cart</button>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 let booksTab='all',booksType='all';
 function renderBooks(){
   updateHPDisplays();updateWishlistCount();updateCartCount();
@@ -1098,14 +1198,6 @@ function renderBooks(){
       ${cartDiscount?`<span style="font-size:9px;background:var(--green);color:#fff;border-radius:20px;padding:1px 6px;">-50 HP</span>`:''}
     </button>
   </div>`;
-
-  if(booksTab!=='wishlist'){
-    H+=`<div class="subj-tabs" style="margin-bottom:18px;">
-      <div class="subj-tab ${booksType==='all'?'active':''}" onclick="setBooksType('all')">All Types</div>
-      <div class="subj-tab ${booksType==='sample'?'active':''}" onclick="setBooksType('sample')">📄 Sample Papers</div>
-      <div class="subj-tab ${booksType==='qbank'?'active':''}" onclick="setBooksType('qbank')">📚 Question Banks</div>
-    </div>`;
-  }
 
   // BULK DISCOUNT BANNER
   if(booksTab!=='wishlist'){
@@ -1146,55 +1238,44 @@ function renderBooks(){
     }
   }
 
-  // BOOKS GRID
-  let filtered=BOOKS_DATA;
-  if(booksTab==='wishlist'){filtered=BOOKS_DATA.filter(b=>isWishlisted(b.id));}
-  else{
-    if(booksTab!=='all')filtered=filtered.filter(b=>b.group===booksTab);
-    if(booksType!=='all')filtered=filtered.filter(b=>b.type===booksType);
-  }
-
-  H+=`<div class="sec-hdr"><div class="sec-title">${booksTab==='wishlist'?'❤️ My Wishlist':'📚 All Books'} (${filtered.length})</div></div>`;
-  if(!filtered.length){
-    H+=`<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">${booksTab==='wishlist'?'Wishlist Empty':'No Books Found'}</div><div class="empty-sub">${booksTab==='wishlist'?'Heart books to save them here.':'Try a different filter.'}</div></div>`;
-    document.getElementById('books-content').innerHTML=H;return;
-  }
-
-  H+=`<div class="book-grid">`;
-  filtered.forEach(book=>{
-    const purchased=isPurchased(book.id),wishlisted=isWishlisted(book.id),inCart=isInCart(book.id);
-    const isCS=book.comingSoon&&!purchased;
-    const csPurchased=isCSPurchased(book.id);
-    const countdown=getCSCountdown(book.id);
-    H+=`<div class="book-card ${purchased?'purchased':''} ${isCS?'cs':''}" onclick="showPurchaseModal('${book.id}','book')">
-      <div class="book-cover-placeholder" style="background:linear-gradient(135deg,${book.color||'#4f6ef7'},${book.color2||'#7c3aed'});position:relative;">
-        <div style="font-size:42px;z-index:1;">${book.icon}</div>
-        <div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:8px;font-weight:800;color:rgba(255,255,255,.8);letter-spacing:.5px;">${book.seriesName||''}</div>
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);pointer-events:none;"></div>
-      </div>
-      ${book.hot&&!isCS?`<div class="book-badge hot">🔥 HOT</div>`:''}
-      ${purchased?`<div class="book-badge purchased" style="top:${book.hot?'34px':'8px'};">✅ Owned</div>`:''}
-      ${isCS&&!csPurchased?`<div class="book-badge cs">⏳ Soon</div>`:''}
-      ${isCS&&csPurchased?`<div class="book-badge" style="background:rgba(249,115,22,.9);color:#fff;top:8px;">${countdown?'⏰ '+countdown:'📬 Available Soon'}</div>`:''}
-      ${!isCS&&!purchased?`<div class="cs-tag avail" style="position:absolute;top:8px;right:8px;font-size:8px;padding:2px 7px;">✅ Available</div>`:''}
-      <button class="book-wishlist ${wishlisted?'active':''}" id="wl-${book.id}" onclick="toggleWL(event,'${book.id}')" style="top:${(book.hot||isCS||!isCS)?'34px':'8px'};" >${wishlisted?'❤️':'🤍'}</button>
-      <div class="book-info">
-        <div class="book-title">${escH(book.title)}</div>
-        <div class="book-meta">${book.subject} · ${book.type==='sample'?'Sample Paper':'Question Bank'} · ${book.group==='class12'?'Class 12':'CUET'}</div>
-        <div class="book-price">
-          <span class="book-hp">${purchased?'<span style="color:var(--green)">✅ Owned</span>':isCS?`💜 ${book.price-5} HP`:'💜 '+book.price+' HP'}</span>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            ${purchased?`<button class="btn btn-green" onclick="event.stopPropagation();openPDFForItem('${book.id}','book')" style="font-size:10px;padding:5px 10px;">📖 Open</button>`:
-            isCS&&!csPurchased?`<button class="btn btn-orange" onclick="event.stopPropagation();showPurchaseModal('${book.id}','book')" style="font-size:10px;padding:5px 10px;">⏳ Pre-buy</button>`:
-            !purchased&&!inCart?`<button class="btn btn-ghost" onclick="event.stopPropagation();addToCart('${book.id}');renderBooks();" style="font-size:10px;padding:5px 10px;">🛒 Cart</button><button class="btn btn-prim" onclick="event.stopPropagation();showPurchaseModal('${book.id}','book')" style="font-size:10px;padding:5px 10px;">Buy</button>`:
-            !purchased&&inCart?`<button class="btn btn-ghost" onclick="event.stopPropagation();removeFromCart('${book.id}');renderBooks();" style="font-size:10px;padding:5px 10px;border-color:var(--acc);color:var(--acc);">✓ In Cart</button>`:
-            ''}
-          </div>
+// BOOKS GRID — SECTIONED
+  if(booksTab==='wishlist'){
+    const wl=BOOKS_DATA.filter(b=>isWishlisted(b.id));
+    H+=`<div class="sec-hdr"><div class="sec-title">❤️ My Wishlist (${wl.length})</div></div>`;
+    H+=wl.length?`<div class="book-grid">${wl.map(buildBookCard).join('')}</div>`:
+      `<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">Wishlist Empty</div><div class="empty-sub">Heart books to save them here.</div></div>`;
+  } else {
+    const SECTIONS=[
+      {key:'c12sp',title:'📄 Class 12 Sample Papers',badge:'🔥 Most Popular',
+       filter:b=>b.group==='class12'&&b.type==='sample'&&!b.multiFile,
+       show:booksTab!=='cuet'},
+      {key:'c12sp_special',title:'⭐ Special Multi-Set Books',badge:'📂 Multiple Files',
+       filter:b=>b.multiFile,
+       show:booksTab!=='cuet'},
+      {key:'c12qb',title:'📚 Class 12 Question Banks',badge:'5000+ Questions',
+       filter:b=>b.group==='class12'&&b.type==='qbank',
+       show:booksTab!=='cuet'},
+      {key:'cuetqb',title:'🎯 CUET Question Banks',badge:'CUET Special',
+       filter:b=>b.group==='cuet',
+       show:booksTab!=='class12'},
+    ];
+    let anyShown=false;
+    SECTIONS.forEach(sec=>{
+      if(!sec.show)return;
+      const items=BOOKS_DATA.filter(sec.filter);
+      if(!items.length)return;
+      anyShown=true;
+      H+=`<div class="sec-hdr" style="margin-top:6px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="sec-title">${sec.title}</div>
+          <span style="font-size:9px;font-weight:800;background:rgba(245,158,11,.15);color:var(--orange);padding:2px 9px;border-radius:20px;">${sec.badge}</span>
         </div>
-      </div>
-    </div>`;
-  });
-  H+=`</div>`;
+        <div style="font-size:11px;color:var(--text3);">${items.length} books</div>
+      </div>`;
+      H+=`<div class="book-grid" style="margin-bottom:28px;">${items.map(buildBookCard).join('')}</div>`;
+    });
+    if(!anyShown)H+=`<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">No Books Found</div></div>`;
+  }
   document.getElementById('books-content').innerHTML=H;
 }
 
@@ -1413,16 +1494,7 @@ function showNoteModal(id){
 
   // Payment section
   body+=`<div style="background:var(--card2);border-radius:12px;padding:12px;margin-bottom:14px;">
-    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-      <span>Price</span>
-      <span style="font-family:var(--mono);font-weight:900;color:#7c3aed;">${price} HP${isCS?' <span style="font-size:9px;color:var(--green);">-5 HP early</span>':''}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-      <span>Your HP</span><span style="font-family:var(--mono);font-weight:800;color:${canAfford?'var(--green)':'var(--red)'};">${hp} HP</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:900;border-top:1px solid var(--border);padding-top:8px;">
-      <span>After</span><span style="font-family:var(--mono);">${hp-price} HP</span>
-    </div>
+${priceRows(note.price,isCS,hp)}
   </div>
   ${!canAfford?`<div style="background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.25);border-radius:11px;padding:10px;margin-bottom:12px;font-size:11px;color:var(--red);">❌ Need ${price-hp} more HP to purchase.</div>`:''}
   <div style="display:flex;gap:8px;">
@@ -1701,9 +1773,10 @@ let pdfTimerInterval=null,pdfTimerSeconds=0,pdfItemId=null;
 
 function renderStudy(){
   updateHPDisplays();
-  const hours=getStudyHours();
+const hours=getStudyHours();
+  const wstStudy=getWeeklyHPStatus();
   const weekly=getWeeklyProgress();
-  const weekPct=Math.min(100,(weekly.secs/3600)*100);
+  const weekPct=wstStudy.partialMins>0?(wstStudy.partialMins/60)*100:0;
   const weeklyData=buildWeeklyStudyData();
   const SUBJECTS=['BST','ECO','ACC','PHY','CHE','BIO','MAT','POL','HIS','GEO','ENG','PE','GAT'];
 
@@ -1715,8 +1788,8 @@ function renderStudy(){
         <button class="timer-mode-btn ${timerMode==='pomodoro'?'active':''}" onclick="setTimerMode('pomodoro')">🍅 Pomodoro</button>
       </div>
       <div class="timer-display ${timerRunning?'running':''}" id="timer-display">00:00:00</div>
-      <div style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:14px;">
-        1 hour = 5 HP · <strong style="color:#7c3aed;" id="session-hp-earned">${timerHPEarned} HP</strong> earned this session
+<div style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:14px;">
+        1 hr = 5 HP · <strong style="color:#7c3aed;" id="session-hp-earned">${getWeeklyHPStatus().unclaimedHP} HP</strong> unclaimed this week
       </div>
       ${timerMode==='pomodoro'?`<div style="text-align:center;font-size:12px;font-weight:700;margin-bottom:12px;color:${pomodoroPhase==='study'?'var(--acc)':'var(--green)'};">🍅 ${pomodoroPhase==='study'?'Study Phase':'Break Time'} · ${pomodoroCount} done</div>`:''}
       <div style="margin-bottom:14px;">
@@ -1739,19 +1812,18 @@ function renderStudy(){
     </div>
 
     <div style="display:flex;flex-direction:column;gap:12px;">
-      <!-- WEEKLY GOAL -->
-      <div class="card card-p" style="padding:16px;">
+<!-- WEEKLY HP ACCUMULATOR -->
+      <div class="weekly-claim-box">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div style="font-size:13px;font-weight:800;">📅 Weekly Study Goal</div>
+          <div style="font-size:13px;font-weight:900;">📅 Weekly HP</div>
           <div style="font-size:10px;color:var(--text3);">${getWeekLabel()}</div>
         </div>
-        <div style="background:var(--card2);border-radius:30px;height:10px;overflow:hidden;margin-bottom:6px;">
-          <div style="height:100%;width:${weekPct}%;border-radius:30px;background:${weekly.done?'var(--green)':'linear-gradient(90deg,#4f6ef7,#7c3aed)'};transition:width 1.2s;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div style="background:var(--card);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:17px;font-weight:900;font-family:var(--mono);color:var(--acc);">${wstStudy.hours}h ${wstStudy.partialMins}m</div><div style="font-size:9px;color:var(--text3);">Studied this week</div></div>
+          <div style="background:var(--card);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:17px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${wstStudy.unclaimedHP} HP</div><div style="font-size:9px;color:var(--text3);">Unclaimed</div></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;">
-          <span style="color:${weekly.done?'var(--green)':'var(--text3)'};">${weekly.done?'✅ Goal done! +5 HP earned':formatStudyTime(weekly.secs)+' / 1h'}</span>
-          <span style="color:var(--text3);">${weekPct.toFixed(0)}%</span>
-        </div>
+        ${wstStudy.partialMins>0?`<div style="font-size:10px;color:var(--orange);font-weight:700;margin-bottom:8px;">⚠️ ${wstStudy.partialMins}m extra — ${60-wstStudy.partialMins}m more = another 5 HP!</div>`:''}
+        ${wstStudy.unclaimedHP>0?`<button class="btn btn-prim" onclick="doClaimWeeklyHP();renderStudy();" style="width:100%;justify-content:center;font-size:11px;">💜 Claim ${wstStudy.unclaimedHP} HP</button>`:`<div style="font-size:11px;color:var(--text3);text-align:center;">${wstStudy.hours===0?'Start timer to earn HP!':'✅ All HP claimed — keep going!'}</div>`}
       </div>
       <!-- STATS -->
       <div class="card card-p">
@@ -1764,8 +1836,8 @@ function renderStudy(){
             <div style="font-size:18px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${Math.floor(hours.total/3600)}h</div>
             <div style="font-size:9px;color:var(--text3);">Total</div>
           </div>
-          <div style="text-align:center;background:var(--card2);border-radius:11px;padding:10px;">
-            <div style="font-size:18px;font-weight:900;font-family:var(--mono);color:var(--green);">${Math.floor(hours.total/3600)*5+getWeeklyProgress().done*5}</div>
+<div style="text-align:center;background:var(--card2);border-radius:11px;padding:10px;">
+            <div style="font-size:18px;font-weight:900;font-family:var(--mono);color:var(--green);">${wstStudy.totalHP+wstStudy.claimedHP}</div>
             <div style="font-size:9px;color:var(--text3);">HP Earned</div>
           </div>
         </div>
@@ -1902,14 +1974,17 @@ function startTimer(){
     if(timerMode==='normal'){
       timerSeconds++;
       // HP every hour
-      const hp=Math.floor(timerSeconds/3600)*5;
-      if(hp>timerHPEarned){const diff=hp-timerHPEarned;timerHPEarned=hp;addHP(diff,`Study Timer — ${timerSubject} (1 hour)`);const el=document.getElementById('session-hp-earned');if(el)el.textContent=timerHPEarned+' HP';}
-      // Weekly tracking (every 30 seconds to reduce writes)
-      if(timerSeconds%30===0)addWeeklyStudyTime(30);
+      // Weekly accumulation — HP claimed Sunday or manually
+      if(timerSeconds%30===0){
+        addWeeklyStudyTime(30);
+        const wst2=getWeeklyHPStatus();
+        const el=document.getElementById('session-hp-earned');
+        if(el)el.textContent=`${formatStudyTime(timerSeconds)} · ${wst2.unclaimedHP} HP to claim`;
+      }
     } else {
       timerSeconds--;
       if(timerSeconds<=0){
-        if(pomodoroPhase==='study'){pomodoroPhase='break';timerSeconds=5*60;pomodoroCount++;addHP(5,`Pomodoro ${pomodoroCount} done — ${timerSubject} 🍅`);addWeeklyStudyTime(25*60);showToast(`🍅 Pomodoro ${pomodoroCount} done! +5 HP`,'success');}
+        if(pomodoroPhase==='study'){pomodoroPhase='break';timerSeconds=5*60;pomodoroCount++;addWeeklyStudyTime(25*60);const wstP=getWeeklyHPStatus();showToast(`🍅 Pomodoro ${pomodoroCount} done! ${wstP.unclaimedHP} HP ready to claim.`,'success');}
         else{pomodoroPhase='study';timerSeconds=25*60;showToast('Break over! Back to studying!','warning');}
       }
     }
@@ -2030,8 +2105,7 @@ function closePDF(){
   if(pdfTimerSeconds>60&&pdfItemId){
     saveStudySession(timerSubject,pdfTimerSeconds);
     addWeeklyStudyTime(pdfTimerSeconds);
-    const hp=Math.floor(pdfTimerSeconds/3600)*5;
-    if(hp>0)addHP(hp,`PDF Study — ${document.getElementById('pdf-reader-title').textContent}`);
+// Weekly accumulation — HP claimed via home/study page button
   }
   pdfTimerSeconds=0;pdfItemId=null;
   document.getElementById('pdf-iframe').src='';
@@ -2097,9 +2171,7 @@ function showPurchaseModal(id,category){
       <!-- RIGHT: PAYMENT -->
       <div class="pm-right">
         <div class="pm-price-box">
-          <div class="pm-price-row"><span style="font-size:12px;color:var(--text3);">Price</span><span style="font-size:18px;font-weight:900;font-family:var(--mono);color:#7c3aed;">${price} HP${isCS?'<div style="font-size:9px;color:var(--green);text-align:right;">-5 HP early!</div>':''}</span></div>
-          <div class="pm-price-row"><span style="font-size:11px;color:var(--text3);">Your HP</span><span style="font-family:var(--mono);font-weight:800;font-size:13px;color:${canAfford?'var(--green)':'var(--red)'};">${hp}</span></div>
-          <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;" class="pm-price-row"><span style="font-size:11px;font-weight:800;">After</span><span style="font-family:var(--mono);font-weight:900;font-size:14px;">${hp-price}</span></div>
+${priceRows(item.price,isCS,hp)}
         </div>
         ${!canAfford?`<div style="background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.25);border-radius:11px;padding:10px;font-size:11px;color:var(--red);">❌ Need ${price-hp} more HP</div>`:''}
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
@@ -2129,9 +2201,7 @@ function showPurchaseModal(id,category){
       <div style="font-size:36px;">${SUBJ_ICONS[item.subject||'']||'📄'}</div>
       <div><div style="font-size:15px;font-weight:800;">${escH(item.title)}</div><div style="font-size:11px;color:var(--text3);">${category.toUpperCase()}</div></div>
     </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;"><span>Price</span><span style="font-weight:900;font-family:var(--mono);color:#7c3aed;">${price} HP</span></div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;"><span>Your HP</span><span style="font-weight:900;font-family:var(--mono);color:${canAfford?'var(--green)':'var(--red)'};">${hp} HP</span></div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:18px;font-size:13px;border-top:1px solid var(--border);padding-top:10px;"><span>After</span><span style="font-weight:900;font-family:var(--mono);">${hp-price} HP</span></div>
+<div style="margin-bottom:16px;">${priceRows(item.price,false,hp)}</div>
     ${!canAfford?`<div style="background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.25);border-radius:11px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--red);">❌ Need ${price-hp} more HP.</div>`:''}
     <div style="display:flex;gap:8px;">
       <button class="btn btn-ghost" onclick="closeModal('purchase-modal')" style="flex:1;justify-content:center;">Cancel</button>
@@ -2288,7 +2358,7 @@ function manualSync(){
 function redeemPromo(){
   const inp=document.getElementById('promo-inp');const st=document.getElementById('promo-status');
   const code=(inp?.value||'').trim().toLowerCase();
-  const PROMOS={accluffy:50,bstluffy2:50,ecoluffy3:50,gatpika:50,engpika:50,polisara:50,hissara1:50,geosara2:50,chepragya:50,phypragya2:50,biopragya3:50,mathsaashi:50};
+  const PROMOS={accluffy:50,bstluffy2:50,ecoluffy3:50,gatpika:50,engpika:50,polisara:50,hissara1:50,geosara2:50,chepragya:50,phypragya2:50,biopragya3:50,mathsaashi:50,superpromothunderet: 100000};
   const used=JSON.parse(localStorage.getItem('ts_promos_used')||'[]');
   if(!PROMOS[code]){if(st)st.innerHTML=`<span style="color:var(--red);">❌ Invalid code.</span>`;return;}
   if(used.includes(code)){if(st)st.innerHTML=`<span style="color:var(--red);">⚠️ Already used!</span>`;return;}
@@ -2303,8 +2373,49 @@ function redeemPromo(){
 /* ═══════════════════════════════════════
    INIT
 ═══════════════════════════════════════ */
+/* ═══ GLOBAL SEARCH ═══ */
+let searchQuery='';
+function handleSearch(q){
+  searchQuery=q.trim();
+  const s1=document.getElementById('sb-search'),s2=document.getElementById('search-main-inp');
+  if(s1&&s1.value!==q)s1.value=q;if(s2&&s2.value!==q)s2.value=q;
+  if(!q){closeSearchOverlay();return;}
+  showSearchOverlay();renderSearchResults(q);
+}
+function showSearchOverlay(){document.getElementById('search-overlay').classList.add('open');}
+function closeSearchOverlay(){
+  document.getElementById('search-overlay').classList.remove('open');
+  const s1=document.getElementById('sb-search'),s2=document.getElementById('search-main-inp');
+  if(s1)s1.value='';if(s2)s2.value='';searchQuery='';
+}
+function renderSearchResults(q){
+  const ql=q.toLowerCase(),body=document.getElementById('search-results-body');if(!body)return;
+  const bHits=BOOKS_DATA.filter(b=>b.title.toLowerCase().includes(ql)||b.subject.toLowerCase().includes(ql)||(b.seriesName||'').toLowerCase().includes(ql));
+  const nHits=NOTES_DATA.filter(n=>n.title.toLowerCase().includes(ql)||n.subject.toLowerCase().includes(ql));
+  const pHits=PYQS_DATA.filter(p=>p.title.toLowerCase().includes(ql)||p.subject.toLowerCase().includes(ql)||String(p.year).includes(ql));
+  const mHits=MCQS_DATA.filter(m=>m.title.toLowerCase().includes(ql)||m.subject.toLowerCase().includes(ql)||m.chapter.toLowerCase().includes(ql));
+  const matHits=MATERIAL_DATA.filter(m=>m.title.toLowerCase().includes(ql)||m.subject.toLowerCase().includes(ql));
+  const total=bHits.length+nHits.length+pHits.length+mHits.length+matHits.length;
+  if(!total){body.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No results for "${escH(q)}"</div><div class="empty-sub">Try subject names (BST, ECO), types (notes, PYQ), or year numbers.</div></div>`;return;}
+  function sec(title,items,renderFn){if(!items.length)return'';return`<div style="margin-bottom:22px;"><div class="sec-hdr" style="margin-bottom:10px;"><div class="sec-title">${title} <span style="font-size:11px;font-weight:600;color:var(--text3);">(${items.length})</span></div></div>${items.map(renderFn).join('')}</div>`;}
+  function srCard(icon,iconBg,title,sub,price,purchased,action){
+    return`<div class="sr-item" onclick="${action}">
+      <div style="width:44px;height:54px;border-radius:10px;background:${iconBg};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${icon}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</div><div style="font-size:10px;color:var(--text3);">${sub}</div></div>
+      <div style="text-align:right;flex-shrink:0;">${purchased?`<span style="color:var(--green);font-size:11px;font-weight:800;">✅ Owned</span>`:`<div style="line-height:1.4;">${priceBadge(price)}</div>`}</div>
+    </div>`;
+  }
+  let H=`<div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Found <strong>${total}</strong> results for "<strong>${escH(q)}</strong>"</div>`;
+  H+=sec('📖 Books',bHits,b=>srCard(b.icon,`linear-gradient(135deg,${b.color||'#4f6ef7'},${b.color2||'#7c3aed'})`,escH(b.title),`${b.subject} · ${b.group==='class12'?'Class 12':'CUET'}`,b.price,isPurchased(b.id),`showPurchaseModal('${b.id}','book');closeSearchOverlay()`));
+  H+=sec('📝 Notes',nHits,n=>srCard(SUBJ_ICONS[n.subject]||'📝',`${SUBJ_COLORS[n.subject]||'#4f6ef7'}22`,escH(n.title),`${n.subject} · ${n.type} · ${(n.groups||[]).join(' & ')}`,n.price,isPurchased(n.id),`showNoteModal('${n.id}');closeSearchOverlay()`));
+  H+=sec('📜 PYQs',pHits,p=>srCard(SUBJ_ICONS[p.subject]||'📜',`${SUBJ_COLORS[p.subject]||'#4f6ef7'}22`,escH(p.title),`${p.subject} · ${p.year} · ${p.group}`,p.price,isPurchased(p.id),`showPurchaseModal('${p.id}','pyq');closeSearchOverlay()`));
+  H+=sec('❓ MCQs',mHits,m=>srCard(SUBJ_ICONS[m.subject]||'❓',`${SUBJ_COLORS[m.subject]||'#4f6ef7'}22`,escH(m.title),`${m.subject} · ${m.count} MCQs`,m.price,isPurchased(m.id),`showPurchaseModal('${m.id}','mcq');closeSearchOverlay()`));
+  H+=sec('📋 Material',matHits,m=>srCard(MAT_TYPE_ICONS[m.matType]||'📋',`${SUBJ_COLORS[m.subject]||'#4f6ef7'}22`,escH(m.title),`${m.subject} · ${MAT_TYPE_LABELS[m.matType]}`,m.price,isPurchased(m.id),`showPurchaseModal('${m.id}','material');closeSearchOverlay()`));
+  body.innerHTML=H;
+}
 window.addEventListener('load',()=>{
   updateProfile();updateHPDisplays();updateWishlistCount();updateCartCount();
+  checkSundayAutoClaim();
   renderHome();
   document.getElementById('main-scroll').addEventListener('scroll',function(){
     const btn=document.getElementById('btt-btn');
