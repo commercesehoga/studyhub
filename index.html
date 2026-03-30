@@ -2358,7 +2358,7 @@ function manualSync(){
 function redeemPromo(){
   const inp=document.getElementById('promo-inp');const st=document.getElementById('promo-status');
   const code=(inp?.value||'').trim().toLowerCase();
-  const PROMOS={accluffy:50,bstluffy2:50,ecoluffy3:50,gatpika:50,engpika:50,polisara:50,hissara1:50,geosara2:50,chepragya:50,phypragya2:50,biopragya3:50,mathsaashi:50,superpromothunderet: 100000};
+  const PROMOS={accluffy:50,bstluffy2:50,ecoluffy3:50,gatpika:50,engpika:50,polisara:50,hissara1:50,geosara2:50,chepragya:50,phypragya2:50,biopragya3:50,mathsaashi:50};
   const used=JSON.parse(localStorage.getItem('ts_promos_used')||'[]');
   if(!PROMOS[code]){if(st)st.innerHTML=`<span style="color:var(--red);">❌ Invalid code.</span>`;return;}
   if(used.includes(code)){if(st)st.innerHTML=`<span style="color:var(--red);">⚠️ Already used!</span>`;return;}
