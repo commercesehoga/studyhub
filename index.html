@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,7 +85,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .btn-orange{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;}
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
 .modal-ov.open{display:flex;}
-.modal-box{background:var(--card);border-radius:var(--r2);padding:26px;max-width:520px;width:90%;border:1px solid var(--border);animation:mIn .3s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;}
+.modal-box{background:#ffffff;background-color:#ffffff;border-radius:var(--r2);padding:26px;max-width:520px;width:90%;border:1px solid var(--border);animation:mIn .3s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .modal-box.wide{max-width:880px;}
 .modal-box.med{max-width:660px;}
 @keyframes mIn{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:none}}
@@ -273,22 +274,78 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .mobile-dock{display:none;}
 @media(max-width:768px){
   .sidebar{display:none;}body{flex-direction:column;}
-  .main{height:100dvh;padding-bottom:90px;}
+  .main{height:100dvh;padding-bottom:86px;}
   .page{padding:18px 14px;}
-  .mobile-dock{display:flex;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:440px;height:64px;background:#fff;border-radius:28px;border:1px solid var(--border);z-index:100;padding:0 4px;box-shadow:0 4px 24px rgba(0,0,0,.1);align-items:center;justify-content:space-around;}
-  .dock-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;position:relative;height:64px;-webkit-tap-highlight-color:transparent;}
-  .dock-icon{font-size:18px;line-height:1;}
-  .dock-label{font-size:8px;font-weight:700;color:var(--text3);margin-bottom:10px;margin-top:3px;}
+  .mobile-dock{
+    display:flex;
+    position:fixed;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    width:calc(100% - 20px);
+    max-width:480px;
+    height:62px;
+    background:#fff;
+    border-radius:26px;
+    border:1px solid var(--border);
+    z-index:100;
+    padding:0 6px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);
+    align-items:center;
+    overflow-x:auto;
+    overflow-y:hidden;
+    gap:0;
+    scrollbar-width:none;
+  }
+  .mobile-dock::-webkit-scrollbar{display:none;}
+  .dock-item{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    position:relative;
+    height:62px;
+    width:52px;
+    -webkit-tap-highlight-color:transparent;
+    gap:2px;
+  }
+  .dock-icon{font-size:18px;line-height:1;transition:transform .2s;}
+  .dock-label{
+    font-size:8px;
+    font-weight:700;
+    color:var(--text3);
+    white-space:nowrap;
+    transition:color .2s;
+  }
   .dock-item.active .dock-label{color:#4f6ef7;font-weight:800;}
   .dock-item.active .dock-icon{display:none;}
-  .dock-bubble{display:none;width:44px;height:44px;border-radius:50%;background:#4f6ef7;align-items:center;justify-content:center;font-size:20px;position:absolute;top:-14px;left:50%;transform:translateX(-50%);box-shadow:0 4px 14px rgba(79,110,247,.45);}
+  .dock-bubble{
+    display:none;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:#4f6ef7;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+    box-shadow:0 3px 10px rgba(79,110,247,.4);
+  }
   .dock-item.active .dock-bubble{display:flex;}
-  .dock-item.active .dock-label{margin-top:32px;margin-bottom:8px;}
+  .dock-item.active .dock-label{margin-top:0;}
   .pm-3col,.compare-grid{grid-template-columns:1fr;}
   .book-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
   .timer-display{font-size:40px;}
-  .btt-btn{bottom:82px;}
+  .btt-btn{bottom:80px;}
 }
+.modal-ov{align-items:flex-end;padding:0;}
+.modal-box{width:100%;max-width:100%;border-radius:22px 22px 0 0;max-height:88dvh;padding:20px 16px;background:#ffffff !important;background-color:#ffffff !important;}
+.modal-box.wide,.modal-box.med{max-width:100%;}
+.pdf-reader{position:fixed;inset:0;z-index:2000;}
+.pdf-reader-bar{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:8px 10px;}
+.pdf-reader-bar .btn{flex-shrink:0;font-size:10px;padding:5px 10px;}
+#pdf-iframe{width:100%;height:100%;border:none;display:block;}
 </style>
 </head>
 <body>
@@ -340,9 +397,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
     <button class="btn btn-green" id="pdf-dl-btn" onclick="downloadPDF()" style="font-size:11px;padding:6px 12px;">⬇️ Download</button>
     <label class="btn btn-ghost" style="font-size:11px;padding:6px 12px;cursor:pointer;" title="If PDF not loading, upload it here">📤 Re-upload<input type="file" accept=".pdf" style="display:none;" onchange="handlePDFReupload(event)"></label>
   </div>
-  <object class="pdf-reader-iframe" id="pdf-iframe" data="" type="application/pdf" style="flex:1;border:none;width:100%;background:#fff;">
-  <embed id="pdf-embed" src="" type="application/pdf" style="width:100%;height:100%;">
-</object>
+<iframe id="pdf-iframe" src="" style="flex:1;border:none;width:100%;height:100%;background:#fff;" allowfullscreen></iframe>
 </div>
 
 <!-- PURCHASE MODAL (books — 3-col) -->
@@ -381,11 +436,46 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 
 <!-- MOBILE DOCK -->
 <nav class="mobile-dock">
-  <div class="dock-item active" id="dock-home" onclick="goPage('home')"><div class="dock-bubble">🏠</div><span class="dock-icon">🏠</span><span class="dock-label">Home</span></div>
-  <div class="dock-item" id="dock-books" onclick="goPage('books')"><div class="dock-bubble">📖</div><span class="dock-icon">📖</span><span class="dock-label">Books</span></div>
-  <div class="dock-item" id="dock-notes" onclick="goPage('notes')"><div class="dock-bubble">📝</div><span class="dock-icon">📝</span><span class="dock-label">Notes</span></div>
-  <div class="dock-item" id="dock-study" onclick="goPage('study')"><div class="dock-bubble">⏱️</div><span class="dock-icon">⏱️</span><span class="dock-label">Timer</span></div>
-  <div class="dock-item" id="dock-settings" onclick="goPage('settings')"><div class="dock-bubble">⚙️</div><span class="dock-icon">⚙️</span><span class="dock-label">Settings</span></div>
+  <div class="dock-item active" id="dock-home" onclick="goPage('home')">
+    <div class="dock-bubble">🏠</div>
+    <span class="dock-icon">🏠</span>
+    <span class="dock-label">Home</span>
+  </div>
+  <div class="dock-item" id="dock-books" onclick="goPage('books')">
+    <div class="dock-bubble">📖</div>
+    <span class="dock-icon">📖</span>
+    <span class="dock-label">Books</span>
+  </div>
+  <div class="dock-item" id="dock-notes" onclick="goPage('notes')">
+    <div class="dock-bubble">📝</div>
+    <span class="dock-icon">📝</span>
+    <span class="dock-label">Notes</span>
+  </div>
+  <div class="dock-item" id="dock-material" onclick="goPage('material')">
+    <div class="dock-bubble">📋</div>
+    <span class="dock-icon">📋</span>
+    <span class="dock-label">Material</span>
+  </div>
+  <div class="dock-item" id="dock-pyqs" onclick="goPage('pyqs')">
+    <div class="dock-bubble">📜</div>
+    <span class="dock-icon">📜</span>
+    <span class="dock-label">PYQs</span>
+  </div>
+  <div class="dock-item" id="dock-mcqs" onclick="goPage('mcqs')">
+    <div class="dock-bubble">❓</div>
+    <span class="dock-icon">❓</span>
+    <span class="dock-label">MCQs</span>
+  </div>
+  <div class="dock-item" id="dock-study" onclick="goPage('study')">
+    <div class="dock-bubble">⏱️</div>
+    <span class="dock-icon">⏱️</span>
+    <span class="dock-label">Timer</span>
+  </div>
+  <div class="dock-item" id="dock-settings" onclick="goPage('settings')">
+    <div class="dock-bubble">⚙️</div>
+    <span class="dock-icon">⚙️</span>
+    <span class="dock-label">Settings</span>
+  </div>
 </nav>
 
 <button class="btt-btn" id="btt-btn" onclick="document.getElementById('main-scroll').scrollTo({top:0,behavior:'smooth'})">↑</button>
@@ -1900,11 +1990,13 @@ function openPDF(url,title,itemId,dlId){
   currentPDFDlId=dlId||'';
   pdfOpenUrl=finalUrl;
 
-  if(finalUrl){
-  const obj=document.getElementById('pdf-iframe');
-  const emb=document.getElementById('pdf-embed');
-  if(obj){obj.data=finalUrl;}
-  if(emb){emb.src=finalUrl;}
+if(finalUrl){
+  const iframe=document.getElementById('pdf-iframe');
+  if(iframe){
+    // Convert Google Drive preview URLs to embedded iframe format
+    // gd() already returns /preview format, so this works directly
+    iframe.src=finalUrl;
+  }
 } else {
     iframe.srcdoc=`<div style="height:100%;display:flex;align-items:center;justify-content:center;font-family:sans-serif;flex-direction:column;gap:14px;background:#f5f5f5;color:#666;">
       <div style="font-size:48px">📄</div>
