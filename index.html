@@ -2362,7 +2362,7 @@ function redeemPromo(){
   const used=JSON.parse(localStorage.getItem('ts_promos_used')||'[]');
   if(!PROMOS[code]){if(st)st.innerHTML=`<span style="color:var(--red);">❌ Invalid code.</span>`;return;}
   if(used.includes(code)){if(st)st.innerHTML=`<span style="color:var(--red);">⚠️ Already used!</span>`;return;}
-  if(used.length>=5){if(st)st.innerHTML=`<span style="color:var(--red);">🚫 Max 5 codes per student.</span>`;return;}
+  if(used.length>=7){if(st)st.innerHTML=`<span style="color:var(--red);">🚫 Max 7 codes per student.</span>`;return;}
   used.push(code);localStorage.setItem('ts_promos_used',JSON.stringify(used));
   addHP(PROMOS[code],`Promo code: ${code}`);
   if(inp)inp.value='';
