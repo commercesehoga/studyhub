@@ -1115,9 +1115,10 @@ function renderHome(){
     ${BOOKS_DATA.filter(b=>b.hot).slice(0,4).map(b=>{
       const purchased=isPurchased(b.id);
       return`<div class="book-card ${purchased?'purchased':''}" onclick="showPurchaseModal('${b.id}','book')">
-        <div class="book-cover-placeholder" style="background:linear-gradient(135deg,${b.color||'#4f6ef7'},${b.color2||'#7c3aed'});height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div class="book-cover-icon" style="font-size:34px;">${b.icon}</div>
-          <div class="book-cover-series" style="font-size:8px;">${b.seriesName||''}</div>
+        <div class="book-cover-placeholder" style="background:linear-gradient(135deg,${b.color||'#4f6ef7'},${b.color2||'#7c3aed'});height:130px;position:relative;overflow:hidden;">
+          ${b.coverImg?`<img src="${b.coverImg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;" onerror="this.style.display='none'" />`:''}
+          ${!b.coverImg?`<div class="book-cover-icon" style="font-size:34px;z-index:1;">${b.icon}</div>`:''}
+          <div class="book-cover-series" style="font-size:8px;position:absolute;bottom:6px;left:0;right:0;text-align:center;z-index:2;">${b.seriesName||''}</div>
         </div>
         ${b.hot?`<div class="book-badge hot">🔥 HOT</div>`:''}
         ${purchased?`<div class="book-badge purchased" style="top:${b.hot?'34px':'8px'};">✅ Owned</div>`:''}
@@ -1169,9 +1170,9 @@ function buildBookCard(book){
   const isCS=book.comingSoon&&!purchased,csPurchased=isCSPurchased(book.id),countdown=getCSCountdown(book.id);
   const priceDisplay=purchased?'<span style="color:var(--green);font-size:12px;">✅ Owned</span>':priceBadge(book.price,isCS&&!csPurchased);
   return`<div class="book-card ${purchased?'purchased':''} ${isCS?'cs':''}" onclick="showPurchaseModal('${book.id}','book')">
-    <div class="book-cover-placeholder" style="background:linear-gradient(135deg,${book.color||'#4f6ef7'},${book.color2||'#7c3aed'});position:relative;">
-      ${book.coverImg?`<img src="${book.coverImg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;" />`:''}
-      ${!book.coverImg?`<div style="font-size:42px;z-index:1;">${book.icon}</div>`:''}
+    <div class="book-cover-placeholder" style="background:linear-gradient(135deg,${book.color||'#4f6ef7'},${book.color2||'#7c3aed'});position:relative;overflow:hidden;">
+      ${book.coverImg?`<img src="${book.coverImg}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;z-index:0;" onerror="this.style.display='none'" />`:''}
+      ${!book.coverImg?`<div style="font-size:42px;z-index:1;position:relative;">${book.icon}</div>`:''}
       <div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:8px;font-weight:800;color:rgba(255,255,255,.8);z-index:2;">${book.seriesName||''}</div>
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);pointer-events:none;z-index:1;"></div>
     </div>
