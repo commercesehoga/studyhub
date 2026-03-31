@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -931,21 +932,56 @@ const PYQS_DATA=[
 const MCQS_DATA=[
   {id:'mcq_bst_special',title:'Business Studies',subject:'BST',chapter:'CUET Special Pack',mcqType:'special',difficulty:'hard',count:500,tags:['CUET Freq','Memory Based','Conceptual'],price:50,pdfUrl:'',
    coverColor:'#4f6ef7',coverColor2:'#7c3aed',coverIcon:'📊',
+   units:[
+     {name:'Unit 1 — Nature & Significance of Management',url:'https://thunderstudy.github.io/commerce/unit1.pdf'},
+     {name:'Unit 2 — Principles of Management',url:'https://thunderstudy.github.io/commerce/unit2.pdf'},
+     {name:'Unit 3 — Business Environment',url:'https://thunderstudy.github.io/commerce/unit3.pdf'},
+     {name:'Unit 4 — Planning',url:'https://thunderstudy.github.io/commerce/unit4.pdf'},
+     {name:'Unit 5 — Organising',url:'https://thunderstudy.github.io/commerce/unit5.pdf'},
+     {name:'Unit 6 — Staffing',url:'https://thunderstudy.github.io/commerce/unit6.pdf'},
+     {name:'Unit 7 — Directing',url:'https://thunderstudy.github.io/commerce/unit7.pdf'},
+     {name:'Unit 8 — Controlling',url:'https://thunderstudy.github.io/commerce/unit8.pdf'},
+     {name:'Unit 9 — Financial Management',url:'https://thunderstudy.github.io/commerce/unit9.pdf'},
+     {name:'Unit 10 — Financial Markets',url:'https://thunderstudy.github.io/commerce/unit10.pdf'},
+     {name:'Unit 11 — Marketing Management',url:'https://thunderstudy.github.io/commerce/unit11.pdf'},
+     {name:'Unit 12 — Consumer Protection',url:'https://thunderstudy.github.io/commerce/unit12.pdf'},
+   ],
    includes:['500 CUET-pattern MCQs','All chapters covered','Memory-based & conceptual','Detailed answer key','PYQ-style questions']},
   {id:'mcq_eco_macro',title:'Macroeconomics',subject:'ECO',chapter:'Macro Special Pack',mcqType:'special',difficulty:'hard',count:400,tags:['CUET Freq','Conceptual','Numerical'],price:50,pdfUrl:'',
    coverColor:'#10b981',coverColor2:'#059669',coverIcon:'📈',
+   units:[
+     {name:'Unit 1 — Introduction to Macroeconomics',url:'https://thunderstudy.github.io/macro1/unit1.pdf'},
+     {name:'Unit 2 — National Income Accounting',url:'https://thunderstudy.github.io/macro1/unit2.pdf'},
+     {name:'Unit 3 — Money & Banking',url:'https://thunderstudy.github.io/macro1/unit3.pdf'},
+     {name:'Unit 4 — Income Determination',url:'https://thunderstudy.github.io/macro1/unit4.pdf'},
+     {name:'Unit 5 — Government Budget & Economy',url:'https://thunderstudy.github.io/macro1/unit5.pdf'},
+   ],
    includes:['400 CUET-pattern MCQs','National Income, Money, Banking','Balance of Payments','Numerical + conceptual mix','Detailed answer key']},
   {id:'mcq_eco_micro',title:'Microeconomics',subject:'ECO',chapter:'Micro Special Pack',mcqType:'special',difficulty:'hard',count:350,tags:['CUET Freq','Conceptual','Numerical'],price:50,pdfUrl:'',
    coverColor:'#06b6d4',coverColor2:'#0891b2',coverIcon:'📉',
+   units:[
+     {name:'Unit 1 — Introduction to Microeconomics',url:'https://thunderstudy.github.io/micro/unit1.pdf'},
+     {name:'Unit 2 — Consumer Behaviour & Demand',url:'https://thunderstudy.github.io/micro/unit2.pdf'},
+     {name:'Unit 3 — Producer Behaviour & Supply',url:'https://thunderstudy.github.io/micro/unit3.pdf'},
+     {name:'Unit 4 — Forms of Market & Price Determination',url:'https://thunderstudy.github.io/micro/unit4.pdf'},
+   ],
    includes:['350 CUET-pattern MCQs','Consumer behaviour, Demand-Supply','Production & Cost, Market forms','Numerical + conceptual mix','Detailed answer key']},
   {id:'mcq_eco_indian',title:'Indian Economy',subject:'ECO',chapter:'Indian Economy Special Pack',mcqType:'special',difficulty:'moderate',count:300,tags:['CUET Freq','Static GK'],price:50,pdfUrl:'',
    coverColor:'#f97316',coverColor2:'#c2410c',coverIcon:'🇮🇳',
+   units:[
+     {name:'Unit 1 — Indian Economy on the Eve of Independence',url:'https://thunderstudy.github.io/indians/unit1.pdf'},
+     {name:'Unit 2 — Indian Economy 1950–1990',url:'https://thunderstudy.github.io/indians/unit2.pdf'},
+     {name:'Unit 3 — Liberalisation, Privatisation & Globalisation',url:'https://thunderstudy.github.io/indians/unit3.pdf'},
+     {name:'Unit 4 — Poverty, Human Capital & Rural Development',url:'https://thunderstudy.github.io/indians/unit4.pdf'},
+   ],
    includes:['300 CUET-pattern MCQs','Economic reforms 1991','Poverty, Human Capital, Agriculture','Infrastructure & Globalisation','Detailed answer key']},
   {id:'mcq_eng_special',title:'English',subject:'ENG',chapter:'CUET English Special Pack',mcqType:'special',difficulty:'moderate',count:400,tags:['CUET Freq','Reading','Grammar'],price:50,pdfUrl:'',
    coverColor:'#ec4899',coverColor2:'#be185d',coverIcon:'📝',
+   externalUrl:'https://thunderstudy.github.io/english',
    includes:['400 CUET-pattern MCQs','Reading Comprehension passages','Vocabulary & Grammar','Rearrangement & Fill-in-blanks','Detailed answer key']},
   {id:'mcq_gat_special',title:'GAT — General Aptitude',subject:'GAT',chapter:'CUET GAT Special Pack',mcqType:'special',difficulty:'moderate',count:350,tags:['CUET Freq','Logical','Quant'],price:50,pdfUrl:'',
    coverColor:'#f59e0b',coverColor2:'#d97706',coverIcon:'🧠',
+   externalUrl:'https://thunderstudy.github.io/gat',
    includes:['350 CUET-pattern MCQs','Quantitative & Numerical Aptitude','Logical & Analytical Reasoning','General Knowledge','Detailed answer key']},
 ];
 
@@ -1953,6 +1989,12 @@ function showMCQPurchaseModal(id){
   const hp=getHP().total;
   const canAfford=hp>=mcq.price;
 
+  // For external URL items (ENG, GAT) — if purchased, open directly
+  if(purchased&&mcq.externalUrl){
+    window.open(mcq.externalUrl,'_blank');
+    return;
+  }
+
   document.getElementById('pm-title').textContent=purchased?'📄 My MCQ Pack':'🎯 CUET MCQ Pack';
   document.getElementById('pm-body').innerHTML=`
   <div style="display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:start;margin-bottom:16px;">
@@ -1967,10 +2009,16 @@ function showMCQPurchaseModal(id){
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
         <span style="font-size:10px;font-weight:800;background:rgba(79,110,247,.1);color:var(--acc);padding:3px 9px;border-radius:20px;">📊 ${mcq.count}+ Questions</span>
         <span style="font-size:10px;font-weight:800;background:rgba(16,185,129,.1);color:var(--green);padding:3px 9px;border-radius:20px;">⭐ CUET Pattern</span>
-        <span style="font-size:10px;font-weight:800;background:rgba(245,158,11,.1);color:var(--yellow);padding:3px 9px;border-radius:20px;">📄 Answer Key</span>
+        ${mcq.units?`<span style="font-size:10px;font-weight:800;background:rgba(124,58,237,.1);color:#7c3aed;padding:3px 9px;border-radius:20px;">📂 ${mcq.units.length} Units</span>`:''}
+        ${mcq.externalUrl?`<span style="font-size:10px;font-weight:800;background:rgba(6,182,212,.1);color:var(--teal);padding:3px 9px;border-radius:20px;">🌐 Web App</span>`:''}
       </div>
       <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">What's inside:</div>
       ${(mcq.includes||[]).map(c=>`<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;"><span style="color:var(--green);font-weight:900;flex-shrink:0;">✓</span>${escH(c)}</div>`).join('')}
+      ${mcq.units?`<div style="margin-top:10px;background:var(--card2);border-radius:10px;padding:10px;max-height:130px;overflow-y:auto;">
+        <div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Units Included:</div>
+        ${mcq.units.map((u,i)=>`<div style="font-size:11px;font-weight:600;color:var(--text);padding:3px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;"><span style="color:var(--acc);font-weight:800;font-size:10px;">${i+1}.</span>${escH(u.name)}</div>`).join('')}
+      </div>`:''}
+      ${mcq.externalUrl?`<div style="margin-top:10px;background:rgba(6,182,212,.08);border:1.5px solid rgba(6,182,212,.3);border-radius:10px;padding:10px;font-size:11px;color:var(--teal);font-weight:700;">🌐 Opens as interactive web app with 20+ topics</div>`:''}
     </div>
   </div>
   <div style="background:var(--card2);border-radius:13px;padding:13px;margin-bottom:13px;">
@@ -1980,10 +2028,56 @@ function showMCQPurchaseModal(id){
   <div style="display:flex;gap:8px;">
     <button class="btn btn-ghost" onclick="closeModal('purchase-modal')" style="flex:1;justify-content:center;">Cancel</button>
     ${purchased
-      ?`<button class="btn btn-green" onclick="openPDFForItem('${id}','mcq');closeModal('purchase-modal');" style="flex:1;justify-content:center;">📄 Open PDF</button>`
+      ?mcq.externalUrl
+        ?`<button class="btn btn-green" onclick="window.open('${mcq.externalUrl}','_blank');closeModal('purchase-modal');" style="flex:1;justify-content:center;">🌐 Open Web App</button>`
+        :`<button class="btn btn-green" onclick="showMCQUnitsModal('${id}');closeModal('purchase-modal');" style="flex:1;justify-content:center;">📂 Open Units</button>`
       :`<button class="btn btn-prim" onclick="confirmMCQPurchase('${id}')" style="flex:1;justify-content:center;" ${!canAfford?'disabled style="opacity:.5;"':''}>💜 Buy 50 HP</button>`}
   </div>`;
   openModal('purchase-modal');
+}
+
+function showMCQUnitsModal(id){
+  const mcq=MCQS_DATA.find(m=>m.id===id);if(!mcq||!mcq.units)return;
+  document.getElementById('fp-title').textContent='📂 '+escH(mcq.title)+' — Select Unit';
+  let body=`<div style="font-size:12px;color:var(--text3);margin-bottom:14px;">${mcq.units.length} units available · Click any unit to open</div>`;
+  mcq.units.forEach((u,i)=>{
+    body+=`<div onclick="openGithubPDF('${u.url}','${escH(u.name)}');closeModal('file-picker-modal');" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;cursor:pointer;margin-bottom:8px;transition:all .2s;" onmouseenter="this.style.borderColor='var(--acc)';this.style.background='rgba(79,110,247,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,${mcq.coverColor},${mcq.coverColor2});display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:800;">${escH(u.name)}</div>
+        <div style="font-size:10px;color:var(--text3);">PDF · Opens in reader</div>
+      </div>
+      <div style="font-size:20px;color:var(--acc);">→</div>
+    </div>`;
+  });
+  document.getElementById('fp-body').innerHTML=body;
+  openModal('file-picker-modal');
+}
+
+function openGithubPDF(url,title){
+  document.getElementById('pdf-reader-title').textContent=title||'Document';
+  const iframe=document.getElementById('pdf-iframe');
+  pdfOpenUrl=url;
+  currentPDFDlId='';
+  // GitHub PDFs: embed directly
+  iframe.src=url;
+  document.getElementById('pdf-reader').classList.add('open');
+  pdfItemId=null;pdfTimerSeconds=0;
+  document.getElementById('pdf-reader-timer').textContent='⏱️ 0:00 studied';
+  // Hide download button for github PDFs, show new-tab only
+  const dlBtn=document.getElementById('pdf-dl-btn');
+  if(dlBtn)dlBtn.style.display='none';
+  const vtBtn=document.getElementById('pdf-view-btn');
+  if(vtBtn)vtBtn.style.display='';
+  pdfTimerInterval=setInterval(()=>{
+    if(!document.hidden){
+      pdfTimerSeconds++;
+      const m=Math.floor(pdfTimerSeconds/60);const s=pdfTimerSeconds%60;
+      const el=document.getElementById('pdf-reader-timer');
+      if(el)el.textContent=`⏱️ ${m}:${String(s).padStart(2,'0')} studied`;
+      if(pdfTimerSeconds%30===0)addWeeklyStudyTime(30);
+    }
+  },1000);
 }
 
 function confirmMCQPurchase(id){
@@ -1993,6 +2087,11 @@ function confirmMCQPurchase(id){
   addPurchase(id,mcq.title,mcq.price,'mcq');
   closeModal('purchase-modal');
   showPurchaseSparkles(mcq.title,mcq.price);
+  // Auto-open after purchase
+  setTimeout(()=>{
+    if(mcq.externalUrl){window.open(mcq.externalUrl,'_blank');}
+    else if(mcq.units){showMCQUnitsModal(id);}
+  },1800);
 }
   
 function buildMcqCard(mcq){
@@ -2143,7 +2242,8 @@ const hours=getStudyHours();
       // Find item data to check for multi-file
       const bookItem=BOOKS_DATA.find(b=>b.id===p.id);
       const noteItem=NOTES_DATA.find(n=>n.id===p.id);
-      const item=bookItem||noteItem;
+      const mcqItem=MCQS_DATA.find(m=>m.id===p.id);
+      const item=bookItem||noteItem||mcqItem;
 
       if(item&&item.multiFile&&(item.files||[]).length>1){
         // Show each file as separate card
@@ -2164,6 +2264,18 @@ const hours=getStudyHours();
             `<button class="btn btn-green" style="width:100%;justify-content:center;font-size:10px;" onclick="openPDF('${f.url}','${escH(f.name)}','${p.id}','${f.dlId||''}')">📖 Open</button>`}
           </div>`;
         });
+      } else if(mcqItem){
+        // MCQ card — show as single card, click to see units or open web app
+        const hasUnits=mcqItem.units&&mcqItem.units.length>0;
+        const hasExt=!!mcqItem.externalUrl;
+        H+=`<div class="study-content-card local-pdf" onclick="${hasExt?`window.open('${mcqItem.externalUrl}','_blank')`:`showMCQUnitsModal('${mcqItem.id}')`}" style="cursor:pointer;">
+          <div style="font-size:28px;margin-bottom:6px;">${mcqItem.coverIcon||'❓'}</div>
+          <div style="font-size:12px;font-weight:800;margin-bottom:3px;line-height:1.4;">${escH(mcqItem.title)}</div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px;">MCQ Pack · ${mcqItem.count}+ questions</div>
+          ${hasUnits?`<div style="font-size:9px;font-weight:800;background:rgba(79,110,247,.1);color:var(--acc);padding:2px 7px;border-radius:10px;display:inline-block;margin-bottom:8px;">📂 ${mcqItem.units.length} Units</div>`:''}
+          ${hasExt?`<div style="font-size:9px;font-weight:800;background:rgba(6,182,212,.1);color:var(--teal);padding:2px 7px;border-radius:10px;display:inline-block;margin-bottom:8px;">🌐 Web App</div>`:''}
+          <button class="btn ${hasExt?'btn-teal':'btn-green'}" style="width:100%;justify-content:center;font-size:10px;">${hasExt?'🌐 Open Web App':'📂 View Units'}</button>
+        </div>`;
       } else {
         // Single file card
         const files=(item?.files)||[];const singleFile=files[0];
