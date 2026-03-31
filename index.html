@@ -270,6 +270,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .btt-btn{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;font-size:16px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,.35);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:90;}
 .btt-btn.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
 @keyframes heartPop{0%{transform:scale(1)}40%{transform:scale(1.4)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+  @keyframes sparkleIn{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:none}}
+@keyframes bounceIcon{0%{transform:scale(0) rotate(-10deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:.9}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
 .book-wishlist.popping{animation:heartPop .35s ease;}
 .mobile-dock{display:none;}
 @media(max-width:768px){
@@ -925,15 +929,24 @@ const PYQS_DATA=[
 ];
 
 const MCQS_DATA=[
-  {id:'mcq_bst_ch1',title:'BST Ch1 MCQs',subject:'BST',chapter:'Ch 1 – Nature & Significance',mcqType:'chapter',difficulty:'easy',count:50,tags:['Memory Based'],price:20,pdfUrl:''},
-  {id:'mcq_bst_ch2',title:'BST Ch2 MCQs',subject:'BST',chapter:'Ch 2 – Principles',mcqType:'chapter',difficulty:'moderate',count:50,tags:['Conceptual'],price:20,pdfUrl:''},
-  {id:'mcq_bst_ch9',title:'BST Ch9 MCQs',subject:'BST',chapter:'Ch 9 – Financial Management',mcqType:'chapter',difficulty:'hard',count:55,tags:['Numerical','Conceptual'],price:20,pdfUrl:''},
-  {id:'mcq_eco_macro',title:'Macro Economics MCQs',subject:'ECO',chapter:'Macroeconomics Full',mcqType:'chapter',difficulty:'moderate',count:80,tags:['Conceptual','CUET Freq'],price:20,pdfUrl:''},
-  {id:'mcq_eco_micro',title:'Micro Economics MCQs',subject:'ECO',chapter:'Microeconomics Full',mcqType:'chapter',difficulty:'hard',count:75,tags:['Conceptual','Numerical'],price:20,pdfUrl:''},
-  {id:'mcq_acc_all',title:'Accountancy All Chapters MCQs',subject:'ACC',chapter:'Complete Accountancy',mcqType:'chapter',difficulty:'hard',count:100,tags:['Numerical'],price:20,pdfUrl:''},
-  {id:'mcq_bst_special',title:'BST CUET Special 500 MCQs',subject:'BST',chapter:'Special Pack',mcqType:'special',difficulty:'hard',count:500,tags:['CUET Freq','Memory Based','Conceptual'],price:20,pdfUrl:''},
-  {id:'mcq_eco_special',title:'ECO CUET Special 400 MCQs',subject:'ECO',chapter:'Special Pack',mcqType:'special',difficulty:'hard',count:400,tags:['CUET Freq','Conceptual'],price:20,pdfUrl:''},
-  {id:'mcq_gat_special',title:'GAT CUET Special MCQ Pack',subject:'GAT',chapter:'General Aptitude',mcqType:'special',difficulty:'moderate',count:300,tags:['CUET Freq','Logical'],price:20,pdfUrl:''},
+  {id:'mcq_bst_special',title:'Business Studies',subject:'BST',chapter:'CUET Special Pack',mcqType:'special',difficulty:'hard',count:500,tags:['CUET Freq','Memory Based','Conceptual'],price:50,pdfUrl:'',
+   coverColor:'#4f6ef7',coverColor2:'#7c3aed',coverIcon:'📊',
+   includes:['500 CUET-pattern MCQs','All chapters covered','Memory-based & conceptual','Detailed answer key','PYQ-style questions']},
+  {id:'mcq_eco_macro',title:'Macroeconomics',subject:'ECO',chapter:'Macro Special Pack',mcqType:'special',difficulty:'hard',count:400,tags:['CUET Freq','Conceptual','Numerical'],price:50,pdfUrl:'',
+   coverColor:'#10b981',coverColor2:'#059669',coverIcon:'📈',
+   includes:['400 CUET-pattern MCQs','National Income, Money, Banking','Balance of Payments','Numerical + conceptual mix','Detailed answer key']},
+  {id:'mcq_eco_micro',title:'Microeconomics',subject:'ECO',chapter:'Micro Special Pack',mcqType:'special',difficulty:'hard',count:350,tags:['CUET Freq','Conceptual','Numerical'],price:50,pdfUrl:'',
+   coverColor:'#06b6d4',coverColor2:'#0891b2',coverIcon:'📉',
+   includes:['350 CUET-pattern MCQs','Consumer behaviour, Demand-Supply','Production & Cost, Market forms','Numerical + conceptual mix','Detailed answer key']},
+  {id:'mcq_eco_indian',title:'Indian Economy',subject:'ECO',chapter:'Indian Economy Special Pack',mcqType:'special',difficulty:'moderate',count:300,tags:['CUET Freq','Static GK'],price:50,pdfUrl:'',
+   coverColor:'#f97316',coverColor2:'#c2410c',coverIcon:'🇮🇳',
+   includes:['300 CUET-pattern MCQs','Economic reforms 1991','Poverty, Human Capital, Agriculture','Infrastructure & Globalisation','Detailed answer key']},
+  {id:'mcq_eng_special',title:'English',subject:'ENG',chapter:'CUET English Special Pack',mcqType:'special',difficulty:'moderate',count:400,tags:['CUET Freq','Reading','Grammar'],price:50,pdfUrl:'',
+   coverColor:'#ec4899',coverColor2:'#be185d',coverIcon:'📝',
+   includes:['400 CUET-pattern MCQs','Reading Comprehension passages','Vocabulary & Grammar','Rearrangement & Fill-in-blanks','Detailed answer key']},
+  {id:'mcq_gat_special',title:'GAT — General Aptitude',subject:'GAT',chapter:'CUET GAT Special Pack',mcqType:'special',difficulty:'moderate',count:350,tags:['CUET Freq','Logical','Quant'],price:50,pdfUrl:'',
+   coverColor:'#f59e0b',coverColor2:'#d97706',coverIcon:'🧠',
+   includes:['350 CUET-pattern MCQs','Quantitative & Numerical Aptitude','Logical & Analytical Reasoning','General Knowledge','Detailed answer key']},
 ];
 
 const SUBJ_ICONS={BST:'📊',ECO:'📈',ACC:'📒',ENG:'📝',GAT:'🧠',PHY:'⚛️',CHE:'🧪',BIO:'🔬',MAT:'📐',AMAT:'🔢',POL:'🏛️',HIS:'📜',GEO:'🌏',PSY:'🧠',PE:'🏃',ART:'🎨',CS:'🖥️',IP:'💻'};
@@ -1583,7 +1596,7 @@ function renderNotes(){
     const isSameSyl=note.sameSyllabus;
     const isMultiFile=note.multiFile&&fileCount>1;
 
-    H+=`<div class="notes-card ${cardClass} ${studied&&!isCS?'studied':''}" onclick="showNoteModal('${note.id}')">
+    H+=`<div class="notes-card ${cardClass} ${studied&&!isCS?'studied':''}" onclick="${note.comingSoon&&!isPurchased(note.id)?`showComingSoonPopup('${note.id}','${note.title.replace(/'/g,"\'")}','note')`:`showNoteModal('${note.id}')`}">
       <div style="margin-bottom:8px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
         <span class="notes-type-badge ${typeBadgeClass}">${typeLabel}</span>
         <span class="diff-tag ${diffClass}">${note.difficulty}</span>
@@ -1902,31 +1915,86 @@ function setPyqType(t){pyqType=t;renderPYQs();}
 /* ═══════════════════════════════════════
    MCQs PAGE
 ═══════════════════════════════════════ */
-let mcqType='all',mcqSubject='all',mcqDiff='all';
 function renderMCQs(){
   updateHPDisplays();
-  const MCQSUBJECTS=['all','BST','ECO','ACC','PHY','CHE','GAT'];
+  const hp=getHP().total;
   let H=`
-  <div class="filter-bar">
-    <select class="filter-sel" onchange="mcqType=this.value;renderMCQs()"><option value="all">All Types</option><option value="chapter">📖 Chapterwise</option><option value="special">⭐ Special</option></select>
-    <select class="filter-sel" onchange="mcqSubject=this.value;renderMCQs()"><option value="all">All Subjects</option>${MCQSUBJECTS.filter(s=>s!=='all').map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
-    <select class="filter-sel" onchange="mcqDiff=this.value;renderMCQs()"><option value="all">All Difficulty</option><option value="easy">🟢 Easy</option><option value="moderate">🟡 Moderate</option><option value="hard">🔴 Hard</option></select>
-  </div>`;
+  <div style="margin-bottom:18px;">
+    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">🎯 CUET Special MCQ Packs</div>
+    <div style="font-size:12px;color:var(--text3);">Subject-wise CUET pattern packs · 50 HP each · 300–500 questions</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;">`;
 
-  let filtered=MCQS_DATA;
-  if(mcqType!=='all')filtered=filtered.filter(m=>m.mcqType===mcqType);
-  if(mcqSubject!=='all')filtered=filtered.filter(m=>m.subject===mcqSubject);
-  if(mcqDiff!=='all')filtered=filtered.filter(m=>m.difficulty===mcqDiff);
-
-  if(!filtered.length){H+=`<div class="empty"><div class="empty-icon">❓</div><div class="empty-title">No MCQs Found</div></div>`;document.getElementById('mcqs-content').innerHTML=H;return;}
-
-  const specials=filtered.filter(m=>m.mcqType==='special');
-  const chapters=filtered.filter(m=>m.mcqType==='chapter');
-  if(specials.length){H+=`<div class="sec-hdr"><div class="sec-title">⭐ Special MCQ Packs</div></div><div class="mcq-grid" style="margin-bottom:22px;">${specials.map(m=>buildMcqCard(m)).join('')}</div>`;}
-  if(chapters.length){H+=`<div class="sec-hdr"><div class="sec-title">📖 Chapterwise MCQs</div></div><div class="mcq-grid">${chapters.map(m=>buildMcqCard(m)).join('')}</div>`;}
+  MCQS_DATA.forEach(mcq=>{
+    const purchased=isPurchased(mcq.id);
+    H+=`<div onclick="showMCQPurchaseModal('${mcq.id}')" style="background:var(--card);border:1.5px solid ${purchased?'rgba(16,185,129,.35)':'var(--border)'};border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:all .22s;" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='none';this.style.boxShadow=''">
+      <div style="height:120px;background:linear-gradient(135deg,${mcq.coverColor},${mcq.coverColor2});display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;">
+        <div style="font-size:38px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3));">${mcq.coverIcon}</div>
+        <div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.5px;text-transform:uppercase;">CUET SPECIAL</div>
+        ${purchased?`<div style="position:absolute;top:8px;right:8px;background:rgba(16,185,129,.9);color:#fff;font-size:8px;font-weight:800;padding:2px 7px;border-radius:20px;">✅ OWNED</div>`:''}
+      </div>
+      <div style="padding:12px;">
+        <div style="font-size:13px;font-weight:900;margin-bottom:3px;line-height:1.3;">${escH(mcq.title)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:8px;">${mcq.count}+ questions</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;font-weight:900;font-family:var(--mono);color:${purchased?'var(--green)':'#7c3aed'}">${purchased?'✅':'💜 50 HP'}</span>
+          <button class="btn ${purchased?'btn-green':'btn-prim'}" style="font-size:10px;padding:5px 10px;" onclick="event.stopPropagation();showMCQPurchaseModal('${mcq.id}')">${purchased?'📄 Open':'🔒 Buy'}</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  H+=`</div>`;
   document.getElementById('mcqs-content').innerHTML=H;
 }
 
+function showMCQPurchaseModal(id){
+  const mcq=MCQS_DATA.find(m=>m.id===id);if(!mcq)return;
+  const purchased=isPurchased(id);
+  const hp=getHP().total;
+  const canAfford=hp>=mcq.price;
+
+  document.getElementById('pm-title').textContent=purchased?'📄 My MCQ Pack':'🎯 CUET MCQ Pack';
+  document.getElementById('pm-body').innerHTML=`
+  <div style="display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:start;margin-bottom:16px;">
+    <div style="height:190px;background:linear-gradient(135deg,${mcq.coverColor},${mcq.coverColor2});border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+      <div style="font-size:52px;filter:drop-shadow(0 2px 10px rgba(0,0,0,.35));">${mcq.coverIcon}</div>
+      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:rgba(255,255,255,.8);letter-spacing:.5px;">CUET SPECIAL</div>
+      <div style="position:absolute;top:0;left:-20%;width:60%;height:70%;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);border-radius:50%;pointer-events:none;"></div>
+    </div>
+    <div>
+      <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin-bottom:5px;">🎯 CUET · Special MCQ Pack</div>
+      <div style="font-size:16px;font-weight:900;margin-bottom:6px;line-height:1.3;">${escH(mcq.title)}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+        <span style="font-size:10px;font-weight:800;background:rgba(79,110,247,.1);color:var(--acc);padding:3px 9px;border-radius:20px;">📊 ${mcq.count}+ Questions</span>
+        <span style="font-size:10px;font-weight:800;background:rgba(16,185,129,.1);color:var(--green);padding:3px 9px;border-radius:20px;">⭐ CUET Pattern</span>
+        <span style="font-size:10px;font-weight:800;background:rgba(245,158,11,.1);color:var(--yellow);padding:3px 9px;border-radius:20px;">📄 Answer Key</span>
+      </div>
+      <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">What's inside:</div>
+      ${(mcq.includes||[]).map(c=>`<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;"><span style="color:var(--green);font-weight:900;flex-shrink:0;">✓</span>${escH(c)}</div>`).join('')}
+    </div>
+  </div>
+  <div style="background:var(--card2);border-radius:13px;padding:13px;margin-bottom:13px;">
+    ${priceRows(mcq.price,false,hp)}
+  </div>
+  ${!canAfford?`<div style="background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.25);border-radius:11px;padding:10px;margin-bottom:12px;font-size:11px;color:var(--red);">❌ Need ${mcq.price-hp} more HP to purchase.</div>`:''}
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-ghost" onclick="closeModal('purchase-modal')" style="flex:1;justify-content:center;">Cancel</button>
+    ${purchased
+      ?`<button class="btn btn-green" onclick="openPDFForItem('${id}','mcq');closeModal('purchase-modal');" style="flex:1;justify-content:center;">📄 Open PDF</button>`
+      :`<button class="btn btn-prim" onclick="confirmMCQPurchase('${id}')" style="flex:1;justify-content:center;" ${!canAfford?'disabled style="opacity:.5;"':''}>💜 Buy 50 HP</button>`}
+  </div>`;
+  openModal('purchase-modal');
+}
+
+function confirmMCQPurchase(id){
+  const mcq=MCQS_DATA.find(m=>m.id===id);if(!mcq)return;
+  const ok=spendHP(mcq.price,`Purchased: ${mcq.title} MCQ Pack`);
+  if(!ok){showToast('Not enough HP!','error');return;}
+  addPurchase(id,mcq.title,mcq.price,'mcq');
+  closeModal('purchase-modal');
+  showPurchaseSparkles(mcq.title,mcq.price);
+}
+  
 function buildMcqCard(mcq){
   const purchased=isPurchased(mcq.id);
   return`<div class="mcq-card ${purchased?'purchased':''}">
@@ -2467,7 +2535,8 @@ function confirmPurchase(){
   if(isCS){addCSPurchase(id);}
   else{addPurchase(id,item.title,price,category);}
   closeModal('purchase-modal');
-  showToast(isCS?`⏳ Pre-purchased! Link within 48h`:`✅ ${item.title} unlocked!`,'success');
+  if(!isCS&&price>=50){showPurchaseSparkles(item.title,price);}
+  else{showToast(isCS?`⏳ Pre-purchased! Link within 48h`:`✅ ${item.title} unlocked!`,'success');}
   const activePage=document.querySelector('.page.active')?.id?.replace('page-','');
   if(activePage&&PAGE_RENDERERS[activePage])PAGE_RENDERERS[activePage]();
   pendingPurchase=null;
@@ -2617,6 +2686,185 @@ function redeemPromo(){
   showToast(`🎟️ +${PROMOS[code]} HP!`,'success');
 }
 
+/* ═══════════════════════════════════════
+   PURCHASE SPARKLES + SCRATCH CARD
+═══════════════════════════════════════ */
+function showPurchaseSparkles(itemTitle,price){
+  // Cashback: only for price >= 50, round to 1-7 HP max
+  const maxCashback=Math.min(7,Math.floor(price*0.05));
+  const cashback=maxCashback>=1?Math.floor(Math.random()*(maxCashback-1+1))+1:0;
+
+  const ov=document.createElement('div');
+  ov.id='sparkle-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);';
+  ov.innerHTML=`
+    <div id="sparkle-box" style="background:#fff;border-radius:24px;padding:28px 24px;max-width:340px;width:90%;text-align:center;position:relative;overflow:hidden;animation:sparkleIn .4s cubic-bezier(.34,1.56,.64,1) both;">
+      <div style="font-size:52px;margin-bottom:8px;animation:bounceIcon .6s ease .2s both;">🎉</div>
+      <div style="font-size:18px;font-weight:900;color:#1a1d2e;margin-bottom:5px;">Purchase Successful!</div>
+      <div style="font-size:13px;color:#5a5f7a;margin-bottom:20px;line-height:1.5;">${escH(itemTitle)}<br>has been unlocked 🔓</div>
+      ${cashback>0?`
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#9298b5;margin-bottom:10px;">🎰 Scratch your cashback!</div>
+        <div id="scratch-card" style="width:180px;height:80px;margin:0 auto;position:relative;border-radius:14px;overflow:hidden;cursor:pointer;" onclick="revealScratch(${cashback})">
+          <div id="scratch-cover" style="position:absolute;inset:0;background:linear-gradient(135deg,#7c3aed,#4f6ef7);display:flex;align-items:center;justify-content:center;z-index:2;transition:all .4s;">
+            <div style="color:#fff;font-size:13px;font-weight:800;">👆 Scratch to reveal!</div>
+          </div>
+          <div id="scratch-reveal" style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(6,182,212,.08));border:2px solid rgba(16,185,129,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="font-size:28px;font-weight:900;font-family:'DM Mono',monospace;color:#7c3aed;">+${cashback} HP</div>
+            <div style="font-size:11px;color:#10b981;font-weight:700;">💜 Cashback!</div>
+          </div>
+        </div>
+      </div>`:`<div style="margin-bottom:18px;font-size:12px;color:#9298b5;">No cashback on this item (min 50 HP)</div>`}
+      <button onclick="closeSparkles()" style="background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;border:none;border-radius:30px;padding:10px 28px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✨ Continue</button>
+    </div>
+    <div id="confetti-layer" style="position:fixed;inset:0;pointer-events:none;z-index:8999;overflow:hidden;"></div>
+  `;
+  document.body.appendChild(ov);
+  spawnConfetti();
+}
+
+function revealScratch(cashback){
+  const cover=document.getElementById('scratch-cover');
+  if(!cover||cover.style.opacity==='0')return;
+  cover.style.opacity='0';cover.style.transform='scale(1.1)';
+  setTimeout(()=>{
+    addHP(cashback,`🎰 Scratch card cashback!`);
+    updateHPDisplays();
+    showToast(`🎰 +${cashback} HP cashback!`,'success');
+  },300);
+}
+
+function closeSparkles(){
+  const ov=document.getElementById('sparkle-ov');
+  if(ov){ov.style.opacity='0';ov.style.transition='opacity .25s';setTimeout(()=>ov.remove(),260);}
+}
+
+function spawnConfetti(){
+  const layer=document.getElementById('confetti-layer');if(!layer)return;
+  const colors=['#4f6ef7','#7c3aed','#10b981','#f59e0b','#ec4899','#06b6d4','#f97316'];
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');
+    const size=Math.random()*8+5;
+    const color=colors[Math.floor(Math.random()*colors.length)];
+    const x=Math.random()*100;
+    const delay=Math.random()*0.8;
+    const dur=Math.random()*1.5+1.2;
+    el.style.cssText=`position:absolute;top:-20px;left:${x}%;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random()>0.5?'50%':'2px'};animation:confettiFall ${dur}s ${delay}s ease-in forwards;opacity:.9;`;
+    layer.appendChild(el);
+  }
+}
+
+/* ═══════════════════════════════════════
+   COMING SOON POPUP
+═══════════════════════════════════════ */
+function showComingSoonPopup(itemId,itemTitle,itemCategory){
+  // Find related items (same subject, not purchased, not coming soon)
+  let subject='';
+  if(itemCategory==='book'){const b=BOOKS_DATA.find(x=>x.id===itemId);if(b)subject=b.subject;}
+  else if(itemCategory==='note'){const n=NOTES_DATA.find(x=>x.id===itemId);if(n)subject=n.subject;}
+
+  const related=[
+    ...BOOKS_DATA.filter(b=>!b.comingSoon&&b.subject===subject&&b.id!==itemId&&!isPurchased(b.id)).slice(0,2),
+    ...NOTES_DATA.filter(n=>!n.comingSoon&&n.subject===subject&&n.id!==itemId&&!isPurchased(n.id)).slice(0,1)
+  ].slice(0,3);
+
+  const purchased=isPurchased(itemId);
+  const csPurchased=isCSPurchased(itemId);
+  const countdown=getCSCountdown(itemId);
+
+  const ov=document.createElement('div');
+  ov.id='cs-popup-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.4);backdrop-filter:blur(5px);padding:0;';
+  ov.onclick=e=>{if(e.target===ov)closeCSPopup();};
+
+  ov.innerHTML=`
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:88dvh;overflow-y:auto;padding:24px 20px 32px;animation:slideUp .35s cubic-bezier(.34,1.56,.64,1) both;position:relative;">
+    <!-- HANDLE -->
+    <div style="width:40px;height:4px;background:#e8ecf4;border-radius:10px;margin:0 auto 20px;"></div>
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div>
+        <div style="font-size:16px;font-weight:900;color:#1a1d2e;margin-bottom:2px;">${escH(itemTitle)}</div>
+        <div style="font-size:11px;color:#9298b5;">File is being prepared · Use mock test till then</div>
+      </div>
+      <button onclick="closeCSPopup()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid #e8ecf4;background:#f7f8fd;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>
+    </div>
+
+    <!-- STATUS CARD -->
+    <div style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(79,110,247,.05));border:2px solid rgba(124,58,237,.25);border-radius:16px;padding:16px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4f6ef7);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⏳</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:#1a1d2e;">${csPurchased?'You have pre-purchased this!':'Coming Soon · Pre-buy for 5 HP discount'}</div>
+          <div style="font-size:11px;color:#9298b5;">${countdown?`⏰ Estimated delivery: ${countdown}`:'File being prepared by Thunderstudy team'}</div>
+        </div>
+      </div>
+      <!-- COUNTDOWN VISUAL -->
+      ${countdown?`<div style="background:rgba(249,115,22,.1);border-radius:10px;padding:10px 14px;text-align:center;margin-bottom:10px;">
+        <div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:#f97316;">${countdown}</div>
+        <div style="font-size:10px;color:#9298b5;margin-top:2px;">estimated time remaining</div>
+      </div>`:''}
+      <!-- TELEGRAM -->
+      <div style="background:#fff;border:1.5px solid #e8ecf4;border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="18" fill="#229ED9"/>
+          <path d="M8.5 17.8l4.8 1.8 1.9 5.9c.1.4.6.5.9.3l2.7-2.2a.7.7 0 01.8 0l4.9 3.5c.3.2.8.1.9-.3L28.5 11c.1-.5-.4-.9-.8-.7L8.2 16.9c-.5.2-.4.9.3.9z" fill="white"/>
+          <path d="M13.3 19.6l.5 5.5c0 .3.4.4.6.2l2.1-2" fill="#B0D9EE"/>
+        </svg>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:800;color:#1a1d2e;">Get notified on Telegram</div>
+          <div style="font-size:11px;color:#229ED9;font-weight:700;">@mindmaster_robot</div>
+        </div>
+        <a href="https://t.me/mindmaster_robot" target="_blank" style="background:#229ED9;color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:11px;font-weight:800;cursor:pointer;text-decoration:none;white-space:nowrap;">Message Now →</a>
+      </div>
+    </div>
+
+    <!-- MOCK TEST WHILE WAITING -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:800;color:#1a1d2e;margin-bottom:10px;">📝 Practice Mock Test while you wait</div>
+      <div style="border:1.5px solid #e8ecf4;border-radius:14px;overflow:hidden;">
+        <iframe src="https://commercesehoga.github.io/dashboard/" style="width:100%;height:200px;border:none;display:block;" loading="lazy" title="Thunderstudy Mock Test Dashboard"></iframe>
+        <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;background:#f7f8fd;">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:#1a1d2e;">CBT Dashboard</div>
+            <div style="font-size:10px;color:#9298b5;">Earn XP · Climb ranks · Practice MCQs</div>
+          </div>
+          <a href="https://commercesehoga.github.io/dashboard/" target="_blank" style="background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:11px;font-weight:800;cursor:pointer;text-decoration:none;">Open →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATED AVAILABLE NOW -->
+    ${related.length?`<div>
+      <div style="font-size:12px;font-weight:800;color:#1a1d2e;margin-bottom:10px;">✅ Available right now — same subject</div>
+      ${related.map(r=>{
+        const isBook='fileId' in r||'files' in r;
+        const color=isBook?(r.color||'#4f6ef7'):(SUBJ_COLORS[r.subject]||'#4f6ef7');
+        const color2=isBook?(r.color2||'#7c3aed'):color+'88';
+        const icon=isBook?(r.icon||'📚'):(SUBJ_ICONS[r.subject]||'📝');
+        const price=isBook?r.price:r.price;
+        return`<div onclick="closeCSPopup();setTimeout(()=>${isBook?`showPurchaseModal('${r.id}','book')`:`showNoteModal('${r.id}')`},200)" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f7f8fd;border:1.5px solid #e8ecf4;border-radius:12px;cursor:pointer;margin-bottom:8px;transition:all .18s;" onmouseenter="this.style.borderColor='#4f6ef7';this.style.background='rgba(79,110,247,.04)'" onmouseleave="this.style.borderColor='#e8ecf4';this.style.background='#f7f8fd'">
+          <div style="width:40px;height:50px;border-radius:8px;background:linear-gradient(135deg,${color},${color2});display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1d2e;">${escH(r.title)}</div>
+            <div style="font-size:10px;color:#9298b5;">${r.subject||''} · ${isBook?(r.type==='sample'?'Sample Paper':'Question Bank'):'Notes'}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:12px;font-weight:900;font-family:'DM Mono',monospace;color:#7c3aed;">💜 ${price} HP</div>
+            <div style="font-size:9px;font-weight:800;color:var(--green);">✅ Available</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`:''}
+  </div>`;
+  document.body.appendChild(ov);
+}
+
+function closeCSPopup(){
+  const ov=document.getElementById('cs-popup-ov');
+  if(ov){ov.style.opacity='0';ov.style.transition='opacity .2s';setTimeout(()=>ov.remove(),220);}
+}
+  
 /* ═══════════════════════════════════════
    INIT
 ═══════════════════════════════════════ */
