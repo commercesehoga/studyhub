@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -270,6 +271,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .sync-dot.synced{background:var(--green);}
 .btt-btn{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;font-size:16px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,.35);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:90;}
 .btt-btn.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.4);}
+  50%{box-shadow:0 0 0 5px rgba(244,63,94,.0);}
+}
 @keyframes heartPop{0%{transform:scale(1)}40%{transform:scale(1.4)}70%{transform:scale(.9)}100%{transform:scale(1)}}
   @keyframes sparkleIn{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:none}}
 @keyframes bounceIcon{0%{transform:scale(0) rotate(-10deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
@@ -1000,6 +1005,128 @@ function saveHP(h){localStorage.setItem('ts_hp',JSON.stringify(h))}
 function addHP(amount,reason){const h=getHP();h.total=Math.max(0,h.total+amount);h.log=h.log||[];h.log.unshift({amount,reason,date:new Date().toISOString()});if(h.log.length>100)h.log=h.log.slice(0,100);saveHP(h);updateHPDisplays();return h.total;}
 function spendHP(amount,reason){const h=getHP();if(h.total<amount)return false;h.total-=amount;h.log=h.log||[];h.log.unshift({amount:-amount,reason,date:new Date().toISOString()});if(h.log.length>100)h.log=h.log.slice(0,100);saveHP(h);updateHPDisplays();return true;}
 function getProfile(){try{return JSON.parse(localStorage.getItem('ts_profile')||'{}')}catch(e){return{}}}
+function getDashboardProfile(){
+  try{
+    // Try known keys first
+    const name=localStorage.getItem('cbtUserName')||localStorage.getItem('userName')||
+                localStorage.getItem('studentName')||localStorage.getItem('name')||
+                localStorage.getItem('user_name')||localStorage.getItem('displayName')||'';
+
+    const id=localStorage.getItem('cbtStudentId')||localStorage.getItem('studentId')||
+             localStorage.getItem('cbtUserId')||localStorage.getItem('userId')||
+             localStorage.getItem('student_id')||localStorage.getItem('user_id')||
+             localStorage.getItem('rollNumber')||localStorage.getItem('rollNo')||
+             localStorage.getItem('id')||'';
+
+    if(name&&id)return{name:name.trim(),id:id.trim()};
+
+    // Auto-scan ALL localStorage keys to find name/id
+    let foundName=name,foundId=id;
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i).toLowerCase();
+      const val=localStorage.getItem(localStorage.key(i))||'';
+      if(!foundName&&(key.includes('name')||key.includes('user'))&&val.length>1&&val.length<60&&!val.startsWith('{')&&!val.startsWith('['))foundName=val;
+      if(!foundId&&(key.includes('id')||key.includes('roll')||key.includes('student'))&&val.length>1&&val.length<30&&!val.startsWith('{')&&!val.startsWith('[')&&!isNaN(val.replace(/[^0-9]/g,'')))foundId=val;
+    }
+    return{name:foundName.trim(),id:foundId.trim()};
+  }catch(e){return{name:'',id:''};}
+}
+function showStorageDebug(){
+  const panel=document.getElementById('storage-debug-panel');
+  if(!panel)return;
+  panel.style.display=panel.style.display==='none'?'block':'none';
+  if(panel.style.display==='none')return;
+  let html='<div style="font-size:10px;font-weight:800;color:#5a5f7a;margin-bottom:6px;">All localStorage keys:</div>';
+  if(localStorage.length===0){html+='<div style="font-size:10px;color:#f43f5e;">⚠️ localStorage is EMPTY — Dashboard not opened in same browser!</div>';}
+  else{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      const v=localStorage.getItem(k)||'';
+      const short=v.length>40?v.substring(0,40)+'…':v;
+      html+=`<div style="font-size:9px;padding:2px 0;border-bottom:1px solid #e8ecf4;word-break:break-all;"><span style="color:#4f6ef7;font-weight:700;">${k}</span> = <span style="color:#1a1d2e;">${short}</span></div>`;
+    }
+  }
+  panel.innerHTML=html;
+}
+function checkProfileAndBlock(){
+  const dash=getDashboardProfile();
+  if(dash.name&&dash.id){
+    // Profile found — update local profile
+    const p=getProfile();
+    if(!p.name||p.name==='Student')p.name=dash.name;
+    if(!p.studentId)p.studentId=dash.id;
+    localStorage.setItem('ts_profile',JSON.stringify(p));
+    updateProfile();
+    return true; // allow access
+  }
+  // Show blocking popup
+  showProfileRequiredPopup();
+  return false;
+}
+
+function showProfileRequiredPopup(){
+  if(document.getElementById('profile-required-ov'))return;
+  const ov=document.createElement('div');
+  ov.id='profile-required-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(10,10,20,.85);backdrop-filter:blur(8px);padding:16px;';
+  ov.innerHTML=`
+  <div style="background:#fff;border-radius:24px;padding:32px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="font-size:52px;margin-bottom:12px;">🎓</div>
+    <div style="font-size:20px;font-weight:900;color:#1a1d2e;margin-bottom:8px;">Profile Required</div>
+    <div style="font-size:13px;color:#5a5f7a;line-height:1.7;margin-bottom:20px;">
+      To use StudyHub, you need a <strong>Name</strong> and <strong>Student ID</strong>.<br>
+      Please create your profile on the CBT Dashboard first.
+    </div>
+    <div style="background:#f0f3fa;border-radius:14px;padding:14px;margin-bottom:20px;">
+      <div style="font-size:12px;font-weight:700;color:#9298b5;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">What's missing</div>
+      <div id="profile-missing-items" style="font-size:13px;font-weight:700;color:#f43f5e;"></div>
+    </div>
+    <a href="https://commercesehoga.github.io/dashboard/" target="_blank"
+       style="display:block;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;text-decoration:none;border-radius:30px;padding:13px 24px;font-size:14px;font-weight:800;margin-bottom:10px;box-shadow:0 4px 14px rgba(79,110,247,.35);">
+      🔗 Go to Dashboard & Create Profile
+    </a>
+    <button onclick="retryProfileCheck()" style="width:100%;background:#f0f3fa;border:none;border-radius:30px;padding:11px 24px;font-size:13px;font-weight:700;color:#5a5f7a;cursor:pointer;">
+      🔄 I've set it up — Retry
+    </button>
+<div style="font-size:10px;color:#9298b5;margin-top:12px;">StudyHub and the Dashboard share the same browser storage. No login needed.</div>
+    <button onclick="showStorageDebug()" style="margin-top:10px;background:none;border:1px solid #e8ecf4;border-radius:20px;padding:6px 14px;font-size:10px;color:#9298b5;cursor:pointer;width:100%;">🔍 Debug: What's stored?</button>
+    <div id="storage-debug-panel" style="display:none;margin-top:10px;background:#f0f3fa;border-radius:10px;padding:10px;text-align:left;max-height:160px;overflow-y:auto;"></div>
+  </div>`;
+
+  // Show what's missing
+  const dash=getDashboardProfile();
+  const missing=[];
+  if(!dash.name)missing.push('❌ Name not found');
+  if(!dash.id)missing.push('❌ Student ID not found');
+  const el=ov.querySelector('#profile-missing-items');
+  if(el)el.innerHTML=missing.join('<br>');
+
+  document.body.appendChild(ov);
+}
+
+function retryProfileCheck(){
+  const dash=getDashboardProfile();
+  if(dash.name&&dash.id){
+    const ov=document.getElementById('profile-required-ov');
+    if(ov)ov.remove();
+    const p=getProfile();
+    p.name=dash.name;p.studentId=dash.id;
+    localStorage.setItem('ts_profile',JSON.stringify(p));
+    updateProfile();
+    updateHPDisplays();
+    showToast('✅ Profile synced! Welcome, '+dash.name,'success');
+    renderHome();
+  } else {
+    // Update missing list
+    const dash2=getDashboardProfile();
+    const missing=[];
+    if(!dash2.name)missing.push('❌ Name not found');
+    if(!dash2.id)missing.push('❌ Student ID not found');
+    const el=document.getElementById('profile-missing-items');
+    if(el)el.innerHTML=missing.join('<br>');
+    showToast('Still missing profile data. Please check the Dashboard.','error');
+  }
+}
 function getPurchases(){try{return JSON.parse(localStorage.getItem('sh_purchases')||'[]')}catch(e){return[]}}
 function savePurchases(p){localStorage.setItem('sh_purchases',JSON.stringify(p))}
 function isPurchased(id){return getPurchases().some(p=>p.id===id)}
@@ -1159,12 +1286,16 @@ function updateWishlistCount(){
 }
 function updateProfile(){
   const p=getProfile();
-  const name=p.name||localStorage.getItem('cbtUserName')||'Student';
+  const dash=getDashboardProfile();
+  const name=dash.name||p.name||localStorage.getItem('cbtUserName')||'Student';
+  const id=dash.id||p.studentId||'';
   const initial=(name[0]||'S').toUpperCase();
-  ['sb-av','topbar-av'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=initial;});
-  ['sb-name','topbar-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=name;});
+  ['sb-av','topbar-av'].forEach(id2=>{const el=document.getElementById(id2);if(el)el.textContent=initial;});
+  ['sb-name','topbar-name'].forEach(id2=>{const el=document.getElementById(id2);if(el)el.textContent=name;});
   const ht=document.getElementById('home-title');
   if(ht)ht.textContent=`👋 Hey, ${name}!`;
+  // Update profile storage
+  if(name&&name!=='Student'&&!p.name){p.name=name;localStorage.setItem('ts_profile',JSON.stringify(p));}
 }
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function origPrice(p){return p*2;}
@@ -1296,6 +1427,18 @@ function renderHome(){
     </div>
   </div>
 
+<!-- SOCIAL PROOF — LIVE PURCHASES -->
+  <div class="card" style="margin-bottom:18px;overflow:hidden;">
+    <div style="padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#f43f5e;box-shadow:0 0 0 3px rgba(244,63,94,.2);animation:pulse 1.4s ease infinite;"></div>
+        <div class="sec-title" style="font-size:13px;">Students Buying Right Now</div>
+      </div>
+      <span style="font-size:9px;font-weight:800;background:rgba(244,63,94,.1);color:var(--red);padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;">🔴 LIVE</span>
+    </div>
+    <div id="social-proof-list"></div>
+  </div>
+
   <!-- RECENT ACTIVITY -->
   <div class="card" style="margin-bottom:18px;overflow:hidden;">
     <div style="padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;">
@@ -1337,23 +1480,95 @@ function renderHome(){
     }).join('')}
   </div>
 
-  <!-- CBT PROMO -->
+<!-- CBT PROMO — IMPROVED -->
   <div style="margin-bottom:8px;">
-    <a href="${DASHBOARD_URL}" target="_blank" style="display:block;text-decoration:none;border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(79,110,247,.25);transition:transform .2s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'">
-      <svg width="100%" viewBox="0 0 1100 200" xmlns="http://www.w3.org/2000/svg" style="display:block;">
-        <defs><linearGradient id="cbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4f6ef7"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs>
-        <rect width="1100" height="200" rx="20" fill="url(#cbg)"/>
-        <circle cx="950" cy="40" r="120" fill="white" opacity="0.05"/>
-        <text x="50" y="60" font-size="13" fill="rgba(255,255,255,.7)" letter-spacing="2" font-family="sans-serif">LIVE CBT TESTS</text>
-        <text x="50" y="108" font-size="30" fill="white" font-weight="800" font-family="sans-serif">Practice Mock Tests → Earn HP</text>
-        <text x="50" y="142" font-size="18" fill="#c4b5fd" font-family="sans-serif">Score well · Earn XP · Climb ranks</text>
-        <rect x="50" y="158" width="180" height="34" rx="17" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-        <text x="140" y="181" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">Go to Dashboard →</text>
+    <a href="${DASHBOARD_URL}" target="_blank" style="display:block;text-decoration:none;border-radius:22px;overflow:hidden;box-shadow:0 12px 40px rgba(79,110,247,.3);transition:all .25s cubic-bezier(.34,1.56,.64,1);" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 20px 50px rgba(79,110,247,.4)'" onmouseleave="this.style.transform='none';this.style.boxShadow='0 12px 40px rgba(79,110,247,.3)'">
+      <svg width="100%" viewBox="0 0 1100 220" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+        <defs>
+          <linearGradient id="cbg2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1e1b4b"/>
+            <stop offset="50%" stop-color="#312e81"/>
+            <stop offset="100%" stop-color="#4c1d95"/>
+          </linearGradient>
+          <linearGradient id="pill-grad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4f6ef7"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+          <linearGradient id="badge-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#d97706"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- BG -->
+        <rect width="1100" height="220" rx="22" fill="url(#cbg2)"/>
+
+        <!-- GRID LINES -->
+        <line x1="0" y1="55" x2="1100" y2="55" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <line x1="0" y1="110" x2="1100" y2="110" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <line x1="0" y1="165" x2="1100" y2="165" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <line x1="220" y1="0" x2="220" y2="220" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <line x1="440" y1="0" x2="440" y2="220" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+
+        <!-- GLOW ORBS -->
+        <ellipse cx="900" cy="50" rx="180" ry="130" fill="#4f6ef7" opacity="0.12"/>
+        <ellipse cx="1050" cy="180" rx="100" ry="80" fill="#7c3aed" opacity="0.15"/>
+        <ellipse cx="60" cy="190" rx="80" ry="60" fill="#4f6ef7" opacity="0.08"/>
+
+        <!-- DECORATIVE DOTS -->
+        <circle cx="820" cy="30" r="3" fill="rgba(255,255,255,.25)"/>
+        <circle cx="860" cy="55" r="2" fill="rgba(255,255,255,.2)"/>
+        <circle cx="790" cy="60" r="1.5" fill="rgba(255,255,255,.15)"/>
+        <circle cx="950" cy="140" r="3.5" fill="rgba(124,58,237,.6)" filter="url(#glow)"/>
+        <circle cx="980" cy="80" r="2" fill="rgba(79,110,247,.7)" filter="url(#glow)"/>
+
+        <!-- MOCK BAR CHART (decorative) -->
+        <rect x="760" y="160" width="18" height="40" rx="4" fill="rgba(79,110,247,.5)"/>
+        <rect x="785" y="140" width="18" height="60" rx="4" fill="rgba(124,58,237,.6)"/>
+        <rect x="810" y="120" width="18" height="80" rx="4" fill="rgba(79,110,247,.7)"/>
+        <rect x="835" y="100" width="18" height="100" rx="4" fill="url(#pill-grad)" opacity="0.8"/>
+        <rect x="860" y="130" width="18" height="70" rx="4" fill="rgba(124,58,237,.5)"/>
+        <rect x="885" y="110" width="18" height="90" rx="4" fill="rgba(79,110,247,.6)"/>
+
+        <!-- LIVE BADGE -->
+        <rect x="50" y="28" width="62" height="22" rx="11" fill="#f43f5e"/>
+        <circle cx="64" cy="39" r="4" fill="white" opacity="0.9"/>
+        <text x="72" y="43" font-size="10" fill="white" font-weight="800" font-family="'Plus Jakarta Sans',sans-serif" letter-spacing=".5">LIVE</text>
+
+        <!-- MAIN HEADLINE -->
+        <text x="50" y="92" font-size="32" fill="white" font-weight="900" font-family="'Plus Jakarta Sans',sans-serif" letter-spacing="-1">Practice Tests</text>
+        <text x="315" y="92" font-size="32" fill="url(#pill-grad)" font-weight="900" font-family="'Plus Jakarta Sans',sans-serif" letter-spacing="-1"> → Earn HP ⚡</text>
+
+        <!-- SUBTITLE -->
+        <text x="50" y="125" font-size="14" fill="rgba(196,181,253,.9)" font-family="'Plus Jakarta Sans',sans-serif" font-weight="500">Score high · Earn XP · Climb leaderboard · Unlock rewards</text>
+
+        <!-- STAT PILLS -->
+        <rect x="50" y="145" width="110" height="28" rx="14" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+        <text x="105" y="164" text-anchor="middle" font-size="11" fill="white" font-weight="700" font-family="'Plus Jakarta Sans',sans-serif">📊 5000+ MCQs</text>
+
+        <rect x="170" y="145" width="120" height="28" rx="14" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+        <text x="230" y="164" text-anchor="middle" font-size="11" fill="white" font-weight="700" font-family="'Plus Jakarta Sans',sans-serif">🏆 Live Ranks</text>
+
+        <rect x="300" y="145" width="130" height="28" rx="14" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+        <text x="365" y="164" text-anchor="middle" font-size="11" fill="white" font-weight="700" font-family="'Plus Jakarta Sans',sans-serif">⚡ Instant Results</text>
+
+        <!-- CTA BUTTON -->
+        <rect x="50" y="183" width="185" height="28" rx="14" fill="url(#pill-grad)"/>
+        <text x="143" y="202" text-anchor="middle" font-size="12" fill="white" font-weight="800" font-family="'Plus Jakarta Sans',sans-serif">Start Mock Test →</text>
+
+        <!-- TROPHY ICON (right side) -->
+        <text x="680" y="140" font-size="90" opacity="0.1">🏆</text>
       </svg>
     </a>
   </div>`;
 
-  document.getElementById('home-content').innerHTML=H;
+document.getElementById('home-content').innerHTML=H;
+  // Fetch live social proof after render
+  setTimeout(fetchRecentPurchases, 200);
 }
 
 function doClaim(){
@@ -2704,13 +2919,20 @@ function renderSettings(){
     </div>
   </div>
 
-  <!-- SYNC -->
+<!-- SYNC -->
   <div class="settings-section">
-    <div class="settings-title">🔗 Sync with Dashboard</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">HP syncs automatically with the Thunderstudy CBT dashboard via shared localStorage.</div>
+    <div class="settings-title">☁️ Google Sheets Sync</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Your HP, purchases, and Student ID are backed up to Google Sheets automatically.</div>
+    <div style="background:var(--card2);border-radius:12px;padding:12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="color:var(--text3);">Student ID</span><span style="font-weight:800;">${getDashboardProfile().id||'Not found'}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="color:var(--text3);">HP Balance</span><span style="font-weight:800;color:#7c3aed;">${getHP().total} HP</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="color:var(--text3);">Purchases</span><span style="font-weight:800;">${getPurchases().length} items</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text3);">Last Synced</span><span style="font-weight:700;color:var(--green);" id="last-sync-display">${getLastSyncTime()}</span></div>
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-prim" onclick="manualSync()">🔄 Force Sync</button>
-      <a href="${DASHBOARD_URL}" target="_blank" class="btn btn-ghost">🔗 Open Dashboard</a>
+      <button class="btn btn-prim" id="manual-sync-btn" onclick="doManualSync()">☁️ Sync Now</button>
+      <button class="btn btn-ghost" onclick="showSyncPopup()">📊 Sync Details</button>
+      <a href="${DASHBOARD_URL}" target="_blank" class="btn btn-ghost">🔗 Dashboard</a>
     </div>
     <div id="sync-status" style="font-size:12px;margin-top:8px;min-height:16px;"></div>
   </div>
@@ -2783,6 +3005,21 @@ function manualSync(){
   setTimeout(()=>{updateHPDisplays();updateProfile();if(st)st.innerHTML=`<span style="color:var(--green);">✅ Synced!</span>`;},600);
 }
 
+async function doManualSync(){
+  const btn=document.getElementById('manual-sync-btn');
+  const st=document.getElementById('sync-status');
+  if(btn){btn.textContent='⏳ Syncing...';btn.disabled=true;}
+  if(st)st.innerHTML=`<span style="color:var(--yellow);">⏳ Syncing to Google Sheets…</span>`;
+  const ok=await syncToSheets('manual');
+  if(btn){btn.textContent='☁️ Sync Now';btn.disabled=false;}
+  if(st)st.innerHTML=ok
+    ?`<span style="color:var(--green);">✅ Synced at ${new Date().toLocaleTimeString()}</span>`
+    :`<span style="color:var(--red);">❌ Sync failed — check internet</span>`;
+  const el=document.getElementById('last-sync-display');
+  if(el)el.textContent=getLastSyncTime();
+  updateHPDisplays();updateProfile();
+}
+
 function redeemPromo(){
   const inp=document.getElementById('promo-inp');const st=document.getElementById('promo-status');
   const code=(inp?.value||'').trim().toLowerCase();
@@ -2797,6 +3034,102 @@ function redeemPromo(){
   if(st)st.innerHTML=`<span style="color:var(--green);">✅ +${PROMOS[code]} HP added!</span>`;
   showToast(`🎟️ +${PROMOS[code]} HP!`,'success');
 }
+
+/* ═══════════════════════════════════════
+   GOOGLE SHEETS SYNC
+═══════════════════════════════════════ */
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzzuxslblzaasQrz4JSEbxT9auRXJDmb5mgCYMG0iWEE6KGcy4fp-WoBKazckGyWGp2Aw/exec'; // Replace with your Apps Script URL
+
+function getSyncData(){
+  const dash=getDashboardProfile();
+  const p=getProfile();
+  const hp=getHP();
+  const purchases=getPurchases();
+  return{
+    studentId: dash.id||p.studentId||'unknown',
+    name: dash.name||p.name||'Student',
+    hp: hp.total,
+    purchases: purchases.map(x=>x.title).join(' | '),
+    purchaseCount: purchases.length,
+    syncType: 'auto'
+  };
+}
+
+async function syncToSheets(syncType='auto'){
+  if(SHEETS_URL==='YOUR_WEB_APP_URL_HERE'){
+    console.log('Sheets URL not configured');return false;
+  }
+  try{
+    const data={...getSyncData(),syncType};
+    await fetch(SHEETS_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+    localStorage.setItem('sh_last_sync',new Date().toISOString());
+    return true;
+  }catch(err){
+    console.log('Sync failed:',err);return false;
+  }
+}
+
+function getLastSyncTime(){
+  const t=localStorage.getItem('sh_last_sync');
+  if(!t)return'Never';
+  return timeAgo(t);
+}
+
+function showSyncPopup(){
+  if(document.getElementById('sync-popup-ov'))return;
+  const lastSync=getLastSyncTime();
+  const ov=document.createElement('div');
+  ov.id='sync-popup-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:9998;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.4);backdrop-filter:blur(5px);padding:0;';
+  ov.innerHTML=`
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .35s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="width:40px;height:4px;background:#e8ecf4;border-radius:10px;margin:0 auto 20px;"></div>
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:36px;margin-bottom:8px;">☁️</div>
+      <div style="font-size:17px;font-weight:900;color:#1a1d2e;margin-bottom:5px;">Sync Your Data</div>
+      <div style="font-size:12px;color:#9298b5;">Your HP and purchases are saved to Google Sheets for backup</div>
+    </div>
+    <div style="background:#f0f3fa;border-radius:14px;padding:14px;margin-bottom:18px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center;">
+        <div><div style="font-size:18px;font-weight:900;font-family:'DM Mono',monospace;color:#7c3aed;">${getHP().total} HP</div><div style="font-size:10px;color:#9298b5;">Current HP</div></div>
+        <div><div style="font-size:18px;font-weight:900;font-family:'DM Mono',monospace;color:#10b981;">${getPurchases().length}</div><div style="font-size:10px;color:#9298b5;">Purchases</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#9298b5;text-align:center;">Last synced: ${lastSync}</div>
+    </div>
+    <button id="sync-popup-btn" onclick="doSyncFromPopup()" style="width:100%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;border:none;border-radius:30px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 14px rgba(79,110,247,.3);">
+      ☁️ Sync Now
+    </button>
+    <button onclick="closeSyncPopup()" style="width:100%;background:#f0f3fa;border:none;border-radius:30px;padding:11px;font-size:13px;font-weight:700;color:#5a5f7a;cursor:pointer;">
+      Skip for now
+    </button>
+  </div>`;
+  document.body.appendChild(ov);
+}
+
+async function doSyncFromPopup(){
+  const btn=document.getElementById('sync-popup-btn');
+  if(btn){btn.textContent='⏳ Syncing...';btn.disabled=true;}
+  const ok=await syncToSheets('manual');
+  if(btn){
+    btn.textContent=ok?'✅ Synced!':'❌ Failed — check connection';
+    btn.style.background=ok?'linear-gradient(135deg,#10b981,#059669)':'linear-gradient(135deg,#f43f5e,#e11d48)';
+  }
+  setTimeout(()=>closeSyncPopup(),1500);
+  if(ok)showToast('☁️ Data synced to Google Sheets!','success');
+}
+
+function closeSyncPopup(){
+  const ov=document.getElementById('sync-popup-ov');
+  if(ov){ov.style.opacity='0';ov.style.transition='opacity .2s';setTimeout(()=>ov.remove(),220);}
+}
+
+// Auto-sync every 10 minutes when page is open
+setInterval(()=>{syncToSheets('auto-interval');},10*60*1000);
 
 /* ═══════════════════════════════════════
    PURCHASE SPARKLES + SCRATCH CARD
@@ -3020,10 +3353,77 @@ function renderSearchResults(q){
   H+=sec('📋 Material',matHits,m=>srCard(MAT_TYPE_ICONS[m.matType]||'📋',`${SUBJ_COLORS[m.subject]||'#4f6ef7'}22`,escH(m.title),`${m.subject} · ${MAT_TYPE_LABELS[m.matType]}`,m.price,isPurchased(m.id),`showPurchaseModal('${m.id}','material');closeSearchOverlay()`));
   body.innerHTML=H;
 }
+
+/* ═══════════════════════════════════════
+   SOCIAL PROOF — FETCH RECENT PURCHASES
+═══════════════════════════════════════ */
+async function fetchRecentPurchases(){
+  const box=document.getElementById('social-proof-list');
+  if(!box)return;
+
+  // Fallback mock data (shows if fetch fails or sheet returns no data)
+  const MOCK=[
+    {name:'Ananya S.',item:'ECO Topper Notes',time:'2m ago',avatar:'A',color:'#10b981'},
+    {name:'Rahul M.',item:'BST Sample Paper 2025',time:'5m ago',avatar:'R',color:'#4f6ef7'},
+    {name:'Priya K.',item:'Maths QB Boards Pro',time:'11m ago',avatar:'P',color:'#f97316'},
+    {name:'Rohan V.',item:'Economics Boards Topper',time:'18m ago',avatar:'R',color:'#7c3aed'},
+    {name:'Sneha T.',item:'Physics Boards Dominator',time:'24m ago',avatar:'S',color:'#6366f1'},
+    {name:'Dev P.',item:'ECO Backbencher Notes',time:'31m ago',avatar:'D',color:'#06b6d4'},
+  ];
+
+  function renderRows(rows){
+    box.innerHTML=rows.map((r,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;border-bottom:${i<rows.length-1?'1px solid var(--border)':'none'};animation:fadeUp .3s ease ${i*0.06}s both;">
+        <div style="width:32px;height:32px;border-radius:50%;background:${r.color||'#4f6ef7'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">${r.avatar||r.name?.[0]||'S'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            <span style="color:#7c3aed;">${escH(r.name)}</span> just purchased
+          </div>
+          <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📄 ${escH(r.item)}</div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--green);flex-shrink:0;background:rgba(16,185,129,.1);padding:3px 8px;border-radius:20px;">✅ ${r.time||'just now'}</div>
+      </div>`).join('');
+  }
+
+  // Show loading skeleton
+  box.innerHTML=`<div style="padding:14px 20px;font-size:12px;color:var(--text3);">⏳ Loading live activity…</div>`;
+
+  try{
+    const res=await fetch(SHEETS_URL+'?action=getRecent&limit=6',{method:'GET',mode:'cors'});
+    const data=await res.json();
+    if(data&&data.length){
+      const COLORS=['#4f6ef7','#7c3aed','#10b981','#f97316','#06b6d4','#ec4899','#6366f1'];
+      const rows=data.map((d,i)=>({
+        name:d.name||d.studentName||'Student',
+        item:d.item||d.lastPurchase||d.purchases?.split('|')[0]||'Study Material',
+        time:d.time||d.timeAgo||timeAgo(d.date||new Date().toISOString()),
+        avatar:(d.name||d.studentName||'S')[0].toUpperCase(),
+        color:COLORS[i%COLORS.length]
+      }));
+      renderRows(rows);
+    } else {
+      renderRows(MOCK);
+    }
+  }catch(e){
+    renderRows(MOCK);
+  }
+}
+
 window.addEventListener('load',()=>{
   updateProfile();updateHPDisplays();updateWishlistCount();updateCartCount();
   checkSundayAutoClaim();
-  renderHome();
+  const profileOk=checkProfileAndBlock();
+  if(profileOk){
+    renderHome();
+    // Show sync popup after 3 seconds on load
+    setTimeout(()=>{
+      const lastSync=localStorage.getItem('sh_last_sync');
+      const shouldShow=!lastSync||(Date.now()-new Date(lastSync).getTime())>30*60*1000;
+      if(shouldShow&&SHEETS_URL!=='YOUR_WEB_APP_URL_HERE')showSyncPopup();
+    },3000);
+    // Auto-sync on load
+    setTimeout(()=>syncToSheets('page-load'),5000);
+  }
   document.getElementById('main-scroll').addEventListener('scroll',function(){
     const btn=document.getElementById('btt-btn');
     if(btn)btn.classList.toggle('visible',this.scrollTop>300);
