@@ -767,40 +767,12 @@ async function go(idx, anim){
    SOUND (synthesised page rustle)
    ═══════════════════════════════════════════════ */
 function initAudio(){if(audioCtx)return;try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}
-const pageSound = new Audio("creatorshome-turn-a-page-336933.mp3");
-
-function initAudio(){
-  if(audioCtx) return;
-  try{
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }catch(e){}
-}
-
+const _sfx = new Audio('home-turn-a-page-336933.mp3');
 function playPageTurn(){
   if(!soundOn) return;
-
   try{
-    pageSound.currentTime = 0; // restart sound
-    pageSound.play();
-  }catch(e){}
-      }
-    const sr=audioCtx.sampleRate, len=Math.floor(sr*0.28);
-    const buf=audioCtx.createBuffer(2,len,sr);
-    for(let ch=0;ch<2;ch++){
-      const d=buf.getChannelData(ch);
-      for(let i=0;i<len;i++){
-        const t=i/sr;
-        d[i]=Math.exp(-t*50)*(Math.random()*2-1)*0.85
-             +Math.exp(-t*8)*(Math.random()*2-1)*0.4
-             +Math.exp(-Math.abs(t-0.18)*26)*(Math.random()*2-1)*0.18;
-      }
-    }
-    const src=audioCtx.createBufferSource();
-    const bp=audioCtx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1700;bp.Q.value=0.65;
-    const lp=audioCtx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=4200;
-    const gn=audioCtx.createGain();gn.gain.value=0.42;
-    src.buffer=buf;src.connect(bp);bp.connect(lp);lp.connect(gn);gn.connect(audioCtx.destination);
-    src.start();
+    _sfx.currentTime = 0;
+    _sfx.play().catch(()=>{});
   }catch(e){}
 }
 
