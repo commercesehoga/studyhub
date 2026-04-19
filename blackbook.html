@@ -766,11 +766,23 @@ async function go(idx, anim){
 /* ═══════════════════════════════════════════════
    SOUND (synthesised page rustle)
    ═══════════════════════════════════════════════ */
-function initAudio(){if(audioCtx)return;try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+const pageSound = new Audio("creatorshome-turn-a-page-336933.mp3");
+
+function initAudio(){
+  if(audioCtx) return;
+  try{
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }catch(e){}
+}
+
 function playPageTurn(){
   if(!soundOn) return;
-  initAudio(); if(!audioCtx) return;
+
   try{
+    pageSound.currentTime = 0; // restart sound
+    pageSound.play();
+  }catch(e){}
+}
     const sr=audioCtx.sampleRate, len=Math.floor(sr*0.28);
     const buf=audioCtx.createBuffer(2,len,sr);
     for(let ch=0;ch<2;ch++){
