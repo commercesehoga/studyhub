@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +16,8 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
 :root{
   --bg:#f0f3fa;--sidebar:#ffffff;--card:#ffffff;--card2:#f7f8fd;--border:#e8ecf4;
@@ -277,6 +280,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .sync-dot.synced{background:var(--green);}
 .btt-btn{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;font-size:16px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,.35);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:90;}
 .btt-btn.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{
   0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.4);}
   50%{box-shadow:0 0 0 5px rgba(244,63,94,.0);}
@@ -409,6 +413,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
     <div class="nav-item" onclick="goPage('study')"><span class="nav-icon">⏱️</span> Study Timer<span class="nav-badge" style="background:var(--orange)">+HP</span></div>
     <div class="sb-section-label" style="margin-top:12px;">Account</div>
     <div class="nav-item" onclick="goPage('settings')"><span class="nav-icon">⚙️</span> Settings</div>
+        <div class="nav-item" onclick="window.open('https://wondemayank.github.io','_blank')"><span class="nav-icon">💕</span>Wondemayank</div>
     <div class="nav-item" onclick="window.open('https://commercesehoga.github.io/dashboard/','_blank')"><span class="nav-icon">🔗</span> CBT Dashboard</div>
   </div>
   <div class="sb-profile" onclick="goPage('settings')">
@@ -419,7 +424,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 
 <!-- MAIN -->
 <div class="main" id="main-scroll">
-  <div class="page active" id="page-home"><div class="topbar"><div><div class="page-title" id="home-title">🏠 StudyHub</div><div class="page-sub">Your learning marketplace powered by HP</div></div><div class="topbar-right"><div class="hp-badge" onclick="goPage('settings')">💜 <span id="topbar-hp">0</span> HP</div><div style="display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:30px;padding:6px 12px;"><div class="sb-av" id="topbar-av" style="width:28px;height:28px;font-size:12px;">S</div><div style="font-size:12px;font-weight:700;" id="topbar-name">Student</div></div></div></div><div id="home-content"></div></div>
+  <div class="page active" id="page-home"><div class="topbar"><div><div class="page-title" id="home-title">🏠 StudyHub</div><div class="page-sub">Your learning marketplace powered by HP</div></div><div class="topbar-right"><div class="hp-badge" onclick="goPage('settings')">💜 <span id="topbar-hp">0</span> HP</div><img src="${gu.picture}" width="28" height="28" style="border-radius:50%;flex-shrink:0;" onerror="this.style.display='none'"><div style="font-size:12px;font-weight:700;"></div></div><button onclick="shGoogleLogin()" style="display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid #dadce0;border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn);box-shadow:0 2px 6px rgba(0,0,0,.08);"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">Sign in</button></div></div><div id="home-content"></div></div>
   <div class="page" id="page-books"><div class="topbar"><div><div class="page-title">📖 Books</div><div class="page-sub">Sample papers, question banks & textbooks</div></div><div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div><div class="cart-btn" onclick="showCartModal()">🛒 Cart <span class="cart-count" id="cart-count">0</span></div><button class="btn btn-ghost" onclick="booksTab='wishlist';renderBooks()">❤️ Wishlist (<span id="wishlist-count">0</span>)</button></div></div><div id="books-content"></div></div>
   <div class="page" id="page-notes"><div class="topbar"><div><div class="page-title">📝 Notes</div><div class="page-sub">Handwritten & digital notes</div></div><div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div></div><div id="notes-content"></div></div>
   <div class="page" id="page-material"><div class="topbar"><div><div class="page-title">📋 Study Material</div><div class="page-sub">Imp questions, mindmaps, formulas · 40 HP each</div></div><div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div></div><div id="material-content"></div></div>
@@ -545,6 +550,79 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 ═══════════════════════════════ */
 // Google Drive preview: https://drive.google.com/file/d/ID/preview
 // Google Drive download: https://drive.google.com/uc?export=download&id=ID
+/* ══════════════════════════════════════════
+   FIREBASE CONFIG & GOOGLE AUTH
+══════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyAoxORpjq2kIED1hBNAQ2MGJEWlwQ3FCJA",
+  authDomain: "thunderstudy.firebaseapp.com",
+  projectId: "thunderstudy",
+  storageBucket: "thunderstudy.firebasestorage.app",
+  messagingSenderId: "83506167126",
+  appId: "1:83506167126:web:9b3e7017ba871103672af7"
+};
+
+firebase.initializeApp(firebaseConfig);
+const fbAuth = firebase.auth();
+const fbProvider = new firebase.auth.GoogleAuthProvider();
+
+// Auto-restore session when page loads
+fbAuth.onAuthStateChanged(function(user) {
+  if (user) {
+    const gu = { name: user.displayName, email: user.email, picture: user.photoURL, uid: user.uid };
+    localStorage.setItem('sh_google_user', JSON.stringify(gu));
+    localStorage.setItem('cbtUserName', user.displayName);
+    // Sync name into StudyHub profile
+    const p = getProfile();
+    if (!p.name && user.displayName) {
+      p.name = user.displayName;
+      localStorage.setItem('ts_profile', JSON.stringify(p));
+    }
+    updateProfile();
+    updateHPDisplays();
+  }
+});
+
+function getGoogleUser() {
+  try { return JSON.parse(localStorage.getItem('sh_google_user') || 'null'); } catch(e) { return null; }
+}
+
+function shGoogleLogin() {
+  const btn = document.getElementById('sh-google-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle;"></span>Signing in…'; }
+
+  fbAuth.signInWithPopup(fbProvider)
+    .then(function(result) {
+      const user = result.user;
+      const gu = { name: user.displayName, email: user.email, picture: user.photoURL, uid: user.uid };
+      localStorage.setItem('sh_google_user', JSON.stringify(gu));
+      localStorage.setItem('cbtUserName', user.displayName);
+      const p = getProfile();
+      if (!p.name && user.displayName) {
+        p.name = user.displayName;
+        localStorage.setItem('ts_profile', JSON.stringify(p));
+      }
+      updateProfile();
+      updateHPDisplays();
+      showToast('✅ Signed in as ' + user.displayName, 'success');
+      renderSettings();
+    })
+    .catch(function(e) {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16" style="margin-right:8px;vertical-align:middle;">Sign in with Google'; }
+      if (e.code !== 'auth/popup-closed-by-user') {
+        showToast('❌ Login failed: ' + e.message, 'error');
+      }
+    });
+}
+
+function shGoogleLogout() {
+  fbAuth.signOut().then(function() {
+    localStorage.removeItem('sh_google_user');
+    showToast('👋 Signed out', 'success');
+    renderSettings();
+    updateProfile();
+  });
+}
 function gd(id){return 'https://drive.google.com/file/d/'+id+'/preview';}
 function gdDl(id){return 'https://drive.google.com/uc?export=download&id='+id;}
 
@@ -843,12 +921,62 @@ const BOOKS_DATA=[
    contents:['5000+ Questions','PYQ Questions Chapterwise','Multiple Choice Questions','All Difficulty Levels']},
 ];
 
+const CUET_BOOKS_DATA=[
+  {id:'cb_bst',title:'CUET BST Complete Book',subject:'BST',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/bst.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/bst.html',
+   color:'#4f6ef7',color2:'#7c3aed',icon:'📊',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_eco',title:'CUET ECO Complete Book',subject:'ECO',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/eco.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/eco.html',
+   color:'#10b981',color2:'#059669',icon:'📈',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_acc',title:'CUET ACC Complete Book',subject:'ACC',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/acc.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/acc.html',
+   color:'#06b6d4',color2:'#0891b2',icon:'📒',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_pol',title:'CUET Political Science Complete Book',subject:'POL',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/pol.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/pol.html',
+   color:'#8b5cf6',color2:'#6d28d9',icon:'🏛️',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_his',title:'CUET History Complete Book',subject:'HIS',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/his.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/his.html',
+   color:'#d97706',color2:'#92400e',icon:'📜',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_geo',title:'CUET Geography Complete Book',subject:'GEO',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/geo.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/geo.html',
+   color:'#0ea5e9',color2:'#0369a1',icon:'🌏',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_mat',title:'CUET Maths Complete Book',subject:'MAT',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/mat.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/mat.html',
+   color:'#f97316',color2:'#c2410c',icon:'📐',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_eng',title:'CUET English Complete Book',subject:'ENG',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/eng.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/eng.html',
+   color:'#ec4899',color2:'#be185d',icon:'📝',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+  {id:'cb_gat',title:'CUET GAT Complete Book',subject:'GAT',
+   coverUrl:'https://commercesehoga.github.io/studyhub/cuet/gat.png',
+   pageUrl:'https://commercesehoga.github.io/studyhub/cuet/gat.html',
+   color:'#f59e0b',color2:'#d97706',icon:'🧠',price:120,
+   contents:['PYQs (2022–2025)','Full Notes','Practice Papers','Sample Papers','Mindmaps','Important Questions']},
+];
+
 const BUNDLES=[
   {id:'bun_commerce12',title:'Commerce Class 12 Bundle',desc:'BST + ECO + ACC Sample Papers',books:['b_bst_sp','b_eco_sp','b_acc_sp'],normalPrice:300,bundlePrice:250,icon:'📦'},
   {id:'bun_science12',title:'Science Class 12 Bundle',desc:'PHY + CHE + BIO Boards Dominator',books:['b_phy_sp','b_che_sp','b_bio_sp'],normalPrice:300,bundlePrice:250,icon:'🔬'},
   {id:'bun_arts12',title:'Arts Class 12 Bundle',desc:'HIS + GEO + POL Boards Killer',books:['b_his_sp','b_geo_sp','b_pol_sp'],normalPrice:300,bundlePrice:250,icon:'🏛️'},
   {id:'bun_qb_main',title:'QB Mega Bundle',desc:'Maths + Economics + English QB',books:['b_mat_qb','b_eco_qb','b_eng_qb'],normalPrice:450,bundlePrice:400,icon:'📚'},
 ];
+
+
 
 /* ═══════════════════════════════
    DATA — NOTES (groups:[] array, files:[], comingSoon, sameSyllabus, multiFile)
@@ -938,16 +1066,65 @@ const MATERIAL_DATA=[
 ];
 
 const PYQS_DATA=[
-  {id:'p_12_bst_25',title:'BST Class 12 PYQ 2025',subject:'BST',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Ch 1–12',price:50,pdfUrl:''},
-  {id:'p_12_bst_24',title:'BST Class 12 PYQ 2024',subject:'BST',group:'class12',year:2024,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Ch 1–12',price:50,pdfUrl:''},
-  {id:'p_12_bst_23',title:'BST Class 12 PYQ 2023',subject:'BST',group:'class12',year:2023,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Ch 1–12',price:50,pdfUrl:''},
-  {id:'p_12_eco_25',title:'ECO Class 12 PYQ 2025',subject:'ECO',group:'class12',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'All Chapters',price:50,pdfUrl:''},
-  {id:'p_12_eco_24',title:'ECO Class 12 PYQ 2024',subject:'ECO',group:'class12',year:2024,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'All Chapters',price:50,pdfUrl:''},
-  {id:'p_12_acc_25',title:'ACC Class 12 PYQ 2025',subject:'ACC',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'All Chapters',price:50,pdfUrl:''},
-  {id:'p_cuet_bst_25',title:'CUET BST PYQ 2025',subject:'BST',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:50,pdfUrl:''},
-  {id:'p_cuet_bst_24',title:'CUET BST PYQ 2024',subject:'BST',group:'cuet',year:2024,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:50,pdfUrl:''},
-  {id:'p_cuet_eco_25',title:'CUET ECO PYQ 2025',subject:'ECO',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:50,pdfUrl:''},
-  {id:'p_cuet_gat_25',title:'CUET GAT PYQ 2025',subject:'GAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'Full Paper',price:50,pdfUrl:''},
+  // CLASS 12 — FREE, redirect to CBSE site
+  {id:'p_12_bst_25',title:'BST Class 12 PYQ 2025',subject:'BST',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Ch 1–12',price:0,pdfUrl:'https://www.cbse.gov.in/cbsenew/question-paper.html'},
+  {id:'p_12_eco_25',title:'ECO Class 12 PYQ 2025',subject:'ECO',group:'class12',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'All Chapters',price:0,pdfUrl:'https://www.cbse.gov.in/cbsenew/question-paper.html'},
+  {id:'p_12_acc_25',title:'ACC Class 12 PYQ 2025',subject:'ACC',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'All Chapters',price:0,pdfUrl:'https://www.cbse.gov.in/cbsenew/question-paper.html'},
+  {id:'p_12_mat_25',title:'Maths Class 12 PYQ 2025',subject:'MAT',group:'class12',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'All Chapters',price:0,pdfUrl:'https://www.cbse.gov.in/cbsenew/question-paper.html'},
+  {id:'p_12_amat_25',title:'Applied Maths Class 12 PYQ 2025',subject:'AMAT',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'All Chapters',price:0,pdfUrl:'https://www.cbse.gov.in/cbsenew/question-paper.html'},
+  {id:'p_12_eng_25',title:'English Class 12 PYQ 2025',subject:'ENG',group:'class12',year:2025,pyqType:'full',difficulty:'easy',hasSolutions:true,chapters:'All Chapters',price:0,pdfUrl:'https://www.cbse.gov.in/cbsenew/question-paper.html'},
+  {id:'p_12_cs_25',title:'Computer Science Class 12 PYQ 2025',subject:'CS',group:'class12',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'All Chapters',price:0,pdfUrl:'https://www.cbse.gov.in/cbsenew/question-paper.html'},
+  {id:'p_12_phy_25',title:'Physics Class 12 PYQ 2025',subject:'PHY',group:'class12',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_che_25',title:'Chemistry Class 12 PYQ 2025',subject:'CHE',group:'class12',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_bio_25',title:'Biology Class 12 PYQ 2025',subject:'BIO',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_pol_25',title:'Political Science Class 12 PYQ 2025',subject:'POL',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_his_25',title:'History Class 12 PYQ 2025',subject:'HIS',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_geo_25',title:'Geography Class 12 PYQ 2025',subject:'GEO',group:'class12',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  // 2024 & 2023 — all free, telegram for files
+  {id:'p_12_bst_24',title:'BST Class 12 PYQ 2024',subject:'BST',group:'class12',year:2024,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'Ch 1–12',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_eco_24',title:'ECO Class 12 PYQ 2024',subject:'ECO',group:'class12',year:2024,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_acc_24',title:'ACC Class 12 PYQ 2024',subject:'ACC',group:'class12',year:2024,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_bst_23',title:'BST Class 12 PYQ 2023',subject:'BST',group:'class12',year:2023,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Ch 1–12',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_12_eco_23',title:'ECO Class 12 PYQ 2023',subject:'ECO',group:'class12',year:2023,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'All Chapters',price:0,telegramOnly:true,pdfUrl:''},
+
+  // CUET — 10 HP each, real PDF links
+  // BST
+  {id:'p_cuet_bst_25a',title:'CUET BST PYQ 2025 — Paper 1',subject:'BST',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/jH9ljBxL9bRa1bYfOwhe'},
+  {id:'p_cuet_bst_25b',title:'CUET BST PYQ 2025 — Paper 2',subject:'BST',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/pBsDLpkkpvwkblA3ARqT'},
+  {id:'p_cuet_bst_25c',title:'CUET BST PYQ 2025 — Paper 3',subject:'BST',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/5NNEBOJN5xRXXhJVapTu'},
+  // ECO
+  {id:'p_cuet_eco_25a',title:'CUET ECO PYQ 2025 — Paper 1',subject:'ECO',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/aj7nIdbf66qYI40IT6xu'},
+  {id:'p_cuet_eco_25b',title:'CUET ECO PYQ 2025 — Paper 2',subject:'ECO',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/OXKdU4aq2ybRO0SDj8dO'},
+  {id:'p_cuet_eco_25c',title:'CUET ECO PYQ 2025 — Paper 3',subject:'ECO',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/oXIlKbD7JBrjMCU3Bwog'},
+  // ACC
+  {id:'p_cuet_acc_25a',title:'CUET ACC PYQ 2025 — Paper 1',subject:'ACC',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/iRR4ueqKavTq2vF4cRlp'},
+  {id:'p_cuet_acc_25b',title:'CUET ACC PYQ 2025 — Paper 2',subject:'ACC',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/KyLIuFLnIZfLK2BbKl0z'},
+  {id:'p_cuet_acc_25c',title:'CUET ACC PYQ 2025 — Paper 3',subject:'ACC',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/MO3uqR59pvPDzaXIAQmA'},
+  // Applied Maths
+  {id:'p_cuet_amat_25a',title:'CUET Applied Maths PYQ 2025 — Paper 1',subject:'AMAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/cy98hFnpZ6km2X8yPn3b'},
+  {id:'p_cuet_amat_25b',title:'CUET Applied Maths PYQ 2025 — Paper 2',subject:'AMAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/cy98hFnpZ6km2X8yPn3b'},
+  // Maths
+  {id:'p_cuet_mat_25a',title:'CUET Maths PYQ 2025 — Paper 1',subject:'MAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/7HwmgHOMJFxijZL7aAN7'},
+  {id:'p_cuet_mat_25b',title:'CUET Maths PYQ 2025 — Paper 2',subject:'MAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/McKslm4VEWOAajM58oDB'},
+  {id:'p_cuet_mat_25c',title:'CUET Maths PYQ 2025 — Paper 3',subject:'MAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/3uAvXQdoZuJeOgkw3As7'},
+  // English
+  {id:'p_cuet_eng_25a',title:'CUET English PYQ 2025 — Paper 1',subject:'ENG',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/s6J6Ily7bG0CX8ETzxj0'},
+  {id:'p_cuet_eng_25b',title:'CUET English PYQ 2025 — Paper 2',subject:'ENG',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/M6OO2EcDr0QfDYP4Qo1R'},
+  {id:'p_cuet_eng_25c',title:'CUET English PYQ 2025 — Paper 3',subject:'ENG',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/fXb3vcGtmSuNrKXrkn47'},
+  // CS
+  {id:'p_cuet_cs_25',title:'CUET CS PYQ 2025',subject:'CS',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:true,chapters:'Full Paper',price:10,pdfUrl:'https://www.selfstudys.com/sitepdfs/XJh3KkPv5AKBa3y7XYEp'},
+  // Other CUET 2025 & all 2024/2023 — telegram only
+  {id:'p_cuet_pol_25',title:'CUET Political Science PYQ 2025',subject:'POL',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_his_25',title:'CUET History PYQ 2025',subject:'HIS',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_geo_25',title:'CUET Geography PYQ 2025',subject:'GEO',group:'cuet',year:2025,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_gat_25',title:'CUET GAT PYQ 2025',subject:'GAT',group:'cuet',year:2025,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_bst_24',title:'CUET BST PYQ 2024',subject:'BST',group:'cuet',year:2024,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_eco_24',title:'CUET ECO PYQ 2024',subject:'ECO',group:'cuet',year:2024,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_acc_24',title:'CUET ACC PYQ 2024',subject:'ACC',group:'cuet',year:2024,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_gat_24',title:'CUET GAT PYQ 2024',subject:'GAT',group:'cuet',year:2024,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_bst_23',title:'CUET BST PYQ 2023',subject:'BST',group:'cuet',year:2023,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_eco_23',title:'CUET ECO PYQ 2023',subject:'ECO',group:'cuet',year:2023,pyqType:'full',difficulty:'moderate',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
+  {id:'p_cuet_gat_23',title:'CUET GAT PYQ 2023',subject:'GAT',group:'cuet',year:2023,pyqType:'full',difficulty:'hard',hasSolutions:false,chapters:'Full Paper',price:0,telegramOnly:true,pdfUrl:''},
 ];
 
 const MCQS_DATA=[
@@ -1495,6 +1672,16 @@ function renderHome(){
       </div>`;
     }).join('')}
   </div>
+  
+  <!-- TELEGRAM SUPPORT BANNER -->
+  <a href="https://t.me/mindmaster_robot" target="_blank" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:var(--r2);padding:16px 20px;margin-bottom:14px;text-decoration:none;transition:all .2s;" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 30px rgba(14,165,233,.35)'" onmouseleave="this.style.transform='none';this.style.boxShadow=''">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="20" fill="rgba(255,255,255,.15)"/><path d="M9.5 19.8l5.3 2 2.1 6.6c.15.4.65.55 1 .3l3-2.5a.8.8 0 01.9 0l5.4 3.9c.35.25.9.1 1-.35L31.5 11.5c.15-.55-.45-1-.9-.75L9.2 18.8c-.55.22-.45 1 .3 1z" fill="white"/><path d="M14.8 21.9l.6 6.1c0 .35.45.5.65.2l2.3-2.2" fill="rgba(255,255,255,.6)"/></svg>
+    <div style="flex:1;">
+      <div style="font-size:14px;font-weight:900;color:#fff;margin-bottom:2px;">📬 File not available? Message us!</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.8);">Purchased but can't access? We'll send you the file directly on Telegram — @mindmaster_robot</div>
+    </div>
+    <div style="font-size:12px;font-weight:800;color:#fff;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:20px;white-space:nowrap;">Message Now →</div>
+  </a>
 
 <!-- CBT PROMO — IMPROVED -->
   <div style="margin-bottom:8px;">
@@ -1711,6 +1898,9 @@ function renderBooks(){
       {key:'c12qb',title:'📚 Class 12 Question Banks',badge:'5000+ Questions',
        filter:b=>b.group==='class12'&&b.type==='qbank',
        show:booksTab!=='cuet'},
+       {key:'cuetbooks',title:'🎯 CUET Complete Books',badge:'📦 All-in-One',
+ filter:()=>false, // handled separately below
+ show:false}, // skip — rendered separately
       {key:'cuetqb',title:'🎯 CUET Question Banks',badge:'CUET Special',
        filter:b=>b.group==='cuet',
        show:booksTab!=='class12'},
@@ -1730,6 +1920,38 @@ function renderBooks(){
       </div>`;
       H+=`<div class="book-grid" style="margin-bottom:28px;">${items.map(buildBookCard).join('')}</div>`;
     });
+    // CUET COMPLETE BOOKS
+if(booksTab==='all'||booksTab==='cuet'){
+  H+=`<div class="sec-hdr" style="margin-top:6px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="sec-title">🎯 CUET Complete Books</div>
+      <span style="font-size:9px;font-weight:800;background:rgba(124,58,237,.15);color:#7c3aed;padding:2px 9px;border-radius:20px;">📦 All-in-One · Notes + PYQ + Mock</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);">${CUET_BOOKS_DATA.length} books</div>
+  </div>
+  <div class="book-grid" style="margin-bottom:28px;">`;
+  CUET_BOOKS_DATA.forEach(cb=>{
+    const purchased=isPurchased(cb.id);
+    H+=`<div class="book-card ${purchased?'purchased':''}" onclick="${purchased?`window.open('${cb.pageUrl}','_blank')`:`showCUETBookModal('${cb.id}')`}">
+      <div style="height:185px;background:linear-gradient(135deg,${cb.color},${cb.color2});position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+        <img src="${cb.coverUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;" onerror="this.style.display='none'" />
+        <div style="position:absolute;top:8px;left:8px;font-size:9px;font-weight:800;background:rgba(124,58,237,.85);color:#fff;padding:3px 8px;border-radius:20px;z-index:2;">🎯 CUET</div>
+        ${purchased?`<div style="position:absolute;top:8px;right:8px;font-size:9px;font-weight:800;background:rgba(16,185,129,.9);color:#fff;padding:3px 8px;border-radius:20px;z-index:2;">✅ Owned</div>`:''}
+        <div style="font-size:38px;z-index:1;position:relative;">${cb.icon}</div>
+        <div style="position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:800;color:rgba(255,255,255,.8);text-align:center;padding:6px;background:linear-gradient(transparent,rgba(0,0,0,.5));z-index:2;">CUET COMPLETE BOOK</div>
+      </div>
+      <div class="book-info">
+        <div class="book-title">${escH(cb.title)}</div>
+        <div class="book-meta">${cb.subject} · Notes + PYQ + Mock</div>
+        <div class="book-price">
+          <span class="book-hp">${purchased?'<span style="color:var(--green)">✅ Owned</span>':'💜 '+cb.price+' HP'}</span>
+          <button class="btn btn-prim" onclick="event.stopPropagation();${purchased?`window.open('${cb.pageUrl}','_blank')`:`showCUETBookModal('${cb.id}')`}" style="font-size:10px;padding:4px 10px;">${purchased?'📖 Open':'🔒 Buy'}</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  H+=`</div>`;
+}
     if(!anyShown)H+=`<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">No Books Found</div></div>`;
   }
   document.getElementById('books-content').innerHTML=H;
@@ -2130,49 +2352,85 @@ let pyqGroup='class12',pyqYear='all',pyqType='all';
 function renderPYQs(){
   updateHPDisplays();
   let H=`
+  <div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(6,182,212,.05));border:2px solid rgba(16,185,129,.3);border-radius:var(--r2);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div style="font-size:28px;">🎁</div>
+    <div style="flex:1;">
+      <div style="font-size:14px;font-weight:800;margin-bottom:2px;">Class 12 PYQs are FREE! 🎉</div>
+      <div style="font-size:11px;color:var(--text3);">All Class 12 board papers → CBSE official site (free). CUET papers = 10 HP each. Other subjects → message on Telegram.</div>
+    </div>
+    <a href="https://t.me/mindmaster_robot" target="_blank" class="btn btn-green" style="font-size:11px;">📲 @mindmaster_robot</a>
+  </div>
   <div class="subj-tabs" style="margin-bottom:10px;">
-    <div class="subj-tab ${pyqGroup==='class12'?'active':''}" onclick="setPyqGroup('class12')">📚 Class 12</div>
-    <div class="subj-tab ${pyqGroup==='cuet'?'active':''}" onclick="setPyqGroup('cuet')">🎯 CUET</div>
+    <div class="subj-tab ${pyqGroup==='class12'?'active':''}" onclick="setPyqGroup('class12')">📚 Class 12 (Free)</div>
+    <div class="subj-tab ${pyqGroup==='cuet'?'active':''}" onclick="setPyqGroup('cuet')">🎯 CUET (10 HP)</div>
   </div>
   <div class="subj-tabs" style="margin-bottom:10px;">
     <div class="subj-tab ${pyqYear==='all'?'active':''}" onclick="setPyqYear('all')">All Years</div>
-    ${['2025','2024','2023','2022'].map(y=>`<div class="subj-tab ${pyqYear===y?'active':''}" onclick="setPyqYear('${y}')">${y}</div>`).join('')}
-  </div>
-  <div class="subj-tabs" style="margin-bottom:18px;">
-    <div class="subj-tab ${pyqType==='all'?'active':''}" onclick="setPyqType('all')">All</div>
-    <div class="subj-tab ${pyqType==='full'?'active':''}" onclick="setPyqType('full')">📄 Full Papers</div>
-    <div class="subj-tab ${pyqType==='chapter'?'active':''}" onclick="setPyqType('chapter')">📖 Chapterwise</div>
+    ${['2025','2024','2023'].map(y=>`<div class="subj-tab ${pyqYear===y?'active':''}" onclick="setPyqYear('${y}')">${y}</div>`).join('')}
   </div>`;
 
   let filtered=PYQS_DATA.filter(p=>p.group===pyqGroup);
   if(pyqYear!=='all')filtered=filtered.filter(p=>p.year===parseInt(pyqYear));
-  if(pyqType!=='all')filtered=filtered.filter(p=>p.pyqType===pyqType);
 
-  if(!filtered.length){H+=`<div class="empty"><div class="empty-icon">📜</div><div class="empty-title">No PYQs Found</div><div class="empty-sub">Try a different filter.</div></div>`;document.getElementById('pyqs-content').innerHTML=H;return;}
+  if(!filtered.length){H+=`<div class="empty"><div class="empty-icon">📜</div><div class="empty-title">No PYQs Found</div><div class="empty-sub">Try a different filter or message on Telegram.</div></div>`;document.getElementById('pyqs-content').innerHTML=H;return;}
 
   H+=`<div class="pyq-grid">`;
   filtered.forEach(pyq=>{
-    const purchased=isPurchased(pyq.id);
+    const isFree=pyq.price===0;
+    const isTelegramOnly=pyq.telegramOnly;
+    const purchased=!isFree&&isPurchased(pyq.id);
     const diffClass=pyq.difficulty==='hard'?'hard':pyq.difficulty==='moderate'?'moderate':'easy';
     const subjColor=SUBJ_COLORS[pyq.subject]||'#4f6ef7';
+
+    let actionBtn='';
+    if(isTelegramOnly){
+      actionBtn=`<a href="https://t.me/mindmaster_robot" target="_blank" class="btn btn-teal" style="font-size:10px;padding:5px 10px;">📲 Get Free</a>`;
+    } else if(isFree&&pyq.pdfUrl){
+      actionBtn=`<a href="${pyq.pdfUrl}" target="_blank" class="btn btn-green" style="font-size:10px;padding:5px 10px;">📄 Open Free</a>`;
+    } else if(purchased){
+      actionBtn=`<button class="btn btn-green" onclick="openSelfStudysPDF('${pyq.pdfUrl}','${pyq.title}')" style="font-size:10px;padding:5px 10px;">📄 Open</button>`;
+    } else {
+      actionBtn=`<button class="btn btn-prim" onclick="buyCUETPYQ('${pyq.id}')" style="font-size:10px;padding:5px 10px;">🔒 Buy 10 HP</button>`;
+    }
+
     H+=`<div class="pyq-card ${purchased?'purchased':''}">
       <div style="height:4px;background:${subjColor};border-radius:4px 4px 0 0;margin:-15px -15px 12px;"></div>
-      <div class="pyq-year">${pyq.year}</div>
+      <div class="pyq-year" style="font-size:22px;">${pyq.year}</div>
       <div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:4px;">
         <span class="pyq-diff ${diffClass}">${pyq.difficulty}</span>
         ${pyq.hasSolutions?`<span class="sol-badge">✅ Solutions</span>`:''}
+        ${isFree?`<span style="font-size:9px;font-weight:800;background:rgba(16,185,129,.15);color:var(--green);padding:2px 8px;border-radius:20px;">🎁 FREE</span>`:''}
+        ${isTelegramOnly?`<span style="font-size:9px;font-weight:800;background:rgba(6,182,212,.12);color:var(--teal);padding:2px 8px;border-radius:20px;">📲 Telegram</span>`:''}
       </div>
-      <div style="font-size:13px;font-weight:800;margin-bottom:3px;">${escH(pyq.title)}</div>
+      <div style="font-size:12px;font-weight:800;margin-bottom:3px;line-height:1.3;">${escH(pyq.title)}</div>
       <div style="font-size:10px;color:var(--text3);margin-bottom:10px;">📚 ${pyq.chapters}</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:13px;font-weight:900;font-family:var(--mono);color:${purchased?'var(--green)':'#7c3aed'}">${purchased?'✅ Owned':'💜 '+pyq.price+' HP'}</span>
-        ${purchased?`<button class="btn btn-green" onclick="openPDFForItem('${pyq.id}','pyq')" style="font-size:10px;padding:5px 10px;">📄 Open</button>`:
-        `<button class="btn btn-prim" onclick="showPurchaseModal('${pyq.id}','pyq')" style="font-size:10px;padding:5px 10px;">🔒 Buy</button>`}
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:13px;font-weight:900;font-family:var(--mono);color:${isFree?'var(--green)':purchased?'var(--green)':'#7c3aed'}">
+          ${isFree?'🎁 Free':purchased?'✅ Owned':'💜 10 HP'}
+        </span>
+        ${actionBtn}
       </div>
     </div>`;
   });
   H+=`</div>`;
   document.getElementById('pyqs-content').innerHTML=H;
+}
+
+function openSelfStudysPDF(url,title){
+  openPDF(url,title,null,null);
+}
+
+function buyCUETPYQ(id){
+  const pyq=PYQS_DATA.find(p=>p.id===id);if(!pyq)return;
+  if(isPurchased(id)){openSelfStudysPDF(pyq.pdfUrl,pyq.title);return;}
+  const hp=getHP().total;
+  if(hp<10){showToast('Need 10 HP to unlock this PYQ.','error');return;}
+  const ok=spendHP(10,`CUET PYQ: ${pyq.title}`);
+  if(!ok)return;
+  addPurchase(id,pyq.title,10,'pyq');
+  showToast(`✅ Unlocked! Opening ${pyq.title}`,'success');
+  setTimeout(()=>openSelfStudysPDF(pyq.pdfUrl,pyq.title),600);
+  renderPYQs();
 }
 
 function setPyqGroup(g){pyqGroup=g;renderPYQs();}
@@ -2459,6 +2717,13 @@ const hours=getStudyHours();
       </div>`).join('')}
     </div>`:''}
   </div>
+  
+  <!-- TELEGRAM SUPPORT -->
+  <a href="https://t.me/mindmaster_robot" target="_blank" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:var(--r);padding:14px 18px;margin-bottom:18px;text-decoration:none;">
+    <div style="font-size:28px;">📲</div>
+    <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:#fff;">Purchased file not opening?</div><div style="font-size:11px;color:rgba(255,255,255,.8);">Message @mindmaster_robot on Telegram — we'll send it directly!</div></div>
+    <div style="font-size:11px;font-weight:800;color:#fff;background:rgba(255,255,255,.2);padding:6px 12px;border-radius:20px;white-space:nowrap;">Message →</div>
+  </a>
 
   <!-- MY LIBRARY -->
   <div class="sec-hdr" style="margin-bottom:12px;"><div class="sec-title">📖 My Library</div><div class="sec-link" onclick="goPage('books')">Browse →</div></div>`;
@@ -2885,6 +3150,48 @@ function confirmPurchase(){
   pendingPurchase=null;
 }
 
+function showCUETBookModal(id){
+  const cb=CUET_BOOKS_DATA.find(x=>x.id===id);if(!cb)return;
+  const hp=getHP().total;const price=cb.price;const canAfford=hp>=price;const purchased=isPurchased(id);
+  document.getElementById('pm-title').textContent=purchased?'📖 CUET Book':'🎯 CUET Complete Book';
+  document.getElementById('pm-body').innerHTML=`
+  <div style="display:grid;grid-template-columns:140px 1fr;gap:14px;margin-bottom:16px;align-items:start;">
+    <div style="height:175px;border-radius:12px;overflow:hidden;position:relative;background:linear-gradient(135deg,${cb.color},${cb.color2});display:flex;align-items:center;justify-content:center;">
+      <img src="${cb.coverUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />
+      <div style="font-size:42px;z-index:1;position:relative;">${cb.icon}</div>
+    </div>
+    <div>
+      <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#7c3aed;margin-bottom:5px;">🎯 CUET · Complete Book</div>
+      <div style="font-size:15px;font-weight:900;margin-bottom:8px;line-height:1.3;">${escH(cb.title)}</div>
+      <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">What's inside:</div>
+      ${cb.contents.map(c=>`<div style="display:flex;gap:6px;font-size:12px;font-weight:600;margin-bottom:4px;"><span style="color:var(--green);font-weight:900;">✓</span>${escH(c)}</div>`).join('')}
+    </div>
+  </div>
+  <div style="background:var(--card2);border-radius:13px;padding:13px;margin-bottom:13px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--text3);">Price</span><span style="font-family:var(--mono);font-weight:900;color:#7c3aed;">${price} HP</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;"><span style="color:var(--text3);">Your HP</span><span style="font-family:var(--mono);font-weight:800;color:${hp>=price?'var(--green)':'var(--red)'};">${hp} HP ${hp>=price?'✅':'❌'}</span></div>
+  </div>
+  ${!canAfford&&!purchased?`<div style="background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.25);border-radius:11px;padding:10px;margin-bottom:12px;font-size:11px;color:var(--red);">❌ Need ${price-hp} more HP</div>`:''}
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-ghost" onclick="closeModal('purchase-modal')" style="flex:1;justify-content:center;">Cancel</button>
+    ${purchased
+      ?`<button class="btn btn-green" onclick="window.open('${cb.pageUrl}','_blank');closeModal('purchase-modal');" style="flex:1;justify-content:center;">📖 Open Book</button>`
+      :`<button class="btn btn-prim" onclick="buyCUETBook('${id}')" style="flex:1;justify-content:center;" ${!canAfford?'disabled style="opacity:.5;"':''}>💜 Buy ${price} HP</button>`}
+  </div>`;
+  openModal('purchase-modal');
+}
+
+function buyCUETBook(id){
+  const cb=CUET_BOOKS_DATA.find(x=>x.id===id);if(!cb)return;
+  const ok=spendHP(cb.price,`CUET Book: ${cb.title}`);
+  if(!ok){showToast('Not enough HP!','error');return;}
+  addPurchase(id,cb.title,cb.price,'cuet-book');
+  closeModal('purchase-modal');
+  showToast(`✅ ${cb.title} unlocked!`,'success');
+  setTimeout(()=>window.open(cb.pageUrl,'_blank'),800);
+  renderBooks();
+}
+
 function showBundleModal(bundleId){
   const bundle=BUNDLES.find(b=>b.id===bundleId);if(!bundle)return;
   const hp=getHP().total;const canAfford=hp>=bundle.bundlePrice;
@@ -2918,8 +3225,42 @@ let settingsLogTab='hp';
 function renderSettings(){
   updateHPDisplays();
   const hp=getHP();const purchases=getPurchases();const studyH=getStudyHours();const prof=getProfile();
-  let H=`
-  <!-- PROFILE -->
+  let H='';
+
+// ── GOOGLE ACCOUNT SECTION ──
+const gu = getGoogleUser();
+H += `
+<div class="settings-section">
+  <div class="settings-title">🔐 Google Account</div>
+  ${gu ? `
+  <div style="display:flex;align-items:center;gap:12px;background:rgba(16,185,129,.07);border:1.5px solid rgba(16,185,129,.25);border-radius:14px;padding:13px 16px;margin-bottom:14px;flex-wrap:wrap;">
+    <img src="${gu.picture||''}" width="40" height="40" style="border-radius:50%;flex-shrink:0;border:2px solid rgba(16,185,129,.3);" onerror="this.style.display='none'">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:14px;font-weight:800;">${escH(gu.name||'')}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px;">${escH(gu.email||'')}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(16,185,129,.1);border-radius:30px;padding:5px 12px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#10b981;"></div>
+      <span style="font-size:11px;font-weight:700;color:var(--green);">Signed in</span>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Your progress syncs across devices. HP, purchases, and study data are linked to your Google account.</div>
+  <button onclick="shGoogleLogout()" class="btn btn-ghost" style="font-size:12px;">Sign Out of Google</button>
+  ` : `
+  <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Sign in with Google to sync your HP, purchases, and study progress across all your devices. Also auto-syncs if you're already signed in on the Dashboard.</div>
+  <button id="sh-google-btn" onclick="shGoogleLogin()" style="
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:13px 16px;border-radius:13px;border:1.5px solid #dadce0;
+    background:#fff;font-size:14px;font-weight:700;cursor:pointer;
+    font-family:var(--fn);box-shadow:0 2px 8px rgba(0,0,0,.08);">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20">
+    Sign in with Google
+  </button>
+  `}
+</div>`;
+
+// ── PROFILE (existing) ──
+H += `
   <div class="settings-section">
     <div class="settings-title">👤 Profile</div>
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
