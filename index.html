@@ -424,7 +424,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 
 <!-- MAIN -->
 <div class="main" id="main-scroll">
-  <div class="page active" id="page-home"><div class="topbar"><div><div class="page-title" id="home-title">🏠 StudyHub</div><div class="page-sub">Your learning marketplace powered by HP</div></div><div class="topbar-right"><div class="hp-badge" onclick="goPage('settings')">💜 <span id="topbar-hp">0</span> HP</div><img src="${gu.picture}" width="28" height="28" style="border-radius:50%;flex-shrink:0;" onerror="this.style.display='none'"><div style="font-size:12px;font-weight:700;"></div></div><button onclick="shGoogleLogin()" style="display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid #dadce0;border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn);box-shadow:0 2px 6px rgba(0,0,0,.08);"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">Sign in</button></div></div><div id="home-content"></div></div>
+  <div class="page active" id="page-home"><div class="topbar"><div><div class="page-title" id="home-title">🏠 StudyHub</div><div class="page-sub">Your learning marketplace powered by HP</div></div><div class="topbar-right"><div class="hp-badge" onclick="goPage('settings')">💜 <span id="topbar-hp">0</span> HP</div><div id="home-topbar-user"></div></div></div><div id="home-content"></div></div>
   <div class="page" id="page-books"><div class="topbar"><div><div class="page-title">📖 Books</div><div class="page-sub">Sample papers, question banks & textbooks</div></div><div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div><div class="cart-btn" onclick="showCartModal()">🛒 Cart <span class="cart-count" id="cart-count">0</span></div><button class="btn btn-ghost" onclick="booksTab='wishlist';renderBooks()">❤️ Wishlist (<span id="wishlist-count">0</span>)</button></div></div><div id="books-content"></div></div>
   <div class="page" id="page-notes"><div class="topbar"><div><div class="page-title">📝 Notes</div><div class="page-sub">Handwritten & digital notes</div></div><div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div></div><div id="notes-content"></div></div>
   <div class="page" id="page-material"><div class="topbar"><div><div class="page-title">📋 Study Material</div><div class="page-sub">Imp questions, mindmaps, formulas · 40 HP each</div></div><div class="topbar-right"><div class="hp-badge">💜 <span class="hp-live">0</span> HP</div></div></div><div id="material-content"></div></div>
@@ -1480,15 +1480,24 @@ function updateWishlistCount(){
 function updateProfile(){
   const p=getProfile();
   const dash=getDashboardProfile();
-  const name=dash.name||p.name||localStorage.getItem('cbtUserName')||'Student';
+  const gu=getGoogleUser();
+  const name=gu?.name||dash.name||p.name||localStorage.getItem('cbtUserName')||'Student';
   const id=dash.id||p.studentId||'';
   const initial=(name[0]||'S').toUpperCase();
   ['sb-av','topbar-av'].forEach(id2=>{const el=document.getElementById(id2);if(el)el.textContent=initial;});
   ['sb-name','topbar-name'].forEach(id2=>{const el=document.getElementById(id2);if(el)el.textContent=name;});
   const ht=document.getElementById('home-title');
   if(ht)ht.textContent=`👋 Hey, ${name}!`;
-  // Update profile storage
   if(name&&name!=='Student'&&!p.name){p.name=name;localStorage.setItem('ts_profile',JSON.stringify(p));}
+  // Update home topbar user area
+  const utDiv=document.getElementById('home-topbar-user');
+  if(utDiv){
+    if(gu){
+      utDiv.innerHTML=`<div style="display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="goPage('settings')"><img src="${gu.picture||''}" width="28" height="28" style="border-radius:50%;" onerror="this.style.display='none'"><span style="font-size:12px;font-weight:700;">${escH(gu.name?.split(' ')[0]||'')}</span></div>`;
+    } else {
+      utDiv.innerHTML=`<button onclick="shGoogleLogin()" style="display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid #dadce0;border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn);box-shadow:0 2px 6px rgba(0,0,0,.08);"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">Sign in</button>`;
+    }
+  }
 }
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function origPrice(p){return p*2;}
