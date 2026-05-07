@@ -3,7 +3,7 @@
    Cache-first for static assets, network-first for API
 ═══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'thunderstudy-v1';
+const CACHE_NAME = 'thunderstudy-v2';
 const STATIC_CACHE = 'thunderstudy-static-v1';
 const DATA_CACHE   = 'thunderstudy-data-v1';
 
