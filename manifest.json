@@ -1,0 +1,57 @@
+{
+  "name": "ThunderStudy — StudyHub",
+  "short_name": "ThunderStudy",
+  "description": "Your ultimate study companion — Books, Notes, PYQs, MCQs & more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f3fa",
+  "theme_color": "#4f6ef7",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Books",
+      "short_name": "Books",
+      "description": "Browse study books",
+      "url": "/?page=books",
+      "icons": [{ "src": "favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "PYQs",
+      "short_name": "PYQs",
+      "description": "Previous Year Questions",
+      "url": "/?page=pyqs",
+      "icons": [{ "src": "favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "MCQs",
+      "short_name": "MCQs",
+      "description": "Practice MCQs",
+      "url": "/?page=mcqs",
+      "icons": [{ "src": "favicon.svg", "sizes": "any" }]
+    }
+  ]
+}
