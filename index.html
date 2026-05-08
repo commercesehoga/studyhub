@@ -12,7 +12,7 @@
   gtag('js', new Date());
   gtag('config', 'G-11GVYLFSCP');
 </script>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="favicon.png">
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#4f6ef7"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -296,7 +296,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#10b981;color:#fff;padding:9px 20px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(0,0,0,.18);pointer-events:none;white-space:nowrap;font-family:var(--fn);}
 .sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--border);}
 .sync-dot.synced{background:var(--green);}
-.btt-btn{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;font-size:16px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,.35);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:90;}
+/* ── Floating donate + social FAB ── */
+.fab-social{
+  width:40px;height:40px;border-radius:50%;
+  background:#fff;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--fc,#555);
+  box-shadow:0 3px 14px rgba(0,0,0,.15);
+  text-decoration:none;
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  -webkit-tap-highlight-color:transparent;
+}
+.fab-social:hover{transform:scale(1.15);box-shadow:0 5px 18px rgba(0,0,0,.22);}
+#fab-socials.open{opacity:1 !important;pointer-events:auto !important;transform:translateY(0) !important;}
+#fab-main.open{transform:rotate(45deg);background:linear-gradient(135deg,#6366f1,#7c3aed);}
+@media(max-width:768px){
+  #fab-root{bottom:86px;right:14px;}
+}
+/* ── Back to top ── */
+.btt-btn{position:fixed;bottom:24px;right:80px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;font-size:16px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,.35);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:90;}
 .btt-btn.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{
@@ -310,72 +328,90 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
 .book-wishlist.popping{animation:heartPop .35s ease;}
 .mobile-dock{display:none;}
+.mob-hamburger{display:none;}
+
+/* ── Drawer overlay (mobile only) ── */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;backdrop-filter:blur(2px);}
+.drawer-overlay.open{display:block;}
+
+/* ══════════════════════════════════
+   MOBILE PORTRAIT  ≤ 768px
+   → dock visible, sidebar hidden (drawer)
+══════════════════════════════════ */
 @media(max-width:768px){
-  .sidebar{display:none;}body{flex-direction:column;}
-  .main{height:100dvh;padding-bottom:86px;}
-  .page{padding:18px 14px;}
+  body{flex-direction:column;}
+  .sidebar{
+    display:flex !important;
+    position:fixed;top:0;left:0;
+    height:100dvh;width:268px;
+    z-index:210;
+    transform:translateX(-100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.drawer-open{transform:translateX(0);box-shadow:6px 0 40px rgba(0,0,0,.18);}
+  .mob-hamburger{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;top:14px;left:14px;z-index:190;
+    width:40px;height:40px;border-radius:12px;
+    background:#fff;border:1.5px solid var(--border);
+    box-shadow:0 2px 12px rgba(0,0,0,.1);
+    cursor:pointer;font-size:18px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .main{height:100dvh;overflow-y:auto;overflow-x:hidden;padding-bottom:86px;-webkit-overflow-scrolling:touch;}
+  .page{padding:18px 14px 18px 60px;}
+  .page-title{font-size:18px;}
   .mobile-dock{
     display:flex;
-    position:fixed;
-    bottom:10px;
-    left:50%;
+    position:fixed;bottom:10px;left:50%;
     transform:translateX(-50%);
-    width:calc(100% - 20px);
-    max-width:480px;
+    width:calc(100% - 20px);max-width:480px;
     height:62px;
-    background:#fff;
-    border-radius:26px;
+    background:#fff;border-radius:26px;
     border:1px solid var(--border);
-    z-index:100;
-    padding:0 6px;
+    z-index:100;padding:0 6px;
     box-shadow:0 4px 24px rgba(0,0,0,.1);
-    align-items:center;
-    overflow-x:auto;
-    overflow-y:hidden;
-    gap:0;
-    scrollbar-width:none;
+    align-items:center;overflow-x:auto;overflow-y:hidden;
+    gap:0;scrollbar-width:none;
   }
   .mobile-dock::-webkit-scrollbar{display:none;}
   .dock-item{
-    flex:0 0 auto;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    position:relative;
-    height:62px;
-    width:52px;
-    -webkit-tap-highlight-color:transparent;
-    gap:2px;
+    flex:0 0 auto;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    cursor:pointer;position:relative;
+    height:62px;width:52px;
+    -webkit-tap-highlight-color:transparent;gap:2px;
   }
   .dock-icon{font-size:18px;line-height:1;transition:transform .2s;}
-  .dock-label{
-    font-size:8px;
-    font-weight:700;
-    color:var(--text3);
-    white-space:nowrap;
-    transition:color .2s;
-  }
+  .dock-label{font-size:8px;font-weight:700;color:var(--text3);white-space:nowrap;transition:color .2s;}
   .dock-item.active .dock-label{color:#4f6ef7;font-weight:800;}
   .dock-item.active .dock-icon{display:none;}
   .dock-bubble{
-    display:none;
-    width:36px;
-    height:36px;
-    border-radius:50%;
-    background:#4f6ef7;
-    align-items:center;
-    justify-content:center;
-    font-size:17px;
-    box-shadow:0 3px 10px rgba(79,110,247,.4);
+    display:none;width:36px;height:36px;border-radius:50%;
+    background:#4f6ef7;align-items:center;justify-content:center;
+    font-size:17px;box-shadow:0 3px 10px rgba(79,110,247,.4);
   }
   .dock-item.active .dock-bubble{display:flex;}
-  .dock-item.active .dock-label{margin-top:0;}
   .pm-3col,.compare-grid{grid-template-columns:1fr;}
   .book-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
   .timer-display{font-size:40px;}
   .btt-btn{bottom:80px;}
+}
+
+/* ══════════════════════════════════
+   LANDSCAPE / TABLET / PC  > 768px
+   → sidebar visible, dock hidden
+══════════════════════════════════ */
+@media(min-width:769px){
+  .mobile-dock{display:none !important;}
+  .mob-hamburger{display:none !important;}
+  .drawer-overlay{display:none !important;}
+  .sidebar{
+    display:flex !important;
+    position:relative;
+    transform:none !important;
+    transition:none;
+  }
 }
 .modal-ov{align-items:flex-end;padding:0;}
 .modal-box{width:100%;max-width:100%;border-radius:22px 22px 0 0;max-height:88dvh;padding:20px 16px;background:#ffffff !important;background-color:#ffffff !important;}
@@ -399,6 +435,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 </style>
 </head>
 <body>
+
+<!-- DRAWER OVERLAY (mobile) -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- MOBILE HAMBURGER -->
+<button class="mob-hamburger" id="mob-hamburger" onclick="openDrawer()" aria-label="Menu">☰</button>
 
 <!-- SIDEBAR -->
 <nav class="sidebar">
@@ -433,6 +475,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
     <div class="nav-item" onclick="goPage('settings')"><span class="nav-icon">⚙️</span> Settings</div>
         <div class="nav-item" onclick="window.open('https://wondemayank.github.io','_blank')"><span class="nav-icon">💕</span>Wondemayank</div>
     <div class="nav-item" onclick="window.open('https://commercesehoga.github.io/dashboard/','_blank')"><span class="nav-icon">🔗</span> CBT Dashboard</div>
+    <div class="nav-item" onclick="window.open('https://commercesehoga.github.io/help','_blank')" style="background:linear-gradient(135deg,rgba(249,115,22,.1),rgba(245,158,11,.07));border:1.5px solid rgba(249,115,22,.25);border-radius:12px;color:#ea580c;margin-top:6px;"><span class="nav-icon">💛</span> Donate <span class="nav-badge" style="background:linear-gradient(135deg,#f97316,#f59e0b);font-size:8px;">Support Us</span></div>
   </div>
   <div class="sb-profile" onclick="goPage('settings')">
     <div class="sb-av" id="sb-av">S</div>
@@ -559,7 +602,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 
 
 <!-- MOBILE DOCK -->
-<nav class="mobile-dock">
+<nav class="mobile-dock" data-scroll>
   <div class="dock-item active" id="dock-home" onclick="goPage('home')">
     <div class="dock-bubble">🏠</div>
     <span class="dock-icon">🏠</span>
@@ -605,9 +648,47 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
     <span class="dock-icon">🔍</span>
     <span class="dock-label">Search</span>
   </div>
+  <div class="dock-item" id="dock-donate" onclick="window.open('https://commercesehoga.github.io/help','_blank')">
+    <div class="dock-bubble" style="background:linear-gradient(135deg,#f97316,#f59e0b);">💛</div>
+    <span class="dock-icon">💛</span>
+    <span class="dock-label" style="color:#ea580c;">Donate</span>
+  </div>
 </nav>
 
 <button class="btt-btn" id="btt-btn" onclick="document.getElementById('main-scroll').scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ═══ FLOATING DONATE + SOCIAL FAB ═══ -->
+<div id="fab-root" style="position:fixed;bottom:90px;right:18px;z-index:500;display:flex;flex-direction:column;align-items:center;gap:10px;">
+  <!-- Social links — hidden by default, expand on click -->
+  <div id="fab-socials" style="display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;pointer-events:none;transform:translateY(12px);transition:all .3s cubic-bezier(.34,1.56,.64,1);">
+    <!-- Reddit -->
+    <a href="https://reddit.com/u/wondermayank" target="_blank" class="fab-social" title="Reddit @wondermayank" style="--fc:#ff4500;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+    </a>
+    <!-- YouTube -->
+    <a href="https://youtube.com/@wondermayank" target="_blank" class="fab-social" title="YouTube @wondermayank" style="--fc:#ff0000;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+    <!-- Instagram -->
+    <a href="https://instagram.com/wondermayank" target="_blank" class="fab-social" title="Instagram @wondermayank" style="--fc:#e1306c;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+    </a>
+    <!-- Telegram -->
+    <a href="https://t.me/wondermayank" target="_blank" class="fab-social" title="Telegram @wondermayank" style="--fc:#0088cc;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+    </a>
+  </div>
+  <!-- Main donate FAB -->
+  <button id="fab-main" onclick="toggleFAB()" title="Donate & Follow" style="
+    width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#f97316,#f59e0b);
+    color:#fff;font-size:22px;
+    box-shadow:0 4px 18px rgba(249,115,22,.45);
+    display:flex;align-items:center;justify-content:center;
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    -webkit-tap-highlight-color:transparent;
+  ">💛</button>
+</div>
 
 <!-- HIDDEN FILE INPUT FOR PDF UPLOAD -->
 <input type="file" id="pdf-upload-input" accept=".pdf,application/pdf" style="display:none;" onchange="handlePDFUpload(event)"/>
@@ -1105,7 +1186,41 @@ function bookCoverHTML(b,height=240){
    PAGE NAVIGATION
 ═══════════════════════════════════════ */
 const PAGE_RENDERERS={home:renderHome,books:renderBooks,notes:renderNotes,material:renderMaterial,pyqs:renderPYQs,mcqs:renderMCQs,study:renderStudy,settings:renderSettings};
+/* ── Mobile Drawer ── */
+function openDrawer(){
+  document.querySelector('.sidebar').classList.add('drawer-open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer(){
+  document.querySelector('.sidebar').classList.remove('drawer-open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── Floating FAB ── */
+let _fabOpen = false;
+function toggleFAB(){
+  _fabOpen = !_fabOpen;
+  const socials = document.getElementById('fab-socials');
+  const btn     = document.getElementById('fab-main');
+  socials.classList.toggle('open', _fabOpen);
+  btn.classList.toggle('open', _fabOpen);
+  btn.textContent = _fabOpen ? '+' : '💛';
+}
+// Close FAB when clicking elsewhere
+document.addEventListener('click', function(e){
+  if (_fabOpen && !document.getElementById('fab-root').contains(e.target)) {
+    _fabOpen = false;
+    document.getElementById('fab-socials').classList.remove('open');
+    const btn = document.getElementById('fab-main');
+    btn.classList.remove('open');
+    btn.textContent = '💛';
+  }
+});
+
 function goPage(id){
+  closeDrawer();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.dock-item').forEach(d=>d.classList.remove('active'));
@@ -3443,18 +3558,26 @@ if('serviceWorker' in navigator){
     }
   });
 }
-/* ── Disable pull-to-refresh (PWA + browser) ── */
-document.addEventListener('touchmove', function(e) {
-  const el = e.target.closest('.main');
-  if (!el && window.scrollY === 0) { e.preventDefault(); return; }
-  if (el && el.scrollTop === 0 && e.touches[0].clientY > 0) {
-    const deltaY = e.touches[0].clientY - (e.touches[0]._startY || e.touches[0].clientY);
-    if (deltaY > 0) e.preventDefault();
-  }
-}, { passive: false });
+/* ── Disable pull-to-refresh only at top of .main scroll ── */
+let _ptStartY = 0;
 document.addEventListener('touchstart', function(e) {
-  if (e.touches[0]) e.touches[0]._startY = e.touches[0].clientY;
+  _ptStartY = e.touches[0]?.clientY || 0;
 }, { passive: true });
+document.addEventListener('touchmove', function(e) {
+  const mainEl = document.getElementById('main-scroll');
+  const insideMain = mainEl && mainEl.contains(e.target);
+  if (insideMain) {
+    // Only block if at very top and pulling DOWN
+    if (mainEl.scrollTop <= 0 && (e.touches[0].clientY - _ptStartY) > 5) {
+      e.preventDefault();
+    }
+    // Otherwise let it scroll freely — do NOT block
+    return;
+  }
+  // Outside .main (dock, sidebar, modals) — block if not a scrollable child
+  const scrollable = e.target.closest('[data-scroll]');
+  if (!scrollable) e.preventDefault();
+}, { passive: false });
 
 
 window.addEventListener('load',()=>{
