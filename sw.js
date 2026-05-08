@@ -1,7 +1,40 @@
 /* ═══════════════════════════════════════════════════
    ThunderStudy — Service Worker (sw.js)
    Cache-first for static assets, network-first for API
+   + Firebase Cloud Messaging (background push)
 ═══════════════════════════════════════════════════ */
+
+/* ── Firebase Messaging background handler ── */
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey: "AIzaSyAoxORpjq2kIED1hBNAQ2MGJEWlwQ3FCJA",
+  authDomain: "thunderstudy.firebaseapp.com",
+  projectId: "thunderstudy",
+  storageBucket: "thunderstudy.firebasestorage.app",
+  messagingSenderId: "83506167126",
+  appId: "1:83506167126:web:9b3e7017ba871103672af7"
+});
+
+const messaging = firebase.messaging();
+
+/* Handle background push (app closed / not focused) */
+messaging.onBackgroundMessage(function(payload) {
+  console.log('[SW] Background push received:', payload);
+  const n    = payload.notification || {};
+  const data = payload.data || {};
+  const link = data.link || payload.fcmOptions?.link || 'https://commercesehoga.github.io/studyhub/';
+
+  return self.registration.showNotification(n.title || '⚡ ThunderStudy', {
+    body:    n.body  || '',
+    icon:    'https://commercesehoga.github.io/favicon.svg',
+    badge:   'https://commercesehoga.github.io/favicon.svg',
+    tag:     'ts-push-' + Date.now(),
+    renotify: true,
+    data:    { url: link }
+  });
+});
 
 const CACHE_NAME = 'thunderstudy-v2';
 const STATIC_CACHE = 'thunderstudy-static-v1';
@@ -139,9 +172,10 @@ self.addEventListener('push', (event) => {
   );
 });
 
+/* ── Notification click → open the link ── */
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = event.notification.data?.url || '/';
+  const target = event.notification.data?.url || 'https://commercesehoga.github.io/studyhub/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
