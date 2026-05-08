@@ -36,9 +36,15 @@ messaging.onBackgroundMessage(function(payload) {
   });
 });
 
-const CACHE_NAME = 'thunderstudy-v2';
-const STATIC_CACHE = 'thunderstudy-static-v1';
-const DATA_CACHE   = 'thunderstudy-data-v1';
+/* ─────────────────────────────────────────────────────
+   Cache version — only change this if you want to
+   FORCE all users to clear their old cache.
+   Normal SW updates are handled automatically.
+───────────────────────────────────────────────────── */
+const CACHE_VER    = '2025-05';          // ← only update if force-clearing cache
+const CACHE_NAME   = 'thunderstudy-'         + CACHE_VER;
+const STATIC_CACHE = 'thunderstudy-static-'  + CACHE_VER;
+const DATA_CACHE   = 'thunderstudy-data-'    + CACHE_VER;
 
 /* Assets to pre-cache on install */
 const PRECACHE_ASSETS = [
@@ -53,7 +59,14 @@ const PRECACHE_ASSETS = [
   '/data-material.js',
 ];
 
-/* ── Install ── */
+/* ── Message: force activate when page requests it ── */
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
