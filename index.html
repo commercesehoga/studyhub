@@ -34,6 +34,8 @@ function gdDl(id){return 'https://drive.google.com/uc?export=download&id='+id;}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root{
   --bg:#f0f3fa;--sidebar:#ffffff;--card:#ffffff;--card2:#f7f8fd;--border:#e8ecf4;
@@ -45,7 +47,7 @@ function gdDl(id){return 'https://drive.google.com/uc?export=download&id='+id;}
   --sh:0 2px 20px rgba(79,110,247,.08);--sh2:0 8px 40px rgba(79,110,247,.14);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
+html,body{height:100%;overflow:hidden;overscroll-behavior-y:none;}
 body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
 .sidebar{width:var(--sidebar-w);height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;position:relative;z-index:10;box-shadow:4px 0 24px rgba(79,110,247,.06);animation:sidebarIn .45s cubic-bezier(.34,1.56,.64,1) both;}
 @keyframes sidebarIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -631,6 +633,55 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const fbAuth = firebase.auth();
 const fbProvider = new firebase.auth.GoogleAuthProvider();
+const fbDb = firebase.firestore();
+const fbMessaging = firebase.messaging();
+
+/* ── FCM: request permission & save token ── */
+async function initPushNotifications() {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') { console.log('[FCM] Permission denied'); return; }
+
+    const token = await fbMessaging.getToken({
+      vapidKey: 'BHtAaNeesR8gp26BN2yFc8Jr00aTJaoMFpby0auIXZMTUCs6qGXRxNcwOQ6Bb7uw1KYGMs-GooQzrCoIDP_7IT8',
+      serviceWorkerRegistration: await navigator.serviceWorker.ready
+    });
+    if (!token) { console.log('[FCM] No token returned'); return; }
+
+    // Use student ID as doc key so we update instead of duplicate
+    const docId = localStorage.getItem('ts_student_id') || ('anon_' + Math.random().toString(36).slice(2,9));
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    const profile  = JSON.parse(localStorage.getItem('ts_profile') || '{}');
+
+    await fbDb.collection('fcm_tokens').doc(docId).set({
+      token,
+      platform:  isMobile ? 'mobile' : 'desktop',
+      name:      profile.name || docId,
+      updatedAt: new Date().toISOString(),
+      app:       'studyhub'
+    }, { merge: true });
+
+    console.log('[FCM] Token saved ✓', docId);
+  } catch (err) {
+    console.warn('[FCM] Error:', err.message);
+  }
+}
+
+/* Handle foreground push (app open) */
+fbMessaging.onMessage(function(payload) {
+  console.log('[FCM] Foreground push:', payload);
+  const n    = payload.notification || {};
+  const data = payload.data || {};
+  const link = data.link || '';
+
+  // Show a toast-style banner inside the app
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4f6ef7,#7c3aed);color:#fff;padding:14px 20px;border-radius:16px;font-size:13px;font-weight:700;z-index:99999;box-shadow:0 8px 32px rgba(79,110,247,.4);max-width:90vw;text-align:center;cursor:pointer;animation:fadeUp .3s ease;';
+  toast.innerHTML = `<div style="font-size:14px;font-weight:800;margin-bottom:3px;">${n.title||'⚡ ThunderStudy'}</div><div style="font-weight:500;opacity:.9;">${n.body||''}</div>`;
+  if (link) toast.onclick = () => window.open(link, '_blank');
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 6000);
+});
 
 // Auto-restore session when page loads
 fbAuth.onAuthStateChanged(function(user) {
@@ -3359,14 +3410,51 @@ function triggerPWAInstall(){
     if(g)g.style.display='flex';
   }
 }
-/* Service Worker */
+/* Service Worker — silent auto-update */
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
-      .then(r=>console.log('SW:',r.scope))
-      .catch(e=>console.log('SW err:',e));
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      console.log('[SW] Registered:', reg.scope);
+
+      // When a new SW is found, tell it to skip waiting immediately
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+
+      // When new SW takes control, silently reload
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+
+      // Init FCM push after SW is ready
+      initPushNotifications();
+    } catch(e) {
+      console.log('[SW] Error:', e);
+    }
   });
 }
+/* ── Disable pull-to-refresh (PWA + browser) ── */
+document.addEventListener('touchmove', function(e) {
+  const el = e.target.closest('.main');
+  if (!el && window.scrollY === 0) { e.preventDefault(); return; }
+  if (el && el.scrollTop === 0 && e.touches[0].clientY > 0) {
+    const deltaY = e.touches[0].clientY - (e.touches[0]._startY || e.touches[0].clientY);
+    if (deltaY > 0) e.preventDefault();
+  }
+}, { passive: false });
+document.addEventListener('touchstart', function(e) {
+  if (e.touches[0]) e.touches[0]._startY = e.touches[0].clientY;
+}, { passive: true });
 
 
 window.addEventListener('load',()=>{
