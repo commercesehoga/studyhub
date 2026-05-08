@@ -28,7 +28,7 @@ messaging.onBackgroundMessage(function(payload) {
 
   return self.registration.showNotification(n.title || '⚡ ThunderStudy', {
     body:    n.body  || '',
-    icon:    'https://commercesehoga.github.io/favicon.svg',
+    icon:    'https://commercesehoga.github.io/favicon.png',
     badge:   'https://commercesehoga.github.io/favicon.svg',
     tag:     'ts-push-' + Date.now(),
     renotify: true,
