@@ -2,12 +2,12 @@
   "name": "ThunderStudy — StudyHub",
   "short_name": "ThunderStudy",
   "description": "Your ultimate study companion — Books, Notes, PYQs, MCQs & more.",
-  "start_url": "/",
+  "start_url": "/studyhub/",
   "display": "standalone",
   "background_color": "#f0f3fa",
   "theme_color": "#4f6ef7",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "/studyhub/",
   "lang": "en",
   "categories": ["education", "productivity"],
   "icons": [
@@ -36,21 +36,21 @@
       "name": "Books",
       "short_name": "Books",
       "description": "Browse study books",
-      "url": "/?page=books",
+      "url": "/studyhub/?page=books",
       "icons": [{ "src": "favicon.svg", "sizes": "any" }]
     },
     {
       "name": "PYQs",
       "short_name": "PYQs",
       "description": "Previous Year Questions",
-      "url": "/?page=pyqs",
+      "url": "/studyhub/?page=pyqs",
       "icons": [{ "src": "favicon.svg", "sizes": "any" }]
     },
     {
       "name": "MCQs",
       "short_name": "MCQs",
       "description": "Practice MCQs",
-      "url": "/?page=mcqs",
+      "url": "/studyhub/?page=mcqs",
       "icons": [{ "src": "favicon.svg", "sizes": "any" }]
     }
   ]
