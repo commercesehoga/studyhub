@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,7 +50,7 @@ function gdDl(id){return 'https://drive.google.com/uc?export=download&id='+id;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;overscroll-behavior-y:none;}
 body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
-.sidebar{width:var(--sidebar-w);height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;position:relative;z-index:10;box-shadow:4px 0 24px rgba(79,110,247,.06);animation:sidebarIn .45s cubic-bezier(.34,1.56,.64,1) both;}
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:none;flex-direction:column;flex-shrink:0;overflow:hidden;position:relative;z-index:10;box-shadow:4px 0 24px rgba(79,110,247,.06);}
 @keyframes sidebarIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .sb-logo{padding:24px 20px 16px;display:flex;align-items:center;gap:10px;}
 .sb-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#4f6ef7,#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(79,110,247,.35);flex-shrink:0;}
@@ -338,7 +339,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
    MOBILE PORTRAIT  ≤ 768px
    → dock visible, sidebar hidden (drawer)
 ══════════════════════════════════ */
-@media(max-width:768px){
+@media(max-width:768px) and (orientation:portrait), (max-width:768px){
   body{flex-direction:column;}
   .sidebar{
     display:flex !important;
@@ -402,7 +403,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
    LANDSCAPE / TABLET / PC  > 768px
    → sidebar visible, dock hidden
 ══════════════════════════════════ */
-@media(min-width:769px){
+@media(min-width:769px) and (orientation:landscape){
+  body{flex-direction:row;}
   .mobile-dock{display:none !important;}
   .mob-hamburger{display:none !important;}
   .drawer-overlay{display:none !important;}
@@ -412,6 +414,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fn);display:flex;}
     transform:none !important;
     transition:none;
   }
+  .page{padding:32px;}
 }
 .modal-ov{align-items:flex-end;padding:0;}
 .modal-box{width:100%;max-width:100%;border-radius:22px 22px 0 0;max-height:88dvh;padding:20px 16px;background:#ffffff !important;background-color:#ffffff !important;}
